@@ -1,0 +1,164 @@
+/* Main Styles - Task Management System */
+
+body {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    background-color: var(--neutral-50);
+    color: var(--neutral-900);
+    line-height: 1.5;
+}
+
+/* Typography Utilities */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
+.text-4xl { font-size: var(--text-4xl); }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* Button Overrides */
+.btn {
+    border-radius: var(--radius-xl);
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: var(--primary-500);
+    border-color: var(--primary-500);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-600);
+    border-color: var(--primary-600);
+    box-shadow: var(--shadow-md);
+}
+
+/* Card Styling */
+.card {
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Form Input Overrides */
+.form-control {
+    border-radius: var(--radius-xl);
+    border-color: var(--neutral-300);
+    padding: 0.75rem 1rem;
+    font-size: var(--text-sm);
+}
+
+.form-control:focus {
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 4px var(--primary-100);
+}
+
+/* Layout Components */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background-color: #fff;
+    border-right: 1px solid var(--neutral-200);
+    height: 100vh;
+    position: fixed;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1050;
+    left: 0;
+    top: 0;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .nav-link span {
+    display: none;
+}
+
+.sidebar.collapsed .nav-link {
+    padding: 0.75rem;
+    justify-content: center;
+}
+
+.top-bar {
+    height: 70px;
+    background: white;
+    border-bottom: 1px solid var(--neutral-200);
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 280px;
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 90px 1.5rem 1.5rem 1.5rem; /* 70px top-bar + 20px space */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+}
+
+.sidebar.collapsed ~ .top-bar {
+    left: 80px;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggler {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--neutral-50);
+    color: var(--neutral-600);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sidebar-toggler:hover {
+    background: var(--primary-50);
+    color: var(--primary-600);
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        left: -280px;
+    }
+    .top-bar {
+        left: 0;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .sidebar.active {
+        left: 0;
+        width: 280px !important;
+    }
+}
