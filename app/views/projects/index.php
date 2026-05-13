@@ -3,13 +3,13 @@
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
         <!-- Page Header -->
-        <div class="d-flex justify-content-between align-items-center mb-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-5">
             <div>
                 <h3 class="fw-bold text-neutral-900 mb-1">Project Management</h3>
                 <p class="text-neutral-500 mb-0">Track project life cycles and client milestones</p>
             </div>
             <?php if ($_SESSION['user_role'] == 'admin'): ?>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+            <button type="button" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                 <i class="fas fa-plus me-2"></i> New Project
             </button>
             <?php endif; ?>
@@ -55,23 +55,20 @@
             </form>
         </div>
 
-        <!-- Projects Presentation -->
         <div class="glass-card overflow-hidden">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="projectsTable">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Project & Client</th>
-                            <th>Department</th>
-                            <th>Progress</th>
-                            <th>Status</th>
-                            <th>Deadline</th>
-                            <th class="text-end pe-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <table class="table table-hover align-middle mb-0" id="projectsTable">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Project & Client</th>
+                        <th>Department</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 </main>
@@ -217,6 +214,8 @@ $(document).ready(function() {
                 d.status = $('#filter_status').val();
             }
         },
+        scrollX: true,
+        autoWidth: false,
         columns: [
             { 
                 data: 'project_name',

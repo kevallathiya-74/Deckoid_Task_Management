@@ -9,7 +9,7 @@
 body {
     font-family: 'Outfit', 'Inter', sans-serif;
     background-color: #fcfcff;
-    background-image: 
+    background-image:
         radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.03) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.03) 0px, transparent 50%);
     color: var(--neutral-800);
@@ -20,15 +20,28 @@ body {
 }
 
 /* --- Typography --- */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     color: var(--neutral-900);
     font-weight: 700;
     letter-spacing: -0.02em;
 }
 
-.text-neutral-400 { color: var(--neutral-400) !important; }
-.text-neutral-500 { color: var(--neutral-500) !important; }
-.text-neutral-600 { color: var(--neutral-600) !important; }
+.text-neutral-400 {
+    color: var(--neutral-400) !important;
+}
+
+.text-neutral-500 {
+    color: var(--neutral-500) !important;
+}
+
+.text-neutral-600 {
+    color: var(--neutral-600) !important;
+}
 
 /* --- Layout Components --- */
 .wrapper {
@@ -175,13 +188,29 @@ h1, h2, h3, h4, h5, h6 {
     text-transform: capitalize;
 }
 
-.bg-primary-soft { background: rgba(139, 92, 246, 0.08); color: var(--primary-600); }
-.bg-success-soft { background: rgba(16, 185, 129, 0.08); color: #059669; }
-.bg-warning-soft { background: rgba(245, 158, 11, 0.08); color: #d97706; }
-.bg-danger-soft { background: rgba(244, 63, 94, 0.08); color: #e11d48; }
+.bg-primary-soft {
+    background: rgba(139, 92, 246, 0.08);
+    color: var(--primary-600);
+}
+
+.bg-success-soft {
+    background: rgba(16, 185, 129, 0.08);
+    color: #059669;
+}
+
+.bg-warning-soft {
+    background: rgba(245, 158, 11, 0.08);
+    color: #d97706;
+}
+
+.bg-danger-soft {
+    background: rgba(244, 63, 94, 0.08);
+    color: #e11d48;
+}
 
 /* --- Forms --- */
-.form-control, .form-select {
+.form-control,
+.form-select {
     background: var(--neutral-50);
     border: 1px solid var(--neutral-200);
     border-radius: var(--radius-md);
@@ -190,7 +219,8 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     background: white;
     border-color: var(--primary-400);
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
@@ -215,7 +245,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .top-bar.expanded,
-.sidebar.collapsed ~ .top-bar {
+.sidebar.collapsed~.top-bar {
     left: var(--sidebar-collapsed-width);
     width: calc(100% - var(--sidebar-collapsed-width));
 }
@@ -226,6 +256,7 @@ h1, h2, h3, h4, h5, h6 {
     width: calc(100% - var(--sidebar-width));
     min-height: 100vh;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
 }
 
 .main-content.expanded {
@@ -233,18 +264,24 @@ h1, h2, h3, h4, h5, h6 {
     width: calc(100% - var(--sidebar-collapsed-width));
 }
 
+@media (max-width: 768px) {
+    .main-content {
+        padding: calc(var(--topbar-height) + 1.5rem) 1.25rem 1.25rem !important;
+    }
+}
+
 /* --- Responsive Sidebar --- */
 @media (max-width: 992px) {
-    .sidebar { 
+    .sidebar {
         left: calc(-1 * var(--sidebar-width));
         width: var(--sidebar-width) !important;
         transform: translateX(0);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
-    .sidebar.active { 
+
+    .sidebar.active {
         transform: translateX(var(--sidebar-width));
-        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.15); 
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.15);
     }
 
     .top-bar {
@@ -253,25 +290,25 @@ h1, h2, h3, h4, h5, h6 {
         padding: 0 1.5rem;
     }
 
-    .main-content { 
-        margin-left: 0 !important; 
-        width: 100% !important; 
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
         padding: calc(var(--topbar-height) + 1.5rem) 1.5rem 1.5rem 1.5rem;
     }
 }
 
 /* --- Responsive Sidebar --- */
 @media (max-width: 992px) {
-    .sidebar { 
+    .sidebar {
         left: calc(-1 * var(--sidebar-width));
         width: var(--sidebar-width) !important;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: none;
     }
-    
-    .sidebar.active { 
+
+    .sidebar.active {
         transform: translateX(var(--sidebar-width));
-        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.15); 
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.15);
     }
 
     .top-bar {
@@ -280,24 +317,33 @@ h1, h2, h3, h4, h5, h6 {
         padding: 0 1.5rem;
     }
 
-    .main-content { 
-        margin-left: 0 !important; 
-        width: 100% !important; 
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
         padding: calc(var(--topbar-height) + 1.5rem) 1.5rem 1.5rem 1.5rem;
     }
 }
 
 @media (max-width: 768px) {
-    h1 { font-size: 1.75rem; }
-    h2 { font-size: 1.5rem; }
-    h3 { font-size: 1.25rem; }
-    
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
     .btn {
         padding: 0.6rem 1.2rem;
         font-size: 0.8rem;
     }
-    
-    .table thead th, .table tbody td {
+
+    .table thead th,
+    .table tbody td {
         padding: 1rem;
         font-size: 0.75rem;
     }
@@ -308,18 +354,98 @@ h1, h2, h3, h4, h5, h6 {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
     }
-    
+
     .modal-dialog {
         margin: 0.5rem;
     }
-    
+
     .modal-content {
         padding: 1.5rem !important;
     }
 }
 
+/* DataTables Specific Scroll Correction */
+.dataTables_scrollBody {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar {
+    height: 6px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
 /* --- Scrollbar --- */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--neutral-200); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--neutral-300); }
+/* --- Custom Scrollbar System --- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    border: 2px solid #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* --- Table Scroll Positioning Fix (Ref: docs/prompt.md) --- */
+.glass-card {
+    overflow: hidden !important;
+}
+
+/* Localize scroll to table data wrapper only */
+.dataTables_scrollBody {
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px; 
+    border-bottom: 1px solid var(--neutral-50);
+}
+
+.dataTables_scrollBody::-webkit-scrollbar {
+    height: 6px;
+    background-color: #f1f5f9;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* Ensure pagination section stays fixed BELOW the scroll area */
+.dataTables_wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    padding: 1.25rem 1.5rem !important;
+    margin-top: 0 !important;
+}
+
+.table {
+    min-width: 1100px !important; /* Force scroll */
+    margin-bottom: 0 !important;
+}
+
+body {
+    overflow-x: hidden !important;
+}

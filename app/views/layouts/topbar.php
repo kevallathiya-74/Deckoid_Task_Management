@@ -1,7 +1,7 @@
 <div class="top-bar">
     <div class="d-flex align-items-center justify-content-between w-100">
         <div class="d-flex align-items-center">
-            <button class="sidebar-toggler me-4 btn btn-light d-lg-none" id="sidebarToggle">
+            <button class="sidebar-toggler me-3 btn btn-light d-lg-none rounded-3 border-0" id="mobileSidebarToggle">
                 <i class="fas fa-bars-staggered"></i>
             </button>
             

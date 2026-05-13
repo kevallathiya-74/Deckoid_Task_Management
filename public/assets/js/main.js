@@ -6,7 +6,7 @@ $(document).ready(function() {
     // Handle Mobile/Collapsible Sidebar
     const sidebar = $('#sidebar');
     const mainContent = $('.main-content');
-    const toggler = $('.sidebar-toggle, #sidebarToggle');
+    const toggler = $('.sidebar-toggle, #sidebarToggle, #mobileSidebarToggle');
     const closeBtn = $('#sidebarClose');
 
     // Restore state from localStorage

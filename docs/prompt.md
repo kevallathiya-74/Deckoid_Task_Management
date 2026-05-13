@@ -1,289 +1,200 @@
-SIDEBAR OPEN/CLOSE SYSTEM + OVERFLOW FIX REQUIRED
+TASK TABLE SCROLLBAR FIX — EXACT IMPLEMENTATION REQUIRED
 
 IMPORTANT:
-Analyze existing sidebar layout carefully.
+Current fix did NOT solve the issue.
 
-DO NOT:
+The horizontal scrollbar is STILL rendering outside the table card container at the very bottom.
 
-* change business logic
-* change backend APIs
-* redesign entire dashboard
-* add unnecessary features
-
-ONLY improve:
-
-* sidebar behavior
-* sidebar UX
-* sidebar responsiveness
-* overflow issues
-* layout stability
-* logout section alignment
-* mobile sidebar experience
+This is NOT a styling issue only.
+This is a WRONG container structure issue.
 
 ==================================================
-MAIN GOAL
-=========
+EXACT PROBLEM
+=============
 
-Create a premium SaaS-level sidebar system.
+Current structure is likely:
 
-Sidebar should feel like:
+Card Container
+├── Table
+├── Pagination
+└── Browser/Page Scrollbar
 
-* Linear
-* Notion
-* Framer
-* modern startup dashboard
+OR
+
+overflow-x applied on WRONG parent container.
+
+==================================================
+REQUIRED RESULT
+===============
+
+The horizontal scrollbar MUST appear:
+
+DIRECTLY BELOW TABLE ROWS
+INSIDE THE TABLE WRAPPER
+ABOVE PAGINATION
+
+Like professional SaaS dashboards.
+
+==================================================
+CORRECT STRUCTURE REQUIRED
+==========================
+
+Use EXACT structure:
+
+Card Container
+├── Table Scroll Wrapper
+│     ├── Table
+│     └── Horizontal Scrollbar
+│
+└── Pagination Footer
+
+==================================================
+IMPORTANT FIX
+=============
+
+Apply overflow-x ONLY to the table wrapper.
 
 NOT:
 
-* Bootstrap default sidebar
-* static left menu
-* broken responsive drawer
+* card container
+* page container
+* content wrapper
+* body
+* dashboard layout
 
 ==================================================
-SIDEBAR OPEN/CLOSE SYSTEM
-=========================
+REQUIRED HTML STRUCTURE
+=======================
 
-Create smooth sidebar toggle system.
+Use structure similar to:
+
+<div class="task-table-card">
+
+```
+<div class="table-scroll-wrapper">
+    <table>
+        ...
+    </table>
+</div>
+
+<div class="table-footer-pagination">
+    ...
+</div>
+```
+
+</div>
 
 ==================================================
-DESKTOP BEHAVIOR
+REQUIRED CSS FIX
 ================
 
-Desktop sidebar requirements:
+.table-scroll-wrapper {
+width: 100%;
+overflow-x: auto;
+overflow-y: hidden;
+display: block;
+position: relative;
+padding-bottom: 6px;
+}
 
-1. Expanded Mode
+.task-table-card {
+overflow: hidden;
+}
 
-* Full logo visible
-* Menu text visible
-* Proper spacing
-* Glassmorphism effect
-
-2. Collapsed Mode
-
-* Icons only
-* Smaller width
-* Tooltip on hover
-* Smooth transition
-* Preserve active states
-
-==================================================
-ANIMATION REQUIREMENTS
-======================
-
-Sidebar open/close must have:
-
-* smooth animation
-* no lag
-* no layout jump
-* professional transition
-* smooth width adjustment
-
-Animation duration:
-200ms–300ms
+body {
+overflow-x: hidden;
+}
 
 ==================================================
-MOBILE SIDEBAR
-==============
+REMOVE THESE ISSUES
+===================
 
-Mobile sidebar must work like modern SaaS apps.
+Fix and remove:
 
-Requirements:
-
-1. Hidden by default
-2. Hamburger toggle button
-3. Slide-in drawer animation
-4. Backdrop overlay
-5. Click outside to close
-6. ESC key close
-7. Prevent body scroll when open
+* page-level horizontal scrollbar
+* body horizontal scrolling
+* scrollbar outside card
+* huge white empty gap
+* pagination pushed downward
+* container overflow leak
 
 ==================================================
-OVERFLOW FIX REQUIRED
-=====================
+DATATABLE FIX
+=============
+
+If using DataTables:
+
+Check:
+
+* .dataTables_wrapper
+* .table-responsive
+* overflow wrappers
 
 IMPORTANT:
-Current logout section has overflow issues.
+DataTables may be creating extra wrapper causing scrollbar outside card.
 
-Fix:
-
-* sidebar overflow
-* content overflow
-* logout button overflow
-* mobile overflow
-* table overflow
-* modal overflow
+Fix DataTables wrapper structure properly.
 
 ==================================================
-LOGOUT BUTTON FIX
-=================
-
-Current logout area is broken.
-
-Fix requirements:
-
-1. Logout button must stay inside sidebar
-2. Proper bottom alignment
-3. No overflow outside container
-4. Responsive behavior
-5. Better spacing
-6. Modern hover effect
-
-==================================================
-SIDEBAR LAYOUT RULES
-====================
-
-Sidebar should contain:
-
-TOP:
-
-* Logo
-* Toggle button
-
-MIDDLE:
-
-* Navigation menus
-
-BOTTOM:
-
-* User profile section
-* Logout button
-
-Bottom section must stay fixed properly.
-
-==================================================
-ACTIVE MENU SYSTEM
-==================
-
-Improve active states:
-
-* purple gradient active background
-* glowing border
-* active icon highlight
-* smooth hover state
-* better visual hierarchy
-
-==================================================
-SCROLL BEHAVIOR
-===============
-
-Sidebar scrolling rules:
-
-1. Internal sidebar scroll only
-2. Smooth scrollbar
-3. Hidden ugly default scrollbar
-4. Prevent body horizontal scroll
-
-==================================================
-LAYOUT FIXES
-============
-
-Fix:
-
-* content shifting
-* broken spacing after collapse
-* chart resize issue
-* table resize issue
-* responsive width calculations
-
-==================================================
-RESPONSIVE REQUIREMENTS
-=======================
+RESPONSIVE FIX
+==============
 
 Desktop:
 
-* fixed sidebar
-* collapsible behavior
+* scrollbar inside table card
 
 Tablet:
 
-* partial collapse
+* smooth horizontal table scroll
 
 Mobile:
 
-* overlay drawer
+* responsive table wrapper
+* no body overflow
 
 ==================================================
-UI REQUIREMENTS
-===============
+FINAL RESULT REQUIRED
+=====================
 
-Use:
+Correct layout should become:
 
-* glassmorphism sidebar
-* purple gradients
-* soft shadows
-* premium hover states
-* smooth transitions
-* modern icon containers
-* better typography spacing
+[TABLE ROWS]
+[SCROLLBAR]
+[PAGINATION]
 
-==================================================
-TECHNICAL REQUIREMENTS
-======================
+NOT:
 
-Implement:
-
-1. Sidebar state persistence
-
-* remember open/close state
-
-2. Responsive resize handling
-
-3. Prevent layout flickering
-
-4. Smooth CSS transitions
-
-5. Proper z-index handling
+[TABLE ROWS]
+[EMPTY GAP]
+[PAGINATION]
+[SCROLLBAR]
 
 ==================================================
-FIX THESE ISSUES
-================
+IMPORTANT
+=========
 
-Check and fix:
+Do NOT give partial CSS fixes only.
 
-* horizontal overflow
-* body overflow-x
-* sidebar clipping
-* logout section overflow
-* mobile sidebar cutoff
-* table overflow
-* chart overflow
-* modal overflow
+Analyze:
 
-==================================================
-IMPORTANT RULES
-===============
+* actual DOM structure
+* overflow parent containers
+* DataTable wrappers
+* flex/grid parent behavior
 
-If file exists:
-
-* UPDATE carefully
-
-If file missing:
-
-* CREATE only if required
-
-Do NOT:
-
-* rewrite backend
-* change APIs
-* modify database
-* add unnecessary libraries
+Then fix properly from root cause.
 
 ==================================================
 FINAL GOAL
 ==========
 
-Sidebar should feel:
+Task table should behave like:
 
-* premium
-* smooth
-* professional
-* modern SaaS quality
-* user friendly
-* visually polished
+* Linear dashboard
+* modern SaaS admin panel
+* premium responsive analytics table
 
-The whole dashboard layout should feel:
-
-* stable
-* balanced
-* responsive
-* production ready
+Clean.
+Compact.
+No overflow bugs.
+Professional layout.
