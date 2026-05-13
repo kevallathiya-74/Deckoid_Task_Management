@@ -135,7 +135,8 @@ class KPIController
     public function staffReport()
     {
         $userId = $_GET['id'] ?? '';
-        if (!$userId || !$this->userModel->findById($userId)) {
+        $user = $this->userModel->findById($userId);
+        if (!$userId || !$user) {
             header('Location: ' . url('/admin/kpi'));
             exit;
         }

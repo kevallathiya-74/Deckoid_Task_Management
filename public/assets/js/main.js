@@ -15,13 +15,32 @@ $(document).ready(function() {
         mainContent.addClass('expanded');
     }
 
+    // Tooltip management for Sidebar
+    function updateSidebarTooltips() {
+        const isCollapsed = sidebar.hasClass('collapsed');
+        sidebar.find('[data-bs-toggle="tooltip"]').each(function() {
+            if (isCollapsed && $(window).width() > 992) {
+                $(this).tooltip('enable');
+            } else {
+                $(this).tooltip('disable').tooltip('hide');
+            }
+        });
+    }
+
     if (toggler.length) {
         toggler.on('click', function() {
             if ($(window).width() > 992) {
                 sidebar.toggleClass('collapsed');
+                mainContent.toggleClass('expanded');
                 localStorage.setItem('sidebarCollapsed', sidebar.hasClass('collapsed'));
+                updateSidebarTooltips();
             } else {
                 sidebar.toggleClass('active');
+                if (sidebar.hasClass('active')) {
+                    $('body').css('overflow', 'hidden');
+                } else {
+                    $('body').css('overflow', '');
+                }
             }
         });
     }
@@ -29,14 +48,24 @@ $(document).ready(function() {
     if (closeBtn.length) {
         closeBtn.on('click', function() {
             sidebar.removeClass('active');
+            $('body').css('overflow', '');
         });
     }
+
+    // ESC key to close mobile sidebar
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.hasClass('active')) {
+            sidebar.removeClass('active');
+            $('body').css('overflow', '');
+        }
+    });
 
     // Close sidebar when clicking outside on mobile
     $(document).on('click', function(e) {
         if ($(window).width() <= 992) {
             if (!sidebar.is(e.target) && sidebar.has(e.target).length === 0 && !toggler.is(e.target) && toggler.has(e.target).length === 0) {
                 sidebar.removeClass('active');
+                $('body').css('overflow', '');
             }
         }
     });
@@ -46,6 +75,8 @@ $(document).ready(function() {
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
+
+    updateSidebarTooltips();
 
     // Initialize Popovers
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))

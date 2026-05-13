@@ -2,41 +2,50 @@
 
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
-        <div class="row align-items-center mb-3">
-            <div class="col">
-                <h4 class="fw-bold mb-0 text-neutral-900">Team Members</h4>
-                <p class="text-neutral-500 text-xs mb-0">Manage your workforce and roles.</p>
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h3 class="fw-bold text-neutral-900 mb-1">Team Directory</h3>
+                <p class="text-neutral-500 mb-0">Manage workforce, departments & system access levels</p>
             </div>
-            <div class="col-auto">
-                <button type="button" class="btn btn-primary rounded-pill px-3 py-2 text-xs" data-bs-toggle="modal" data-bs-target="#addStaffModal">
-                    <i class="fas fa-user-plus me-1"></i> Add Member
-                </button>
-            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                <i class="fas fa-plus me-2"></i> Add Member
+            </button>
         </div>
 
         <!-- Filters Section -->
-        <div class="glass-card mb-3 p-3">
-            <form id="filterForm" class="row g-3 align-items-end">
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-2 ms-1">Department</label>
-                    <select class="form-select border-0 bg-neutral-50 rounded-3 py-2 text-sm" name="filter_role" id="filter_role">
-                        <option value="">All Departments</option>
-                        <?php foreach ($roles as $role): ?>
-                            <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
+        <div class="glass-card mb-5 p-4">
+            <form id="filterForm" class="row g-4 align-items-end">
+                <div class="col-lg-4">
+                    <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Department Filter</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-neutral-50 border-0 rounded-start-pill ps-3">
+                            <i class="fas fa-briefcase text-neutral-300"></i>
+                        </span>
+                        <select class="form-select border-0 bg-neutral-50 rounded-end-pill py-2 text-sm fw-bold" name="filter_role" id="filter_role">
+                            <option value="">All Departments</option>
+                            <?php foreach ($roles as $role): ?>
+                                <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-2 ms-1">Status</label>
-                    <select class="form-select border-0 bg-neutral-50 rounded-3 py-2 text-sm" name="filter_status" id="filter_status">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
+                <div class="col-lg-4">
+                    <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Status Type</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-neutral-50 border-0 rounded-start-pill ps-3">
+                            <i class="fas fa-toggle-on text-neutral-300"></i>
+                        </span>
+                        <select class="form-select border-0 bg-neutral-50 rounded-end-pill py-2 text-sm fw-bold" name="filter_status" id="filter_status">
+                            <option value="">All Active/Inactive</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-lg-4 col-md-12">
-                    <button type="button" id="resetFilters" class="btn btn-light rounded-3 py-2 w-100 text-xs fw-bold text-neutral-600">
-                        <i class="fas fa-filter me-1"></i> Reset
+                <div class="col-lg-4">
+                    <button type="button" id="resetFilters" class="btn btn-secondary border-0 bg-neutral-50 w-100 rounded-pill py-2 text-xs fw-bold text-neutral-600">
+                        <i class="fas fa-filter-circle-xmark me-2"></i> Clear All Filters
                     </button>
                 </div>
             </form>
@@ -52,13 +61,11 @@
                             <th>Username</th>
                             <th>Department</th>
                             <th>Status</th>
-                            <th>Joined On</th>
-                            <th class="text-end pe-4">Manage</th>
+                            <th>Join Date</th>
+                            <th class="text-end pe-4">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Data will be loaded via AJAX -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -68,35 +75,38 @@
 <!-- Add Staff Modal -->
 <div class="modal fade" id="addStaffModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass-card border-0 p-3">
-            <div class="modal-header border-0 pb-0">
-                <h4 class="fw-bold text-neutral-900 mb-0">Onboard Team Member</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content glass-card border-0 p-4">
+            <div class="modal-header border-0 pb-4">
+                <div>
+                    <h4 class="fw-bold text-neutral-900 mb-1">New Member</h4>
+                    <p class="text-xs text-neutral-400 mb-0">Complete the details to create a new account</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="addStaffForm" action="<?= url('/api/staff') ?>" method="POST">
-                <div class="modal-body py-4">
+                <div class="modal-body py-0">
                     <div class="mb-4">
-                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Full Name</label>
-                        <input type="text" class="form-control" name="full_name" placeholder="Enter your full name" required>
+                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Full Name</label>
+                        <input type="text" class="form-control rounded-4 py-3" name="full_name" placeholder="Enter full name" required>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Username</label>
-                            <input type="text" class="form-control" name="username" placeholder="Enter username" required>
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Username</label>
+                            <input type="text" class="form-control rounded-4 py-3" name="username" placeholder="Enter username" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Password</label>
-                            <input type="password" class="form-control" name="password" placeholder="••••••••" required>
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Password</label>
+                            <input type="password" class="form-control rounded-4 py-3" name="password" placeholder="••••••••" required>
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Email Address</label>
-                        <input type="email" class="form-control" name="email" placeholder="Enter your email address" required>
+                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Email Address</label>
+                        <input type="email" class="form-control rounded-4 py-3" name="email" placeholder="Enter email" required>
                     </div>
-                    <div class="row g-4">
+                    <div class="row g-4 mb-2">
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Department Role</label>
-                            <select class="form-select border-0 bg-neutral-100 rounded-3 py-3" name="role_id" required>
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department Role</label>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="role_id" required>
                                 <option value="">Select Role</option>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
@@ -104,17 +114,17 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Status</label>
-                            <select class="form-select border-0 bg-neutral-100 rounded-3 py-3" name="status">
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Status</label>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="status">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 gap-3">
-                    <button type="button" class="btn btn-light flex-grow-1 py-3" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary flex-grow-1 py-3">Add Member</button>
+                <div class="modal-footer border-0 pt-5 gap-3">
+                    <button type="button" class="btn btn-secondary flex-grow-1 py-3" data-bs-dismiss="modal">Discard</button>
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-3">Create Account</button>
                 </div>
             </form>
         </div>
@@ -124,53 +134,56 @@
 <!-- Edit Staff Modal -->
 <div class="modal fade" id="editStaffModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass-card border-0 p-3">
-            <div class="modal-header border-0 pb-0">
-                <h4 class="fw-bold text-neutral-900 mb-0">Update Member Details</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content glass-card border-0 p-4">
+            <div class="modal-header border-0 pb-4">
+                <div>
+                    <h4 class="fw-bold text-neutral-900 mb-1">Update Member</h4>
+                    <p class="text-xs text-neutral-400 mb-0">Modify team member profile and access level</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="editStaffForm" action="<?= url('/api/staff/update') ?>" method="POST">
                 <input type="hidden" name="id" id="edit_id">
-                <div class="modal-body py-4">
+                <div class="modal-body py-0">
                     <div class="mb-4">
-                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Full Name</label>
-                        <input type="text" class="form-control" name="full_name" id="edit_full_name" required>
+                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Full Name</label>
+                        <input type="text" class="form-control rounded-4 py-3" name="full_name" id="edit_full_name" required>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Username</label>
-                            <input type="text" class="form-control" name="username" id="edit_username" required>
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Username</label>
+                            <input type="text" class="form-control rounded-4 py-3" name="username" id="edit_username" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Update Password (Optional)</label>
-                            <input type="password" class="form-control" name="password" placeholder="Leave blank to keep">
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Update Password (Optional)</label>
+                            <input type="password" class="form-control rounded-4 py-3" name="password" placeholder="••••••••">
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Email Address</label>
-                        <input type="email" class="form-control" name="email" id="edit_email" required>
+                        <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Email Address</label>
+                        <input type="email" class="form-control rounded-4 py-3" name="email" id="edit_email" required>
                     </div>
-                    <div class="row g-4">
+                    <div class="row g-4 mb-2">
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Department Role</label>
-                            <select class="form-select border-0 bg-neutral-100 rounded-3 py-3" name="role_id" id="edit_role_id" required>
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department Role</label>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="role_id" id="edit_role_id" required>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Status</label>
-                            <select class="form-select border-0 bg-neutral-100 rounded-3 py-3" name="status" id="edit_status">
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Status</label>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="status" id="edit_status">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 gap-3">
-                    <button type="button" class="btn btn-light flex-grow-1 py-3" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary flex-grow-1 py-3">Apply Changes</button>
+                <div class="modal-footer border-0 pt-5 gap-3">
+                    <button type="button" class="btn btn-secondary flex-grow-1 py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-3">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -179,7 +192,6 @@
 
 <script>
 $(document).ready(function() {
-    // Initialize DataTable with Premium styling
     const table = $('#staffTable').DataTable({
         ajax: {
             url: '<?= url('/api/staff') ?>',
@@ -194,13 +206,13 @@ $(document).ready(function() {
                 data: null,
                 render: function(data) {
                     return `
-                        <div class="d-flex align-items-center ps-2 py-2">
-                            <div class="position-relative">
-                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(data.full_name)}&background=8b5cf6&color=fff" width="45" height="45" class="rounded-circle border border-2 border-white shadow-sm">
-                                ${data.status === 'active' ? '<span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle"></span>' : ''}
+                        <div class="d-flex align-items-center py-2">
+                            <div class="avatar-group me-3">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(data.full_name)}&background=8b5cf6&color=fff" width="48" height="48" class="rounded-circle shadow-sm border border-2 border-white">
+                                ${data.status === 'active' ? '<div class="status-indicator active"></div>' : '<div class="status-indicator inactive"></div>'}
                             </div>
-                            <div class="ms-3">
-                                <div class="fw-bold text-neutral-900 mb-0">${data.full_name}</div>
+                            <div>
+                                <div class="fw-bold text-neutral-900 mb-0 font-outfit">${data.full_name}</div>
                                 <div class="text-xs text-neutral-400">${data.email}</div>
                             </div>
                         </div>
@@ -210,26 +222,26 @@ $(document).ready(function() {
             { 
                 data: 'username',
                 render: function(data) {
-                    return `<code class="text-primary fw-semibold bg-primary-50 px-2 py-1 rounded text-xs">@${data}</code>`;
+                    return `<span class="badge bg-neutral-50 text-neutral-600 border px-3 py-2">@${data}</span>`;
                 }
             },
             { 
                 data: 'role_name',
                 render: function(data) {
-                    return `<span class="fw-semibold text-neutral-700 text-sm"><i class="fas fa-briefcase text-neutral-300 me-2"></i>${data}</span>`;
+                    return `<span class="fw-bold text-neutral-700 text-xs"><i class="fas fa-tag text-primary opacity-50 me-2"></i>${data}</span>`;
                 }
             },
             { 
                 data: 'status',
                 render: function(data) {
-                    const cls = data === 'active' ? 'badge-soft-success' : 'badge-soft-danger';
-                    return `<span class="badge ${cls} text-capitalize px-3 py-2 rounded-pill">${data}</span>`;
+                    const cls = data === 'active' ? 'bg-success-soft' : 'bg-danger-soft';
+                    return `<span class="badge ${cls} text-capitalize px-3 py-2">${data}</span>`;
                 }
             },
             { 
                 data: 'created_at',
                 render: function(data) {
-                    return `<span class="text-neutral-500 text-sm font-medium">${new Date(data).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>`;
+                    return `<span class="text-neutral-500 text-xs fw-bold">${moment(data).format('DD MMM, YYYY')}</span>`;
                 }
             },
             {
@@ -239,13 +251,13 @@ $(document).ready(function() {
                 render: function(data) {
                     return `
                         <div class="dropdown">
-                            <button class="btn btn-light rounded-circle p-0" style="width: 38px; height: 38px;" data-bs-toggle="dropdown">
-                                <i class="fas fa-ellipsis-h text-neutral-500"></i>
+                            <button class="action-btn-sm" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-xl border-0 rounded-4 p-2">
-                                <li><a class="dropdown-item rounded-3 py-2 edit-staff" href="javascript:void(0)"><i class="fas fa-edit me-2 text-primary"></i>Update</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-deep border-0 rounded-4 p-2">
+                                <li><a class="dropdown-item rounded-3 py-2 edit-staff" href="javascript:void(0)"><i class="fas fa-user-pen me-2 text-primary"></i>Update Profile</a></li>
                                 <li><hr class="dropdown-divider opacity-50"></li>
-                                <li><a class="dropdown-item rounded-3 py-2 text-danger delete-staff" href="javascript:void(0)" data-id="${data.id}" data-name="${data.full_name}"><i class="fas fa-trash-alt me-2"></i>Archive Member</a></li>
+                                <li><a class="dropdown-item rounded-3 py-2 text-danger delete-staff" href="javascript:void(0)" data-id="${data.id}" data-name="${data.full_name}"><i class="fas fa-user-minus me-2"></i>Remove Access</a></li>
                             </ul>
                         </div>
                     `;
@@ -253,33 +265,25 @@ $(document).ready(function() {
             }
         ],
         order: [[4, 'desc']],
-        dom: '<"d-flex justify-content-between align-items-center p-4 border-bottom border-light"f<"d-flex"l>>t<"d-flex justify-content-between align-items-center p-4"ip>',
+        dom: '<"d-flex justify-content-between align-items-center p-4"f<"d-flex gap-3"l>>t<"d-flex justify-content-between align-items-center p-4 border-top border-light"ip>',
         language: {
             search: "",
-            searchPlaceholder: "Search members",
+            searchPlaceholder: "Search team directory...",
             lengthMenu: "_MENU_ per page",
             info: "Showing _START_ to _END_ of _TOTAL_ members",
             paginate: {
-                previous: '<i class="fas fa-chevron-left text-xs"></i>',
-                next: '<i class="fas fa-chevron-right text-xs"></i>'
+                previous: '<i class="fas fa-chevron-left"></i>',
+                next: '<i class="fas fa-chevron-right"></i>'
             }
         }
     });
 
-    // Custom Search styling
-    $('.dataTables_filter input').addClass('form-control border-0 bg-neutral-50 rounded-pill px-3 py-1').css({'min-width': '240px', 'font-size': '0.75rem'});
+    // Custom Styling for DataTable search
+    $('.dataTables_filter input').addClass('form-control border-0 bg-neutral-50 rounded-pill px-4').attr('placeholder', 'Search members...').css({'height': '45px'});
 
-    // Filter Handling
-    $('#filter_role, #filter_status').on('change', function() {
-        table.ajax.reload();
-    });
+    $('#filter_role, #filter_status').on('change', function() { table.ajax.reload(); });
+    $('#resetFilters').on('click', function() { $('#filterForm')[0].reset(); table.ajax.reload(); });
 
-    $('#resetFilters').on('click', function() {
-        $('#filterForm')[0].reset();
-        table.ajax.reload();
-    });
-
-    // Form Submissions
     handleFormSubmit('#addStaffForm', function() {
         $('#addStaffModal').modal('hide');
         $('#addStaffForm')[0].reset();
@@ -291,7 +295,6 @@ $(document).ready(function() {
         table.ajax.reload();
     });
 
-    // Edit Button Handler
     $(document).on('click', '.edit-staff', function() {
         const staff = table.row($(this).closest('tr')).data();
         $('#edit_id').val(staff.id);
@@ -303,40 +306,77 @@ $(document).ready(function() {
         $('#editStaffModal').modal('show');
     });
 
-    // Delete Button Handler
     $(document).on('click', '.delete-staff', function() {
         const id = $(this).data('id');
-        const name = $(this).data('name');
-
-        $.post('<?= url('/api/staff/delete') ?>', { id: id }, function(response) {
-            if (response.success) {
-                toastr.success(response.message);
-                table.ajax.reload(null, false); // Reload without resetting pagination
-            } else {
-                toastr.error(response.message);
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This member's access will be revoked!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            confirmButtonText: 'Yes, remove them!',
+            borderRadius: '1.25rem'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('<?= url('/api/staff/delete') ?>', { id: id }, function(res) {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        table.ajax.reload(null, false);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                });
             }
-        }, 'json');
+        });
     });
 });
 </script>
 
 <style>
+.avatar-group { position: relative; }
+.status-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+.status-indicator.active { background: #10b981; box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+.status-indicator.inactive { background: #94a3b8; }
+
+.action-btn-sm {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--neutral-400);
+    transition: all 0.3s ease;
+}
+.action-btn-sm:hover { background: var(--neutral-100); color: var(--primary-600); }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 10px !important;
+    padding: 0.5rem 0.9rem !important;
+    border: none !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+}
+
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
     background: var(--grad-primary) !important;
     color: white !important;
-    border: none !important;
-    border-radius: 10px !important;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: var(--primary-100) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    color: var(--primary-700) !important;
+    background: var(--neutral-100) !important;
+    color: var(--primary-600) !important;
 }
 
-.modal-content {
-    background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(20px);
-}
+.font-outfit { font-family: 'Outfit', sans-serif; }
 </style>

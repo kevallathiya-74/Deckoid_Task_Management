@@ -2,147 +2,149 @@
 
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
+        <!-- Dashboard Header -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h3 class="fw-bold text-neutral-900 mb-1">Project Dashboard</h3>
+                <p class="text-neutral-500 mb-0">Real-time overview of your workspace performance</p>
+            </div>
+            <div class="d-flex gap-3">
+                <button class="btn btn-primary" onclick="window.location.href='<?= url('/admin/tasks') ?>'">
+                    <i class="fas fa-plus me-2"></i>New Task
+                </button>
+            </div>
+        </div>
+
         <!-- Statistics Grid -->
-        <div class="row g-4 mb-4">
+        <div class="row g-4 mb-5">
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 border-start border-primary border-4">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-shape bg-primary-soft rounded-4 me-3">
-                            <i class="fas fa-project-diagram text-primary fs-4"></i>
-                        </div>
-                        <div>
-                            <h3 class="fw-bold text-neutral-900 mb-0"><?= $stats['total_projects'] ?></h3>
-                            <p class="text-neutral-400 text-xs fw-bold text-uppercase mb-0">Total Projects</p>
+                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="icon-shape bg-primary-soft rounded-3">
+                            <i class="fas fa-layer-group text-primary"></i>
                         </div>
                     </div>
+                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['total_projects'] ?></h2>
+                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Total Projects</p>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 border-start border-warning border-4">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-shape bg-warning-soft rounded-4 me-3">
-                            <i class="fas fa-tasks text-warning fs-4"></i>
-                        </div>
-                        <div>
-                            <h3 class="fw-bold text-neutral-900 mb-0"><?= $stats['active_tasks'] ?></h3>
-                            <p class="text-neutral-400 text-xs fw-bold text-uppercase mb-0">Active Tasks</p>
+                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="icon-shape bg-warning-soft rounded-3">
+                            <i class="fas fa-list-check text-warning"></i>
                         </div>
                     </div>
+                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['active_tasks'] ?></h2>
+                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Active Tasks</p>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 border-start border-success border-4">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-shape bg-success-soft rounded-4 me-3">
-                            <i class="fas fa-check-circle text-success fs-4"></i>
-                        </div>
-                        <div>
-                            <h3 class="fw-bold text-neutral-900 mb-0"><?= $stats['completed_projects'] ?></h3>
-                            <p class="text-neutral-400 text-xs fw-bold text-uppercase mb-0">Completed</p>
+                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="icon-shape bg-success-soft rounded-3">
+                            <i class="fas fa-circle-check text-success"></i>
                         </div>
                     </div>
+                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['completed_projects'] ?></h2>
+                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Finished Projects</p>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 border-start border-info border-4">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-shape bg-info-soft rounded-4 me-3">
-                            <i class="fas fa-users text-info fs-4"></i>
-                        </div>
-                        <div>
-                            <h3 class="fw-bold text-neutral-900 mb-0"><?= $stats['total_staff'] ?></h3>
-                            <p class="text-neutral-400 text-xs fw-bold text-uppercase mb-0">Team Members</p>
+                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="icon-shape bg-info-soft rounded-3">
+                            <i class="fas fa-users text-info"></i>
                         </div>
                     </div>
+                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['total_staff'] ?></h2>
+                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Team Strength</p>
                 </div>
             </div>
         </div>
 
-        <div class="row g-4 mb-4">
-            <!-- MIDDLE LEFT: Task Priority Card -->
-            <div class="col-xl-4 col-lg-5">
-                <div class="glass-card h-100 overflow-hidden">
-                    <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold text-neutral-900 mb-0">Task Priority</h5>
-                        <i class="fas fa-fire-alt text-danger"></i>
+        <div class="row g-4 mb-5">
+            <!-- Task Priority -->
+            <div class="col-xl-4">
+                <div class="glass-card h-100">
+                    <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center bg-neutral-50/30">
+                        <h6 class="fw-bold text-neutral-900 mb-0">Task Distribution</h6>
+                        <span class="text-xs text-neutral-400">By Priority</span>
                     </div>
                     <div class="p-4">
-                        <div class="priority-item glass-card mb-3 p-3 cursor-pointer hover-scale transition-all border-start border-danger border-4" onclick="showPriorityTasks('high')">
+                        <div class="priority-card mb-3 p-3 rounded-4 cursor-pointer transition-all border border-light bg-white" onclick="showPriorityTasks('high')">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <span class="bg-danger rounded-circle me-3" style="width: 10px; height: 10px;"></span>
-                                    <span class="fw-bold text-neutral-800">High Priority</span>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="dot bg-danger shadow-danger"></div>
+                                    <span class="fw-bold text-neutral-800 text-sm">High Priority</span>
                                 </div>
-                                <span class="badge bg-danger-soft text-danger rounded-pill px-3" id="high-count">0</span>
+                                <span class="badge bg-danger-soft text-danger px-3" id="high-count">0</span>
                             </div>
                         </div>
-                        <div class="priority-item glass-card mb-3 p-3 cursor-pointer hover-scale transition-all border-start border-warning border-4" onclick="showPriorityTasks('medium')">
+                        <div class="priority-card mb-3 p-3 rounded-4 cursor-pointer transition-all border border-light bg-white" onclick="showPriorityTasks('medium')">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <span class="bg-warning rounded-circle me-3" style="width: 10px; height: 10px;"></span>
-                                    <span class="fw-bold text-neutral-800">Medium Priority</span>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="dot bg-warning shadow-warning"></div>
+                                    <span class="fw-bold text-neutral-800 text-sm">Medium Priority</span>
                                 </div>
-                                <span class="badge bg-warning-soft text-warning rounded-pill px-3" id="medium-count">0</span>
+                                <span class="badge bg-warning-soft text-warning px-3" id="medium-count">0</span>
                             </div>
                         </div>
-                        <div class="priority-item glass-card p-3 cursor-pointer hover-scale transition-all border-start border-primary border-4" onclick="showPriorityTasks('low')">
+                        <div class="priority-card p-3 rounded-4 cursor-pointer transition-all border border-light bg-white" onclick="showPriorityTasks('low')">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <span class="bg-primary rounded-circle me-3" style="width: 10px; height: 10px;"></span>
-                                    <span class="fw-bold text-neutral-800">Low Priority</span>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="dot bg-primary shadow-primary"></div>
+                                    <span class="fw-bold text-neutral-800 text-sm">Low Priority</span>
                                 </div>
-                                <span class="badge bg-primary-soft text-primary rounded-pill px-3" id="low-count">0</span>
+                                <span class="badge bg-primary-soft text-primary px-3" id="low-count">0</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- MIDDLE RIGHT: Recent Assignments / Analytics Summary -->
-            <div class="col-xl-8 col-lg-7">
+            <!-- Recent Tasks -->
+            <div class="col-xl-8">
                 <div class="glass-card h-100 overflow-hidden">
-                    <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold text-neutral-900 mb-0">Recent Assignments</h5>
-                        <a href="<?= url('admin/tasks') ?>" class="btn btn-xs btn-primary-soft rounded-pill px-3">View All</a>
+                    <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center bg-neutral-50/30">
+                        <h6 class="fw-bold text-neutral-900 mb-0">Recent Assignments</h6>
+                        <a href="<?= url('admin/tasks') ?>" class="text-primary text-xs fw-bold text-decoration-none">View All Tasks <i class="fas fa-arrow-right ms-1"></i></a>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-neutral-50">
+                        <table class="table align-middle mb-0">
+                            <thead>
                                 <tr>
-                                    <th class="ps-4 border-0 text-xs fw-bold text-neutral-400 text-uppercase">Task & Project</th>
-                                    <th class="border-0 text-xs fw-bold text-neutral-400 text-uppercase">Assignee</th>
-                                    <th class="border-0 text-xs fw-bold text-neutral-400 text-uppercase">Deadline</th>
-                                    <th class="pe-4 border-0 text-xs fw-bold text-neutral-400 text-uppercase text-end">Status</th>
+                                    <th class="ps-4">Task Details</th>
+                                    <th>Assigned To</th>
+                                    <th>Deadline</th>
+                                    <th class="pe-4 text-end">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($recent_tasks as $task): ?>
                                 <tr>
                                     <td class="ps-4">
-                                        <div class="fw-bold text-neutral-800 text-sm mb-0"><?= $task['title'] ?></div>
+                                        <div class="fw-bold text-neutral-800 mb-0"><?= $task['title'] ?></div>
                                         <div class="text-xs text-neutral-400"><?= $task['project_name'] ?></div>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($task['assigned_to_name']) ?>&background=random&size=32" class="rounded-circle me-2" width="28">
-                                            <span class="text-xs fw-semibold text-neutral-700"><?= $task['assigned_to_name'] ?></span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($task['assigned_to_name']) ?>&background=8b5cf6&color=fff" class="rounded-circle" width="28">
+                                            <span class="text-xs fw-bold text-neutral-700"><?= $task['assigned_to_name'] ?></span>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="text-xs text-neutral-600 fw-medium">
-                                            <i class="far fa-clock me-1 text-neutral-400"></i>
-                                            <?= date('d M', strtotime($task['due_date'])) ?>
+                                        <span class="text-xs text-neutral-600 fw-bold">
+                                            <i class="far fa-calendar text-neutral-300 me-2"></i><?= date('d M, Y', strtotime($task['due_date'])) ?>
                                         </span>
                                     </td>
                                     <td class="pe-4 text-end">
                                         <?php 
-                                            $badgeClass = 'bg-primary-soft text-primary';
-                                            if ($task['status'] == 'completed') $badgeClass = 'bg-success-soft text-success';
-                                            if ($task['status'] == 'in_progress') $badgeClass = 'bg-warning-soft text-warning';
+                                            $badgeClass = 'bg-primary-soft';
+                                            if ($task['status'] == 'completed') $badgeClass = 'bg-success-soft';
+                                            if ($task['status'] == 'in_progress') $badgeClass = 'bg-warning-soft';
                                         ?>
-                                        <span class="badge <?= $badgeClass ?> rounded-pill px-3 py-1 text-xs text-capitalize">
-                                            <?= str_replace('_', ' ', $task['status']) ?>
-                                        </span>
+                                        <span class="badge <?= $badgeClass ?> px-3"><?= str_replace('_', ' ', $task['status']) ?></span>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -153,22 +155,21 @@
             </div>
         </div>
 
-        <!-- BOTTOM: Growth Analysis Graph -->
-        <div class="row">
+        <!-- Growth Graph -->
+        <div class="row mb-5">
             <div class="col-12">
-                <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="glass-card p-5">
+                    <div class="d-flex justify-content-between align-items-center mb-5">
                         <div>
                             <h5 class="fw-bold text-neutral-900 mb-1">Growth Analysis</h5>
-                            <p class="text-xs text-neutral-400 mb-0">Weekly task productivity trends</p>
+                            <p class="text-xs text-neutral-400 mb-0">Visualizing team productivity and task completion velocity</p>
                         </div>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-light rounded-pill px-3" data-bs-toggle="dropdown">
-                                Last 7 Days <i class="fas fa-chevron-down ms-2 text-xs"></i>
-                            </button>
-                        </div>
+                        <select class="form-select border-0 bg-neutral-50 px-4 py-2 rounded-pill text-xs fw-bold" style="width: auto;">
+                            <option>Last 7 Days</option>
+                            <option>Last 30 Days</option>
+                        </select>
                     </div>
-                    <div style="height: 350px;">
+                    <div style="height: 380px;">
                         <canvas id="growthChart"></canvas>
                     </div>
                 </div>
@@ -180,17 +181,13 @@
 <!-- Priority Tasks Modal -->
 <div class="modal fade" id="priorityTasksModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content glass-card border-0 overflow-hidden">
-            <div class="modal-header border-bottom border-light px-4 py-3 bg-neutral-50/50">
-                <h5 class="fw-bold text-neutral-900 mb-0 d-flex align-items-center">
-                    <i class="fas fa-layer-group text-primary me-3"></i>
-                    <span id="priority-modal-title">Priority Tasks</span>
-                </h5>
+        <div class="modal-content glass-card border-0 p-2">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold text-neutral-900 mb-0" id="priority-modal-title">Tasks</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0">
-                <div id="priority-tasks-list" class="max-h-[500px] overflow-y-auto p-4">
-                    <!-- Tasks will be loaded here -->
+            <div class="modal-body px-4 py-4">
+                <div id="priority-tasks-list">
                     <div class="text-center py-5">
                         <div class="spinner-border text-primary" role="status"></div>
                     </div>
@@ -200,51 +197,71 @@
     </div>
 </div>
 
-<!-- Admin Alert Popup Container -->
 <div id="admin-alert-container" class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999;"></div>
 
 <script>
 $(document).ready(function() {
     loadChartData();
     pollAlerts();
-    setInterval(pollAlerts, 10000); // Poll every 10 seconds
+    setInterval(pollAlerts, 10000);
 });
 
 function loadChartData() {
     $.get('<?= url('/api/dashboard/charts') ?>', function(res) {
-        // Update Priority Counts
         res.tasks.forEach(t => {
             $(`#${t.priority}-count`).text(t.count);
         });
 
-        // Initialize Growth Chart
         const ctx = document.getElementById('growthChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(139, 92, 246, 0.15)');
+        gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: res.growth.map(g => moment(g.date).format('DD MMM')),
+                labels: res.growth.map(g => moment(g.date).format('ddd, DD')),
                 datasets: [{
                     label: 'Tasks Created',
                     data: res.growth.map(g => g.count),
                     borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    borderWidth: 3,
+                    backgroundColor: gradient,
+                    borderWidth: 4,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: '#8b5cf6',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#8b5cf6',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#8b5cf6',
+                    pointHoverBorderColor: '#fff'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 12,
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        cornerRadius: 12,
+                        displayColors: false
+                    }
+                },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
-                    x: { grid: { display: false } }
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+                        ticks: { color: '#94a3b8', font: { weight: '600' } }
+                    },
+                    x: { 
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { weight: '600' } }
+                    }
                 }
             }
         });
@@ -252,7 +269,7 @@ function loadChartData() {
 }
 
 function showPriorityTasks(priority) {
-    $('#priority-modal-title').text(priority.toUpperCase() + ' Priority Tasks');
+    $('#priority-modal-title').text(priority.charAt(0).toUpperCase() + priority.slice(1) + ' Priority Tasks');
     $('#priorityTasksModal').modal('show');
     $('#priority-tasks-list').html('<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>');
 
@@ -260,26 +277,28 @@ function showPriorityTasks(priority) {
         if (res.success && res.data.length > 0) {
             let html = '';
             res.data.forEach(task => {
+                const borderClass = priority === 'high' ? 'border-danger' : (priority === 'medium' ? 'border-warning' : 'border-primary');
                 html += `
-                    <div class="glass-card mb-3 p-4 border-start border-4 ${priority === 'high' ? 'border-danger' : (priority === 'medium' ? 'border-warning' : 'border-primary')}">
+                    <div class="p-4 rounded-4 border border-light bg-neutral-50/50 mb-3 transition-all hover-translate-y">
                         <div class="row align-items-center">
                             <div class="col-md-7">
-                                <div class="text-xs text-neutral-400 fw-bold text-uppercase mb-1">${task.project_name}</div>
-                                <h6 class="fw-bold text-neutral-900 mb-2">${task.title}</h6>
-                                <div class="d-flex align-items-center">
-                                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(task.staff_name)}&background=random" class="rounded-circle me-2" width="24">
-                                    <span class="text-xs fw-semibold text-neutral-600">${task.staff_name}</span>
-                                    <span class="mx-2 text-neutral-300">|</span>
-                                    <span class="text-xs text-neutral-500"><i class="far fa-calendar-alt me-1"></i>${moment(task.due_date).format('DD MMM')}</span>
+                                <div class="text-xs text-primary fw-bold text-uppercase mb-1">${task.project_name}</div>
+                                <h6 class="fw-bold text-neutral-900 mb-3">${task.title}</h6>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(task.staff_name)}&background=8b5cf6&color=fff" class="rounded-circle" width="24">
+                                        <span class="text-xs fw-bold text-neutral-600">${task.staff_name}</span>
+                                    </div>
+                                    <span class="text-xs text-neutral-400 fw-bold"><i class="far fa-calendar-alt me-1 text-neutral-300"></i>${moment(task.due_date).format('DD MMM, YYYY')}</span>
                                 </div>
                             </div>
                             <div class="col-md-5 text-end">
-                                <div class="d-flex justify-content-end align-items-center gap-3 mt-3 mt-md-0">
-                                    <div class="form-check custom-checkbox success">
+                                <div class="d-flex justify-content-end align-items-center gap-4 mt-3 mt-md-0">
+                                    <div class="form-check custom-checkbox">
                                         <input class="form-check-input" type="checkbox" ${task.is_completed ? 'checked' : ''} onchange="updateTaskStatus('${task.id}', 'complete', this.checked)">
                                         <label class="form-check-label text-xs fw-bold text-neutral-500">Complete</label>
                                     </div>
-                                    <div class="form-check custom-checkbox danger">
+                                    <div class="form-check custom-checkbox">
                                         <input class="form-check-input" type="checkbox" ${task.is_incomplete ? 'checked' : ''} onchange="updateTaskStatus('${task.id}', 'incomplete', this.checked)">
                                         <label class="form-check-label text-xs fw-bold text-neutral-500">Incomplete</label>
                                     </div>
@@ -291,25 +310,20 @@ function showPriorityTasks(priority) {
             });
             $('#priority-tasks-list').html(html);
         } else {
-            $('#priority-tasks-list').html('<div class="text-center py-5 text-neutral-400">No tasks found for this priority.</div>');
+            $('#priority-tasks-list').html('<div class="text-center py-5 text-neutral-400 fw-medium">No tasks found for this priority.</div>');
         }
     });
 }
 
 function updateTaskStatus(id, type, checked) {
-    if (!checked) return; // Only trigger on check
-    
-    // Uncheck the other checkbox in the same row
+    if (!checked) return;
     const row = $(event.target).closest('.row');
     row.find('input[type="checkbox"]').not(event.target).prop('checked', false);
 
     $.post('<?= url('/api/tasks/update-status') ?>', { id: id, type: type }, function(res) {
         if (res.success) {
             toastr.success(res.message);
-            loadChartData(); // Refresh counts
-            if (type === 'complete') {
-                // If marked complete, uncheck incomplete if it was checked (UI logic)
-            }
+            loadChartData();
         } else {
             toastr.error(res.message);
         }
@@ -317,7 +331,7 @@ function updateTaskStatus(id, type, checked) {
 }
 
 function pollAlerts() {
-    <?php if ($_SESSION['user_role'] === 'admin'): ?>
+    <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
     $.get('<?= url('/api/dashboard/alerts') ?>', function(res) {
         if (res.success && res.data.length > 0) {
             res.data.forEach(alert => {
@@ -332,18 +346,18 @@ function pollAlerts() {
 
 function showAdminPopup(alert) {
     const html = `
-        <div id="alert-${alert.id}" class="glass-card mb-3 p-4 animate-slide-in-right shadow-xl border-start border-danger border-4" style="min-width: 350px;">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="badge bg-danger-soft text-danger px-3 py-1 rounded-pill text-xs fw-bold">TASK INCOMPLETE ALERT</div>
+        <div id="alert-${alert.id}" class="glass-card mb-3 p-4 animate-slide-in-right shadow-deep border-start border-danger border-4" style="min-width: 380px;">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="badge bg-danger-soft text-danger px-3 py-1 rounded-pill text-xs fw-bold">CRITICAL TASK ALERT</div>
                 <button onclick="dismissAlert('${alert.id}')" class="btn-close text-xs"></button>
             </div>
-            <p class="text-sm text-neutral-800 mb-3">
+            <p class="text-sm text-neutral-800 mb-4 leading-relaxed">
                 Task <span class="fw-bold text-primary">"${alert.task_title}"</span> assigned to 
-                <span class="fw-bold">${alert.staff_name}</span> is marked incomplete.
+                <span class="fw-bold">${alert.staff_name}</span> has been marked as <span class="text-danger fw-bold">incomplete</span>.
             </p>
-            <div class="d-flex gap-2">
-                <button onclick="reassignTask('${alert.task_id}', '${alert.id}')" class="btn btn-primary btn-sm rounded-pill px-3 text-xs flex-grow-1">Reassign Task</button>
-                <button onclick="dismissAlert('${alert.id}')" class="btn btn-light btn-sm rounded-pill px-3 text-xs flex-grow-1">Dismiss</button>
+            <div class="d-flex gap-3">
+                <button onclick="reassignTask('${alert.task_id}', '${alert.id}')" class="btn btn-primary py-2 text-xs flex-grow-1">Reassign Now</button>
+                <button onclick="dismissAlert('${alert.id}')" class="btn btn-secondary py-2 text-xs flex-grow-1">Dismiss</button>
             </div>
         </div>
     `;
@@ -360,50 +374,58 @@ function dismissAlert(id) {
 }
 
 function reassignTask(taskId, alertId) {
-    window.location.href = `<?= url('/tasks') ?>?edit=${taskId}`;
+    window.location.href = `<?= url('/admin/tasks') ?>?edit=${taskId}`;
 }
 </script>
 
 <style>
 .icon-shape {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.bg-primary-soft { background: rgba(139, 92, 246, 0.1); }
-.bg-warning-soft { background: rgba(245, 158, 11, 0.1); }
-.bg-success-soft { background: rgba(16, 185, 129, 0.1); }
-.bg-info-soft { background: rgba(6, 182, 212, 0.1); }
-.bg-danger-soft { background: rgba(239, 68, 68, 0.1); }
-
-.hover-scale:hover {
-    transform: scale(1.02);
+    font-size: 1rem;
 }
 
-.custom-checkbox.success .form-check-input:checked { background-color: #10b981; border-color: #10b981; }
-.custom-checkbox.danger .form-check-input:checked { background-color: #ef4444; border-color: #ef4444; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.shadow-danger { box-shadow: 0 0 10px rgba(244, 63, 94, 0.4); }
+.shadow-warning { box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+.shadow-primary { box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
+
+.ls-1 { letter-spacing: 1px; }
+
+.priority-card:hover {
+    border-color: var(--primary-300) !important;
+    background: var(--primary-50) !important;
+    transform: translateX(5px);
+}
+
+.hover-translate-y:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary-200) !important;
+}
+
+.custom-checkbox .form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.custom-checkbox .form-check-input:checked {
+    background-color: var(--primary-500);
+    border-color: var(--primary-500);
+}
 
 .animate-slide-in-right {
-    animation: slideInRight 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    animation: slideInRight 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes slideInRight {
-    from { transform: translateX(100%); opacity: 0; }
+    from { transform: translateX(50px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
 
-.animate-fade-out {
-    animation: fadeOut 0.3s forwards;
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; transform: scale(1); }
-    to { opacity: 0; transform: scale(0.9); }
-}
-
-.max-h-\[500px\] {
-    max-height: 500px;
-}
+.leading-relaxed { line-height: 1.6; }
 </style>

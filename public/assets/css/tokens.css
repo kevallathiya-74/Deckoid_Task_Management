@@ -1,22 +1,23 @@
-/* Design Tokens - Task Management System */
+/* Design Tokens - Taskly Premium UI System */
 
 :root {
-    /* Primary Branding - Purple/Indigo */
+    /* Primary Branding - Professional Violet/Indigo */
     --primary-50: #f5f3ff;
     --primary-100: #ede9fe;
     --primary-200: #ddd6fe;
     --primary-300: #c4b5fd;
     --primary-400: #a78bfa;
-    --primary-500: #8b5cf6; /* Main Purple */
+    --primary-500: #8b5cf6; /* Brand Primary */
     --primary-600: #7c3aed;
     --primary-700: #6d28d9;
     --primary-800: #5b21b6;
     --primary-900: #4c1d95;
 
-    /* Secondary/Accent - Indigo */
-    --accent-500: #6366f1;
+    /* Secondary - Modern Azure */
+    --secondary-500: #0ea5e9;
+    --secondary-600: #0284c7;
     
-    /* Neutral Color Scale - Refined Blue-Grays */
+    /* Neutral - Slate/Zinc Scale for Typography & Depth */
     --neutral-50: #f8fafc;
     --neutral-100: #f1f5f9;
     --neutral-200: #e2e8f0;
@@ -28,35 +29,37 @@
     --neutral-800: #1e293b;
     --neutral-900: #0f172a;
 
-    /* Gradients */
+    /* Gradients - Smooth & Premium */
     --grad-primary: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
     --grad-primary-hover: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-    --grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+    --grad-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --grad-danger: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    --grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%);
 
-    /* Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-    --glass-blur: blur(10px);
-    --webkit-glass-blur: blur(10px);
+    /* Glassmorphism V2 - Refined */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-shadow: 0 10px 40px -10px rgba(31, 38, 135, 0.08);
+    --glass-blur: blur(12px);
+    --webkit-glass-blur: blur(12px);
 
-    /* Semantic Colors */
+    /* Semantic Colors - Softened for Light Mode */
     --success: #10b981;
     --warning: #f59e0b;
     --error: #ef4444;
     --info: #3b82f6;
 
-    /* Typography Scale */
-    --text-xs: 0.75rem;
-    --text-sm: 0.875rem;
-    --text-base: 1rem;
-    --text-lg: 1.125rem;
-    --text-xl: 1.25rem;
-    --text-2xl: 1.5rem;
-    --text-3xl: 1.875rem;
-    --text-4xl: 2.25rem;
+    /* Typography Scale - Refined */
+    --text-xs: 0.7rem;
+    --text-sm: 0.8rem;
+    --text-base: 0.9rem;
+    --text-lg: 1rem;
+    --text-xl: 1.15rem;
+    --text-2xl: 1.35rem;
+    --text-3xl: 1.7rem;
+    --text-4xl: 2.1rem;
 
-    /* Spacing Scale */
+    /* Spacing System */
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -67,18 +70,15 @@
     --space-10: 2.5rem;
     --space-12: 3rem;
 
-    /* Border Radius */
-    --radius-sm: 0.25rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-    --radius-2xl: 1.5rem;
-    --radius-3xl: 2rem;
+    /* Border Radius - Modern & Rounder */
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+    --radius-2xl: 1.75rem;
     --radius-full: 9999px;
 
-    /* Shadows - Soft & Modern */
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    /* Shadows - Deep & Soft */
+    --shadow-soft: 0 2px 15px -3px rgba(0, 0, 0, 0.05);
+    --shadow-deep: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
 }
