@@ -24,6 +24,12 @@ $router->post('/api/tasks/update', 'TaskController@update');
 $router->post('/api/tasks/update-status', 'TaskController@updateStatus');
 $router->post('/api/tasks/delete', 'TaskController@delete');
 
+// Recurring Task Management
+$router->post('/api/tasks/recurring/enable', 'TaskController@enableRecurring');
+$router->post('/api/tasks/recurring/disable', 'TaskController@disableRecurring');
+$router->get('/api/tasks/recurring/logs', 'TaskController@recurringLogs');
+$router->post('/api/tasks/recurring/process', 'TaskController@processRecurring');
+
 // Dashboard & Analytics
 $router->get('/api/dashboard/charts', 'DashboardController@getChartData');
 $router->get('/api/dashboard/priority-tasks', 'DashboardController@getPriorityTasks');

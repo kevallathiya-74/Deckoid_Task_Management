@@ -21,6 +21,8 @@ class Task
                 t.status, t.is_completed, t.is_incomplete, t.status_notes, 
                 t.progress_percentage, t.due_date, t.due_time, t.priority, 
                 t.completed_at, t.admin_alert_sent, t.created_at, t.updated_at,
+                t.is_recurring, t.recurring_type, t.recurring_parent_id, 
+                t.next_repeat_date, t.repeat_status,
                 p.project_name, p.client_name,
                 u.full_name as assigned_to_name, 
                 r.name as role_name
@@ -63,8 +65,8 @@ class Task
     {
         $id = $this->generateUuid();
         $stmt = $this->db->prepare("
-            INSERT INTO `tasks` (`id`, `project_id`, `assigned_to`, `role_id`, `title`, `description`, `status`, `due_date`, `due_time`, `priority`, `progress_percentage`, `status_notes`, `is_completed`, `is_incomplete`, `admin_alert_sent`) 
-            VALUES (:id, :project_id, :assigned_to, :role_id, :title, :description, :status, :due_date, :due_time, :priority, :progress_percentage, :status_notes, :is_completed, :is_incomplete, :admin_alert_sent)
+            INSERT INTO `tasks` (`id`, `project_id`, `assigned_to`, `role_id`, `title`, `description`, `status`, `due_date`, `due_time`, `priority`, `progress_percentage`, `status_notes`, `is_completed`, `is_incomplete`, `admin_alert_sent`, `is_recurring`, `recurring_type`, `recurring_parent_id`, `next_repeat_date`, `repeat_status`) 
+            VALUES (:id, :project_id, :assigned_to, :role_id, :title, :description, :status, :due_date, :due_time, :priority, :progress_percentage, :status_notes, :is_completed, :is_incomplete, :admin_alert_sent, :is_recurring, :recurring_type, :recurring_parent_id, :next_repeat_date, :repeat_status)
         ");
         
         $result = $stmt->execute([
@@ -82,7 +84,12 @@ class Task
             'status_notes' => $data['status_notes'] ?? null,
             'is_completed' => $data['is_completed'] ?? 0,
             'is_incomplete' => $data['is_incomplete'] ?? 0,
-            'admin_alert_sent' => $data['admin_alert_sent'] ?? 0
+            'admin_alert_sent' => $data['admin_alert_sent'] ?? 0,
+            'is_recurring' => $data['is_recurring'] ?? 0,
+            'recurring_type' => $data['recurring_type'] ?? null,
+            'recurring_parent_id' => $data['recurring_parent_id'] ?? null,
+            'next_repeat_date' => $data['next_repeat_date'] ?? null,
+            'repeat_status' => $data['repeat_status'] ?? 'active'
         ]);
 
         return $result ? $id : false;
@@ -106,7 +113,12 @@ class Task
                 `admin_alert_sent` = :admin_alert_sent,
                 `progress_percentage` = :progress,
                 `status_notes` = :notes,
-                `project_id` = :project_id
+                `project_id` = :project_id,
+                `is_recurring` = :is_recurring,
+                `recurring_type` = :recurring_type,
+                `recurring_parent_id` = :recurring_parent_id,
+                `next_repeat_date` = :next_repeat_date,
+                `repeat_status` = :repeat_status
             WHERE `id` = :id
         ");
         
@@ -126,7 +138,12 @@ class Task
             'admin_alert_sent' => $data['admin_alert_sent'] ?? 0,
             'progress' => $data['progress_percentage'] ?? 0,
             'notes' => $data['status_notes'] ?? null,
-            'project_id' => $data['project_id']
+            'project_id' => $data['project_id'],
+            'is_recurring' => $data['is_recurring'] ?? 0,
+            'recurring_type' => $data['recurring_type'] ?? null,
+            'recurring_parent_id' => $data['recurring_parent_id'] ?? null,
+            'next_repeat_date' => $data['next_repeat_date'] ?? null,
+            'repeat_status' => $data['repeat_status'] ?? 'active'
         ]);
     }
 
@@ -210,6 +227,69 @@ class Task
         $sql .= " ORDER BY t.due_date ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    public function updateRecurringStatus($id, $isRecurring, $type = null, $nextDate = null, $status = 'active')
+    {
+        $stmt = $this->db->prepare("
+            UPDATE tasks SET 
+                is_recurring = :is_recurring,
+                recurring_type = :recurring_type,
+                next_repeat_date = :next_repeat_date,
+                repeat_status = :repeat_status
+            WHERE id = :id
+        ");
+        return $stmt->execute([
+            'id' => $id,
+            'is_recurring' => $isRecurring,
+            'recurring_type' => $type,
+            'next_repeat_date' => $nextDate,
+            'repeat_status' => $status
+        ]);
+    }
+
+    public function logRecurringGeneration($taskId, $type, $generatedTaskId, $generatedDate, $createdBy)
+    {
+        $id = $this->generateUuid();
+        $stmt = $this->db->prepare("
+            INSERT INTO task_recurring_logs (id, task_id, recurring_type, generated_task_id, generated_date, created_by)
+            VALUES (:id, :task_id, :type, :generated_task_id, :generated_date, :created_by)
+        ");
+        return $stmt->execute([
+            'id' => $id,
+            'task_id' => $taskId,
+            'type' => $type,
+            'generated_task_id' => $generatedTaskId,
+            'generated_date' => $generatedDate,
+            'created_by' => $createdBy
+        ]);
+    }
+
+    public function listRecurringLogs($taskId)
+    {
+        $stmt = $this->db->prepare("
+            SELECT l.*, u.full_name as creator_name, t.title as generated_task_title
+            FROM task_recurring_logs l
+            JOIN users u ON l.created_by = u.id
+            JOIN tasks t ON l.generated_task_id = t.id
+            WHERE l.task_id = :task_id
+            ORDER BY l.created_at DESC
+        ");
+        $stmt->execute(['task_id' => $taskId]);
+        return $stmt->fetchAll();
+    }
+
+    public function getRecurringTasks()
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM tasks 
+            WHERE is_recurring = 1 
+            AND repeat_status = 'active' 
+            AND deleted_at IS NULL 
+            AND (next_repeat_date IS NULL OR next_repeat_date <= CURDATE())
+        ");
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 }

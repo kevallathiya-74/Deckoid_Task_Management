@@ -165,7 +165,12 @@ class TaskController
                 'is_completed' => $task['is_completed'],
                 'is_incomplete' => $task['is_incomplete'],
                 'completed_at' => $task['completed_at'],
-                'admin_alert_sent' => $task['admin_alert_sent']
+                'admin_alert_sent' => $task['admin_alert_sent'],
+                'is_recurring' => $_POST['is_recurring'] ?? $task['is_recurring'],
+                'recurring_type' => $_POST['recurring_type'] ?? $task['recurring_type'],
+                'recurring_parent_id' => $task['recurring_parent_id'],
+                'next_repeat_date' => $_POST['next_repeat_date'] ?? $task['next_repeat_date'],
+                'repeat_status' => $_POST['repeat_status'] ?? $task['repeat_status']
             ];
 
             // If not admin, restrict certain fields
@@ -261,5 +266,187 @@ class TaskController
         } catch (\Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
+    }
+    public function enableRecurring()
+    {
+        AuthMiddleware::adminOnly();
+        header('Content-Type: application/json');
+
+        try {
+            $id = $_POST['id'] ?? '';
+            $type = $_POST['type'] ?? ''; // 'weekly' or 'monthly'
+
+            if (empty($id) || !in_array($type, ['weekly', 'monthly'])) {
+                echo json_encode(['success' => false, 'message' => 'Invalid data provided']);
+                return;
+            }
+
+            $task = $this->taskModel->getById($id);
+            if (!$task) {
+                echo json_encode(['success' => false, 'message' => 'Task not found']);
+                return;
+            }
+
+            // Calculate next repeat date
+            $currentDueDate = !empty($task['due_date']) ? $task['due_date'] : date('Y-m-d');
+            $nextDate = $this->calculateNextDate($currentDueDate, $type);
+
+            if ($this->taskModel->updateRecurringStatus($id, 1, $type, $nextDate, 'active')) {
+                // Generate first repeat task immediately
+                $parentTask = $this->taskModel->getById($id);
+                $newId = $this->generateNextTask($parentTask);
+                
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Recurring enabled. New task created for ' . $nextDate
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to enable recurring']);
+            }
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function disableRecurring()
+    {
+        AuthMiddleware::adminOnly();
+        header('Content-Type: application/json');
+
+        try {
+            $id = $_POST['id'] ?? '';
+            if (empty($id)) {
+                echo json_encode(['success' => false, 'message' => 'Task ID is missing']);
+                return;
+            }
+
+            if ($this->taskModel->updateRecurringStatus($id, 0, null, null, 'completed')) {
+                echo json_encode(['success' => true, 'message' => 'Recurring disabled successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to disable recurring']);
+            }
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function recurringLogs()
+    {
+        header('Content-Type: application/json');
+        try {
+            $id = $_GET['id'] ?? '';
+            if (empty($id)) {
+                echo json_encode(['success' => false, 'message' => 'Task ID is missing']);
+                return;
+            }
+
+            $logs = $this->taskModel->listRecurringLogs($id);
+            echo json_encode(['success' => true, 'data' => $logs]);
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function processRecurring()
+    {
+        // This could be called by a cron job or manually
+        AuthMiddleware::adminOnly();
+        header('Content-Type: application/json');
+
+        try {
+            $tasks = $this->taskModel->getRecurringTasks();
+            $generatedCount = 0;
+
+            foreach ($tasks as $task) {
+                $newId = $this->generateNextTask($task);
+                if ($newId) {
+                    $generatedCount++;
+                }
+            }
+
+            echo json_encode([
+                'success' => true, 
+                'message' => $generatedCount . ' recurring task(s) processed'
+            ]);
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    private function generateNextTask($parentTask)
+    {
+        $db = \App\Core\Database::getInstance()->getConnection();
+        
+        try {
+            $db->beginTransaction();
+
+            // 1. Prepare new task data (cloning parent)
+            $newData = [
+                'project_id' => $parentTask['project_id'],
+                'assigned_to' => $parentTask['assigned_to'],
+                'role_id' => $parentTask['role_id'],
+                'title' => $parentTask['title'],
+                'description' => $parentTask['description'],
+                'due_date' => $parentTask['next_repeat_date'],
+                'due_time' => $parentTask['due_time'],
+                'priority' => $parentTask['priority'],
+                'status' => 'pending',
+                'progress_percentage' => 0,
+                'status_notes' => '',
+                'is_completed' => 0,
+                'is_incomplete' => 0,
+                'admin_alert_sent' => 0,
+                'is_recurring' => 0, // Generated task is not recurring by default unless it's the new parent
+                'recurring_type' => null,
+                'recurring_parent_id' => $parentTask['id'],
+                'next_repeat_date' => null,
+                'repeat_status' => 'active'
+            ];
+
+            // 2. Create the new task
+            $newTaskId = $this->taskModel->create($newData);
+            if (!$newTaskId) {
+                throw new \Exception("Failed to create generated task");
+            }
+
+            // 3. Log the generation
+            $this->taskModel->logRecurringGeneration(
+                $parentTask['id'], 
+                $parentTask['recurring_type'], 
+                $newTaskId, 
+                $parentTask['next_repeat_date'], 
+                $_SESSION['user_id']
+            );
+
+            // 4. Update the parent task's next_repeat_date
+            $nextDate = $this->calculateNextDate($parentTask['next_repeat_date'], $parentTask['recurring_type']);
+            $this->taskModel->updateRecurringStatus(
+                $parentTask['id'], 
+                1, 
+                $parentTask['recurring_type'], 
+                $nextDate, 
+                'active'
+            );
+
+            $db->commit();
+            return $newTaskId;
+
+        } catch (\Exception $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            return false;
+        }
+    }
+
+    private function calculateNextDate($currentDate, $type)
+    {
+        $date = new \DateTime($currentDate);
+        if ($type === 'weekly') {
+            $date->modify('+7 days');
+        } elseif ($type === 'monthly') {
+            $date->modify('+1 month');
+        }
+        return $date->format('Y-m-d');
     }
 }

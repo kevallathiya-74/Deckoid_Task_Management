@@ -5,54 +5,53 @@
 $(document).ready(function() {
     // Handle Mobile/Collapsible Sidebar
     const sidebar = $('#sidebar');
-    const mainContent = $('.main-content');
-    const toggler = $('.sidebar-toggle, #sidebarToggle, #mobileSidebarToggle');
+    const body = $('body');
+    const toggler = $('.sidebar-toggle, #sidebarToggle, #mobileSidebarToggle, #logoToggle');
     const closeBtn = $('#sidebarClose');
-
-    // Restore state from localStorage
-    if (localStorage.getItem('sidebarCollapsed') === 'true' && $(window).width() > 992) {
-        sidebar.addClass('collapsed');
-        mainContent.addClass('expanded');
-    }
 
     // Tooltip management for Sidebar
     function updateSidebarTooltips() {
-        const isCollapsed = sidebar.hasClass('collapsed');
-        sidebar.find('[data-bs-toggle="tooltip"]').each(function() {
-            if (isCollapsed && $(window).width() > 992) {
-                $(this).tooltip('enable');
-            } else {
-                $(this).tooltip('disable').tooltip('hide');
-            }
-        });
+        const isCollapsed = body.hasClass('sidebar-collapsed');
+        const tooltips = $('[data-bs-toggle="tooltip"]');
+        
+        // Safety check for Bootstrap tooltip plugin
+        if (typeof $.fn.tooltip !== 'function') return;
+
+        if (isCollapsed && $(window).width() > 992) {
+            tooltips.tooltip('enable');
+        } else if (!isCollapsed && $(window).width() > 992) {
+            // Disable only sidebar tooltips in expanded mode
+            sidebar.find('[data-bs-toggle="tooltip"]').tooltip('disable');
+        }
     }
 
+    // Toggle Sidebar Action
     if (toggler.length) {
         toggler.on('click', function() {
             // Immediately hide any active tooltips to prevent "sticking" during animation
-            $('[data-bs-toggle="tooltip"]').tooltip('hide');
+            if (typeof $.fn.tooltip === 'function') {
+                $('[data-bs-toggle="tooltip"]').tooltip('hide');
+            }
             
             if ($(window).width() > 992) {
-                sidebar.toggleClass('collapsed');
-                mainContent.toggleClass('expanded');
-                $('.top-bar').toggleClass('expanded');
-                localStorage.setItem('sidebarCollapsed', sidebar.hasClass('collapsed'));
+                body.toggleClass('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', body.hasClass('sidebar-collapsed'));
                 
                 // Recalculate DataTables layout if it exists
                 if (typeof table !== 'undefined') {
                     setTimeout(() => {
                         table.columns.adjust().draw();
-                    }, 400); // Increased delay to match 0.4s transition
+                    }, 300); 
                 }
                 
                 // Small delay to re-evaluate tooltips after animation starts/finishes
-                setTimeout(updateSidebarTooltips, 400);
+                setTimeout(updateSidebarTooltips, 300);
             } else {
                 sidebar.toggleClass('active');
                 if (sidebar.hasClass('active')) {
-                    $('body').css('overflow', 'hidden');
+                    body.css('overflow', 'hidden');
                 } else {
-                    $('body').css('overflow', '');
+                    body.css('overflow', '');
                 }
             }
         });
@@ -61,102 +60,84 @@ $(document).ready(function() {
     if (closeBtn.length) {
         closeBtn.on('click', function() {
             sidebar.removeClass('active');
-            $('body').css('overflow', '');
+            body.css('overflow', '');
         });
     }
-
-    // ESC key to close mobile sidebar
-    $(document).on('keydown', function(e) {
-        if (e.key === 'Escape' && sidebar.hasClass('active')) {
-            sidebar.removeClass('active');
-            $('body').css('overflow', '');
-        }
-    });
 
     // Close sidebar when clicking outside on mobile
     $(document).on('click', function(e) {
         if ($(window).width() <= 992) {
             if (!sidebar.is(e.target) && sidebar.has(e.target).length === 0 && !toggler.is(e.target) && toggler.has(e.target).length === 0) {
                 sidebar.removeClass('active');
-                $('body').css('overflow', '');
+                body.css('overflow', '');
             }
         }
     });
 
-    // Initialize Tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
-
+    // Initial tooltip setup
     updateSidebarTooltips();
 
-    // Initialize Popovers
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl)
-    });
-
-    // Default Toastr Config
-    toastr.options = {
-        "closeButton": true,
-        "debug": false,
-        "newestOnTop": true,
-        "progressBar": true,
-        "positionClass": "toast-bottom-right", // Changed for modern feel
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": "400",
-        "hideDuration": "1000",
-        "timeOut": "6000",
-        "extendedTimeOut": "1000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "slideDown", // Smoother transition
-        "hideMethod": "fadeOut"
-    };
+    // DataTables Default Configuration
+    if ($.fn.dataTable) {
+        $.extend(true, $.fn.dataTable.defaults, {
+            language: {
+                search: "",
+                searchPlaceholder: "Search...",
+                lengthMenu: "_MENU_ per page",
+            },
+            pageLength: 10,
+            responsive: true,
+            dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-4"f l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mt-4"i p>',
+        });
+    }
 });
 
 /**
- * Global AJAX Form Handler
+ * Global Form Handler for AJAX Submissions
+ * @param {string} selector - Form selector
+ * @param {function} callback - Success callback
  */
-function handleFormSubmit(formId, successCallback, errorCallback) {
-    $(formId).on('submit', function(e) {
+function handleFormSubmit(selector, callback) {
+    const $form = $(selector);
+    if (!$form.length) return;
+
+    $form.on('submit', function(e) {
         e.preventDefault();
         
-        const form = $(this);
-        const submitBtn = form.find('button[type="submit"]');
-        const originalBtnText = submitBtn.html();
-        const showToast = form.data('no-toast') !== true;
+        const $submitBtn = $form.find('button[type="submit"]');
+        const originalBtnHtml = $submitBtn.html();
+        const noToast = $form.data('no-toast') === true;
         
-        // Show loading state
-        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Loading...');
-        
+        // Disable button and show loading state
+        $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
         $.ajax({
-            url: form.attr('action'),
-            method: form.attr('method'),
+            url: $form.attr('action'),
+            method: $form.attr('method') || 'POST',
             data: new FormData(this),
             processData: false,
             contentType: false,
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    if (showToast) {
-                        toastr.success(response.message);
+                    if (!noToast) {
+                        toastr.success(response.message || 'Action completed successfully');
                     }
-                    if (successCallback) successCallback(response);
+                    if (callback && typeof callback === 'function') {
+                        callback(response);
+                    }
                 } else {
                     toastr.error(response.message || 'Something went wrong');
-                    if (errorCallback) errorCallback(response);
+                    $submitBtn.prop('disabled', false).html(originalBtnHtml);
                 }
             },
             error: function(xhr) {
-                const response = xhr.responseJSON;
-                toastr.error(response?.message || 'Server error occurred');
-                if (errorCallback) errorCallback(response);
-            },
-            complete: function() {
-                submitBtn.prop('disabled', false).html(originalBtnText);
+                let message = 'An error occurred. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+                toastr.error(message);
+                $submitBtn.prop('disabled', false).html(originalBtnHtml);
             }
         });
     });

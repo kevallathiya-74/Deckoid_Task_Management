@@ -115,7 +115,7 @@
                 <div class="modal-body py-4">
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Leave Type</label>
-                        <select class="form-select border-0 bg-neutral-100 rounded-3 py-3" name="leave_type" required>
+                        <select class="form-select border-0 bg-neutral-100 rounded-4" name="leave_type" required>
                             <option value="">Select Type</option>
                             <option value="sick_leave">Sick Leave</option>
                             <option value="casual_leave">Casual Leave</option>
@@ -126,11 +126,11 @@
                     <div class="row g-3 mb-4">
                         <div class="col-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">From Date</label>
-                            <input type="date" class="form-control border-0 bg-neutral-100 rounded-3 py-3" name="from_date" id="from_date" required min="<?= date('Y-m-d') ?>">
+                            <input type="date" class="form-control border-0 bg-neutral-100 rounded-4" name="from_date" id="from_date" required min="<?= date('Y-m-d') ?>">
                         </div>
                         <div class="col-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">To Date</label>
-                            <input type="date" class="form-control border-0 bg-neutral-100 rounded-3 py-3" name="to_date" id="to_date" required min="<?= date('Y-m-d') ?>">
+                            <input type="date" class="form-control border-0 bg-neutral-100 rounded-4" name="to_date" id="to_date" required min="<?= date('Y-m-d') ?>">
                         </div>
                     </div>
                     <div class="mb-4">
@@ -138,7 +138,7 @@
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase mb-0">Reason</label>
                             <span class="text-xs text-neutral-400" id="reason-char-count">0/1000</span>
                         </div>
-                        <textarea class="form-control border-0 bg-neutral-100 rounded-3" name="reason" rows="3" required minlength="10" maxlength="1000" placeholder="Please provide a valid reason..."></textarea>
+                        <textarea class="form-control border-0 bg-neutral-100 rounded-4" name="reason" rows="3" required minlength="10" maxlength="1000" placeholder="Please provide a valid reason..."></textarea>
                     </div>
                     <div class="bg-primary-soft p-3 rounded-4 d-flex justify-content-between align-items-center">
                         <span class="text-sm fw-bold text-primary">Total Days Calculated:</span>

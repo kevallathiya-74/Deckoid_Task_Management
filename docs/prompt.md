@@ -1,227 +1,202 @@
-Use this prompt now for proper centralized `.env` architecture and environment mode switching.
-
-CENTRALIZED .ENV CONFIGURATION SYSTEM REQUIRED
+DROPDOWN / SELECT BOX UI FIX REQUIRED
 
 IMPORTANT:
-Analyze the ENTIRE project configuration system carefully.
+Current dropdown/select boxes are visually broken.
 
-Current issue:
-Project still contains:
+Visible issues:
 
-* hardcoded values
-* direct URLs
-* direct DB values
-* static paths
-* environment-dependent logic inside files
-* .env file in only neede value show and full update you make it 
-
-This is NOT production-safe.
-
-Create ONE centralized .env configuration system.
-
-When .env changes:
-ENTIRE project should automatically switch modes correctly.
-
-Example:
-
-APP_ENV=local
-→ whole project runs in LOCAL mode
-
-APP_ENV=production
-→ whole project runs in PRODUCTION mode
-
-WITHOUT:
-
-* manual code changes
-* broken assets
-* broken URLs
-* broken database connections
-* environment conflicts
-
-DO NOT use hardcoded values anywhere.
-
-ALL configuration values must come from:
-
-* .env file
-* centralized config loader
-
-Remove ALL hardcoded:
-
-* localhost URLs
-* database credentials
-* app names
-* API URLs
-* upload paths
-* timezone values
-* session configs
-* mail configs
-* pagination limits
-* debug values
-* environment checks
-* asset URLs
-
-Create centralized config architecture.
-
-.env
-/config
-app.php
-database.php
-session.php
-constants.php
-
-/core
-Env.php
-Config.php
-
-Support modes:
-
-1. local
-2. production
-
-When:
-APP_ENV=local   
-
-Then:
-
-* debug ON
-* detailed errors visible
-* localhost URLs
-* local uploads
-* development logging
-
-When:
-APP_ENV=production
-
-Then:
-
-* debug OFF
-* hidden PHP errors
-* production URLs
-* secure cookies
-* optimized caching
-* production logging only
-
-Changing ONLY:
-.env
-
-must automatically update:
-
-* database connection
-* base URL
-* uploads
-* sessions
-* logging
-* assets
-* mail
-* app behavior
-
-WITHOUT changing any PHP files manually.
-
-Database connection MUST use:
-config('database.host')
-
-NOT:
-localhost hardcoded.
-
-Use:
-
-config('app.url')
-
-for:
-
-* assets
-* redirects
-* AJAX URLs
-* links
-* uploads
-
-DO NOT hardcode:
-[http://localhost/](http://localhost/)
-
-All CSS/JS/Image paths must use centralized helper:
-
-Example:
-asset('css/style.css')
-
-NOT:
-/assets/css/style.css hardcoded
-
-Uploads must use:
-config('app.upload_path')
-
-NOT:
-hardcoded folders
-
-Sessions must automatically change based on environment.
-
-Production:
-
-* secure cookies ON
-* httponly ON
-
-Local:
-
-* secure cookies OFF
-
-If APP_DEBUG=true:
-
-* show detailed errors
-
-If APP_DEBUG=false:
-
-* show friendly production error page
-
-All mail configs must use .env.
-
-NO hardcoded SMTP values.
-
-Logs path and cache path must use centralized config.
-
-Create reusable helpers:
-
-env()
-config()
-asset()
-base_url()
-storage_path()
-
-If .env missing:
-
-* show proper error
-* prevent fatal crash
-
-If env key missing:
-
-* use safe fallback
-
-Protect:
-
-* .env direct access
-* sensitive config exposure
-* debug leakage in production
+* selected value text cut off
+* text alignment broken
+* dropdown height inconsistent
+* placeholder/value overlap
+* padding not correct
+* arrow/icon alignment broken
+* select field looks cramped
 
 DO NOT:
 
-* duplicate config loading
-* manually include .env everywhere
-* use global hardcoded constants randomly
+* redesign full modal
+* change backend logic
+* modify database
+* change business workflow
 
-Load configuration ONCE centrally.
+ONLY:
+
+* fix dropdown/select UI properly
+* improve alignment
+* improve spacing
+* improve SaaS-level form quality
+
+==================================================
+CURRENT PROBLEM
+===============
+
+Dropdown/select fields currently:
+
+* cut text vertically
+* hide selected values
+* have broken padding
+* inconsistent heights
+* bad typography alignment
+
+Affected fields:
+
+* Project
+* Assigned To
+* Department
+* Priority
+* Status
+
+==================================================
+REQUIRED RESULT
+===============
+
+All dropdown/select fields should:
+
+* display selected value correctly
+* show full text
+* align vertically center
+* have equal height
+* maintain proper spacing
+* feel premium SaaS quality
+
+==================================================
+SELECT FIELD FIX
+================
+
+Fix:
+
+* line-height
+* padding-top
+* padding-bottom
+* height
+* overflow hidden
+* text clipping
+* icon positioning
+
+==================================================
+REQUIRED FIELD DESIGN
+=====================
+
+Dropdowns should look:
+
+* clean
+* spacious
+* modern
+* balanced
+* easy to read
+
+==================================================
+TEXT ALIGNMENT FIX
+==================
+
+Selected text must:
+
+* align vertically center
+* not touch top border
+* not clip bottom
+* preserve readable spacing
+
+==================================================
+ICON / ARROW FIX
+================
+
+Dropdown arrow icon must:
+
+* align center vertically
+* not overlap text
+* stay consistent across all fields
+
+==================================================
+CONSISTENT HEIGHT RULE
+======================
+
+ALL inputs/selects must have SAME height.
+
+Fix:
+
+* select field height
+* date field height
+* time field height
+* text input height
+
+==================================================
+RESPONSIVE FIX
+==============
+
+Desktop:
+
+* proper spacing
+
+Tablet:
+
+* no clipping
+
+Mobile:
+
+* full visible text
+* no overflow
+
+==================================================
+TECHNICAL FIX REQUIREMENTS
+==========================
+
+Analyze and fix:
+
+* select padding
+* flex alignment
+* line-height mismatch
+* Bootstrap default select styles
+* overflow hidden issues
+* custom select wrapper sizing
+
+==================================================
+IMPORTANT CSS FIX
+=================
+
+Ensure:
+
+* proper min-height
+* proper padding
+* appearance reset if needed
+* custom select alignment
+
+==================================================
+VALIDATION STATE FIX
+====================
+
+Error states should:
+
+* not shift layout
+* preserve alignment
+* preserve field height
+
+==================================================
+IMPORTANT
+=========
 
 If file exists:
 
-* UPDATE carefully
+* UPDATE existing styles carefully
 
-Replace:
+Do NOT:
 
-* hardcoded values
-* static URLs
-* static configs
+* create new form system
+* duplicate fields
+* break responsiveness
 
-Project should behave like:
+==================================================
+FINAL GOAL
+==========
 
-* professional SaaS architecture
-* production-ready PHP system
-* scalable environment-aware platform
+Dropdown/select fields should feel:
 
-Changing ONLY .env should switch the ENTIRE project mode automatically without breaking anything.
+* premium
+* polished
+* readable
+* spacious
+* enterprise SaaS quality
+
+No clipping.
+No overlap.
+No broken alignment.

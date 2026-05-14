@@ -20,11 +20,11 @@
             <form id="filterForm" class="row g-4 align-items-end">
                 <div class="col-lg-4">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Department</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-neutral-50 border-0 rounded-start-pill ps-3">
+                    <div class="input-group bg-neutral-50 rounded-pill">
+                        <span class="input-group-text ps-3">
                             <i class="fas fa-building-user text-neutral-300"></i>
                         </span>
-                        <select class="form-select border-0 bg-neutral-50 rounded-end-pill py-2 text-sm fw-bold" name="role_id" id="filter_role">
+                        <select class="form-select text-sm fw-bold h-100" name="role_id" id="filter_role">
                             <option value="">All Departments</option>
                             <?php foreach ($roles as $role): ?>
                                 <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
@@ -34,11 +34,11 @@
                 </div>
                 <div class="col-lg-4">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Lifecycle Status</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-neutral-50 border-0 rounded-start-pill ps-3">
+                    <div class="input-group bg-neutral-50 rounded-pill">
+                        <span class="input-group-text ps-3">
                             <i class="fas fa-chart-pie text-neutral-300"></i>
                         </span>
-                        <select class="form-select border-0 bg-neutral-50 rounded-end-pill py-2 text-sm fw-bold" name="status" id="filter_status">
+                        <select class="form-select text-sm fw-bold h-100" name="status" id="filter_status">
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="active">Active</option>
@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <button type="button" id="resetFilters" class="btn btn-secondary border-0 bg-neutral-50 w-100 rounded-pill py-2 text-xs fw-bold text-neutral-600">
+                    <button type="button" id="resetFilters" class="btn btn-secondary border-0 bg-neutral-50 w-100 rounded-pill h-100 text-xs fw-bold text-neutral-600">
                         <i class="fas fa-filter me-2"></i> Reset Filters
                     </button>
                 </div>
@@ -56,7 +56,8 @@
         </div>
 
         <div class="glass-card overflow-hidden">
-            <table class="table table-hover align-middle mb-0" id="projectsTable">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="projectsTable" style="min-width: 1000px;">
                 <thead>
                     <tr>
                         <th class="ps-4">Project & Client</th>
@@ -88,21 +89,21 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-8">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Project Name</label>
-                            <input type="text" class="form-control rounded-4 py-3" name="project_name" required placeholder="e.g. Phoenix E-commerce Revamp">
+                            <input type="text" class="form-control rounded-4" name="project_name" required placeholder="e.g. Phoenix E-commerce Revamp">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Client Name</label>
-                            <input type="text" class="form-control rounded-4 py-3" name="client_name" required placeholder="Client Name">
+                            <input type="text" class="form-control rounded-4" name="client_name" required placeholder="Client Name">
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Description</label>
-                        <textarea class="form-control rounded-4 py-3" name="description" rows="3" placeholder="Detail the core objectives and deliverables..."></textarea>
+                        <textarea class="form-control rounded-4" name="description" rows="3" placeholder="Detail the core objectives and deliverables..."></textarea>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department Role</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="role_id" required>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="role_id" required>
                                 <option value="">Select Department</option>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
@@ -111,7 +112,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Status</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="status">
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="status">
                                 <option value="pending">Pending</option>
                                 <option value="active">Active</option>
                                 <option value="completed">Completed</option>
@@ -121,11 +122,11 @@
                     <div class="row g-4 mb-2">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Start Date</label>
-                            <input type="date" class="form-control rounded-4 py-3" name="start_date" value="<?= date('Y-m-d') ?>">
+                            <input type="date" class="form-control rounded-4" name="start_date" value="<?= date('Y-m-d') ?>">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Final Deadline</label>
-                            <input type="date" class="form-control rounded-4 py-3" name="deadline" value="<?= date('Y-m-d', strtotime('+7 days')) ?>">
+                            <input type="date" class="form-control rounded-4" name="deadline" value="<?= date('Y-m-d', strtotime('+7 days')) ?>">
                         </div>
                     </div>
                 </div>
@@ -154,21 +155,21 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-8">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Project Name</label>
-                            <input type="text" class="form-control rounded-4 py-3" name="project_name" id="edit_project_name" required>
+                            <input type="text" class="form-control rounded-4" name="project_name" id="edit_project_name" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Client Name</label>
-                            <input type="text" class="form-control rounded-4 py-3" name="client_name" id="edit_client_name" required>
+                            <input type="text" class="form-control rounded-4" name="client_name" id="edit_client_name" required>
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Description</label>
-                        <textarea class="form-control rounded-4 py-3" name="description" id="edit_description" rows="3"></textarea>
+                        <textarea class="form-control rounded-4" name="description" id="edit_description" rows="3"></textarea>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="role_id" id="edit_role_id" required>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="role_id" id="edit_role_id" required>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
                                 <?php endforeach; ?>
@@ -176,7 +177,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">State</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="status" id="edit_status">
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="status" id="edit_status">
                                 <option value="pending">Pending</option>
                                 <option value="active">Active</option>
                                 <option value="completed">Completed</option>
@@ -186,11 +187,11 @@
                     <div class="row g-4 mb-2">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Start Date</label>
-                            <input type="date" class="form-control rounded-4 py-3" name="start_date" id="edit_start_date">
+                            <input type="date" class="form-control rounded-4" name="start_date" id="edit_start_date">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Final Deadline</label>
-                            <input type="date" class="form-control rounded-4 py-3" name="deadline" id="edit_deadline">
+                            <input type="date" class="form-control rounded-4" name="deadline" id="edit_deadline">
                         </div>
                     </div>
                 </div>

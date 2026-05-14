@@ -34,7 +34,7 @@
                     <div class="col-md-auto text-md-end mt-3 mt-md-0">
                         <div class="text-xs fw-bold text-neutral-400 text-uppercase mb-2">Report Filter</div>
                         <div class="d-flex gap-2 justify-content-md-end d-print-none">
-                            <select class="form-select form-select-sm border-0 bg-neutral-100 rounded-pill px-4 py-2" id="report-duration-select">
+                            <select class="form-select border-0 bg-neutral-100 rounded-pill" id="report-duration-select">
                                 <option value="7days">Last 7 Days</option>
                                 <option value="monthly" selected>Monthly (30 Days)</option>
                                 <option value="3months">Last 3 Months</option>

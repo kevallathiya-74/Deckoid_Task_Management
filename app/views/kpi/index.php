@@ -80,11 +80,11 @@
                     <div class="row g-4 mb-5">
                         <div class="col-12">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Select Member</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-neutral-50 border-0 rounded-start-4 ps-3">
+                            <div class="input-group bg-neutral-50 rounded-4">
+                                <span class="input-group-text ps-3">
                                     <i class="fas fa-user-tie text-neutral-300"></i>
                                 </span>
-                                <select class="form-select border-0 bg-neutral-50 rounded-end-4 py-3 text-sm fw-bold" id="kpi-staff-select">
+                                <select class="form-select text-sm fw-bold h-100" id="kpi-staff-select">
                                     <option value="">Choose Member Profile</option>
                                     <?php foreach ($staff as $s): ?>
                                         <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?> (<?= $s['role_name'] ?>)</option>
@@ -94,11 +94,11 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Audit Date</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-neutral-50 border-0 rounded-start-4 ps-3">
+                            <div class="input-group bg-neutral-50 rounded-4">
+                                <span class="input-group-text ps-3">
                                     <i class="fas fa-calendar-day text-neutral-300"></i>
                                 </span>
-                                <input type="date" class="form-control border-0 bg-neutral-50 rounded-end-4 py-3 text-sm fw-bold" id="kpi-date-select" max="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>">
+                                <input type="date" class="form-control text-sm fw-bold h-100" id="kpi-date-select" max="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>">
                             </div>
                         </div>
                     </div>
@@ -178,7 +178,7 @@
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <span class="text-xs fw-bold text-neutral-400 text-uppercase">Period:</span>
-                            <select class="form-select border-0 bg-neutral-100 rounded-pill px-4 py-2 text-xs fw-bold" id="rank-month-select" style="width: auto;">
+                            <select class="form-select border-0 bg-neutral-100 rounded-pill text-xs fw-bold" id="rank-month-select" style="width: auto;">
                                 <?php for ($m=1; $m<=12; $m++): ?>
                                     <option value="<?= $m ?>" <?= $m == date('n') ? 'selected' : '' ?>><?= date('F', mktime(0, 0, 0, $m, 1)) ?></option>
                                 <?php endfor; ?>

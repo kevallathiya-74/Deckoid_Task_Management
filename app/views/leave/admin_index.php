@@ -39,7 +39,7 @@
         <div class="glass-card mb-4 p-3">
             <div class="row g-3 align-items-center">
                 <div class="col-md-4">
-                    <select class="form-select border-0 bg-neutral-50 rounded-pill px-4" id="filter-status">
+                    <select class="form-select border-0 bg-neutral-50 rounded-pill" id="filter-status">
                         <option value="">All Statuses</option>
                         <option value="pending" selected>Pending</option>
                         <option value="approved">Approved</option>
@@ -47,7 +47,7 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <select class="form-select border-0 bg-neutral-50 rounded-pill px-4" id="filter-staff">
+                    <select class="form-select border-0 bg-neutral-50 rounded-pill" id="filter-staff">
                         <option value="">All Staff Members</option>
                         <?php foreach ($staff as $s): ?>
                             <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
@@ -100,7 +100,7 @@
                 </div>
                 <div class="mb-0">
                     <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Admin Comment (Optional)</label>
-                    <textarea class="form-control border-0 bg-neutral-100 rounded-3" id="admin-comment" rows="3" placeholder="Add your notes here..."></textarea>
+                    <textarea class="form-control border-0 bg-neutral-100 rounded-4" id="admin-comment" rows="3" placeholder="Add your notes here..."></textarea>
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0 gap-3">

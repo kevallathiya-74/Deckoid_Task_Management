@@ -23,11 +23,11 @@
             <form id="filterForm" class="row g-4 align-items-end">
                 <div class="col-xl-3 col-md-6">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Active Project</label>
-                    <div class="input-group glass-input overflow-hidden border-0">
-                        <span class="input-group-text bg-transparent border-0 ps-3">
+                    <div class="input-group bg-neutral-50 rounded-pill">
+                        <span class="input-group-text ps-3">
                             <i class="fas fa-layer-group text-neutral-400"></i>
                         </span>
-                        <select class="form-select border-0 bg-transparent py-2 text-sm fw-bold" name="project_id" id="filter_project">
+                        <select class="form-select text-sm fw-bold h-100" name="project_id" id="filter_project">
                             <option value="">All Active Projects</option>
                             <?php foreach ($projects as $p): ?>
                                 <option value="<?= $p['id'] ?>" <?= (isset($project_id) && $project_id == $p['id']) ? 'selected' : '' ?>>
@@ -39,11 +39,11 @@
                 </div>
                 <div class="col-xl-3 col-md-6">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Assigned To</label>
-                    <div class="input-group glass-input overflow-hidden border-0">
-                        <span class="input-group-text bg-transparent border-0 ps-3">
+                    <div class="input-group bg-neutral-50 rounded-pill">
+                        <span class="input-group-text ps-3">
                             <i class="fas fa-user-check text-neutral-400"></i>
                         </span>
-                        <select class="form-select border-0 bg-transparent py-2 text-sm fw-bold" name="assigned_to" id="filter_assignee">
+                        <select class="form-select text-sm fw-bold h-100" name="assigned_to" id="filter_assignee">
                             <option value="">All Team Members</option>
                             <?php foreach ($staff as $s): ?>
                                 <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
@@ -53,21 +53,22 @@
                 </div>
                 <div class="col-xl-3 col-md-6">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Status</label>
-                    <div class="input-group glass-input overflow-hidden border-0">
-                        <span class="input-group-text bg-transparent border-0 ps-3">
+                    <div class="input-group bg-neutral-50 rounded-pill">
+                        <span class="input-group-text ps-3">
                             <i class="fas fa-check-circle text-neutral-400"></i>
                         </span>
-                        <select class="form-select border-0 bg-transparent py-2 text-sm fw-bold" name="status" id="filter_status">
+                        <select class="form-select text-sm fw-bold h-100" name="status" id="filter_status">
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
                             <option value="review">Review</option>
+                            
                             <option value="completed">Completed</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <button type="button" id="resetFilters" class="btn btn-secondary-soft w-100 rounded-pill py-3 text-xs fw-bold">
+                    <button type="button" id="resetFilters" class="btn btn-secondary-soft w-100 rounded-pill h-100 text-xs fw-bold">
                         <i class="fas fa-sync-alt me-2"></i> Reset Filters
                     </button>
                 </div>
@@ -75,7 +76,8 @@
         </div>
 
         <div class="glass-card overflow-hidden">
-            <table class="table table-hover align-middle mb-0" id="tasksTable">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tasksTable" style="min-width: 1100px;">
                 <thead>
                     <tr>
                         <th class="ps-4 text-xs fw-bold text-uppercase text-neutral-400">Task Details</th>
@@ -118,7 +120,7 @@
 
                             <div class="mb-4">
                                 <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Task Title</label>
-                                <input type="text" class="form-control glass-input py-3" name="tasks[0][title]" required placeholder="[ Enter task title ]">
+                                <input type="text" class="form-control glass-input" name="tasks[0][title]" required placeholder="[ Enter task title ]">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Detailed Description</label>
@@ -128,7 +130,7 @@
                             <div class="row g-4 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Select Project</label>
-                                    <select class="form-select glass-input py-3 text-sm" name="tasks[0][project_id]" required>
+                                    <select class="form-select glass-input text-sm" name="tasks[0][project_id]" required>
                                         <option value="" selected disabled>Select Project...</option>
                                         <?php foreach ($projects as $p): ?>
                                             <option value="<?= $p['id'] ?>" <?= (isset($project_id) && $project_id == $p['id']) ? 'selected' : '' ?>>
@@ -139,7 +141,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Assign Team Lead</label>
-                                    <select class="form-select glass-input py-3 text-sm" name="tasks[0][assigned_to]" required>
+                                    <select class="form-select glass-input text-sm" name="tasks[0][assigned_to]" required>
                                         <option value="" selected disabled>Select Member...</option>
                                         <?php foreach ($staff as $s): ?>
                                             <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?> (<?= $s['role_name'] ?>)</option>
@@ -151,7 +153,7 @@
                             <div class="row g-4 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Department</label>
-                                    <select class="form-select glass-input py-3 text-sm" name="tasks[0][role_id]" required>
+                                    <select class="form-select glass-input text-sm" name="tasks[0][role_id]" required>
                                         <option value="" selected disabled>Select Department...</option>
                                         <?php foreach ($roles as $r): ?>
                                             <option value="<?= $r['id'] ?>"><?= $r['name'] ?></option>
@@ -160,7 +162,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Priority</label>
-                                    <select class="form-select glass-input py-3 text-sm" name="tasks[0][priority]">
+                                    <select class="form-select glass-input text-sm" name="tasks[0][priority]">
                                         <option value="low">Low</option>
                                         <option value="medium" selected>Medium</option>
                                         <option value="high">High</option>
@@ -171,7 +173,7 @@
                             <div class="row g-4 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Status</label>
-                                    <select class="form-select glass-input py-3 text-sm" name="tasks[0][status]">
+                                    <select class="form-select glass-input text-sm" name="tasks[0][status]">
                                         <option value="pending" selected>Pending</option>
                                         <option value="in_progress">In Progress</option>
                                         <option value="review">Review</option>
@@ -191,17 +193,17 @@
                             <div class="row g-4 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Expected Delivery Date</label>
-                                    <input type="date" class="form-control glass-input py-3" name="tasks[0][due_date]" required value="<?= date('Y-m-d', strtotime('+1 day')) ?>">
+                                    <input type="date" class="form-control glass-input" name="tasks[0][due_date]" required value="<?= date('Y-m-d', strtotime('+1 day')) ?>">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Expected Delivery Time</label>
-                                    <input type="time" class="form-control glass-input py-3" name="tasks[0][due_time]" required value="09:00">
+                                    <input type="time" class="form-control glass-input" name="tasks[0][due_time]" required value="09:00">
                                 </div>
                             </div>
 
                             <div class="mb-0">
                                 <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Status Notes / Remarks</label>
-                                <input type="text" class="form-control glass-input py-3" name="tasks[0][status_notes]" placeholder="[ Any initial notes or remarks... ]">
+                                <input type="text" class="form-control glass-input" name="tasks[0][status_notes]" placeholder="[ Any initial notes or remarks... ]">
                             </div>
                         </div>
                     </div>
@@ -237,7 +239,7 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-12">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Project</label>
-                            <select class="form-select glass-input py-3 text-sm" name="project_id" id="edit_project_id" required>
+                            <select class="form-select glass-input text-sm" name="project_id" id="edit_project_id" required>
                                 <?php foreach ($projects as $p): ?>
                                     <option value="<?= $p['id'] ?>"><?= $p['project_name'] ?></option>
                                 <?php endforeach; ?>
@@ -248,7 +250,7 @@
                     <!-- Core Details -->
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Task Title</label>
-                        <input type="text" class="form-control glass-input py-3" name="title" id="edit_title" required placeholder="[ Task title ]">
+                        <input type="text" class="form-control glass-input" name="title" id="edit_title" required placeholder="[ Task title ]">
                     </div>
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Description</label>
@@ -259,7 +261,7 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Assigned To</label>
-                            <select class="form-select glass-input py-3 text-sm" name="assigned_to" id="edit_assigned_to" required>
+                            <select class="form-select glass-input text-sm" name="assigned_to" id="edit_assigned_to" required>
                                 <?php foreach ($staff as $s): ?>
                                     <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
                                 <?php endforeach; ?>
@@ -267,7 +269,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Department</label>
-                            <select class="form-select glass-input py-3 text-sm" name="role_id" id="edit_role_id" required>
+                            <select class="form-select glass-input text-sm" name="role_id" id="edit_role_id" required>
                                 <?php foreach ($roles as $r): ?>
                                     <option value="<?= $r['id'] ?>"><?= $r['name'] ?></option>
                                 <?php endforeach; ?>
@@ -279,7 +281,7 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Priority</label>
-                            <select class="form-select glass-input py-3 text-sm" name="priority" id="edit_priority">
+                            <select class="form-select glass-input text-sm" name="priority" id="edit_priority">
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
                                 <option value="high">High</option>
@@ -287,7 +289,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Status</label>
-                            <select class="form-select glass-input py-3 text-sm" name="status" id="edit_status">
+                            <select class="form-select glass-input text-sm" name="status" id="edit_status">
                                 <option value="pending">Pending</option>
                                 <option value="in_progress">In Progress</option>
                                 <option value="review">Review</option>
@@ -309,15 +311,15 @@
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Expected Delivery</label>
                             <div class="row g-2">
-                                <div class="col-7"><input type="date" class="form-control glass-input py-3" name="due_date" id="edit_due_date" required></div>
-                                <div class="col-5"><input type="time" class="form-control glass-input py-3" name="due_time" id="edit_due_time" required></div>
+                                <div class="col-7"><input type="date" class="form-control glass-input" name="due_date" id="edit_due_date" required></div>
+                                <div class="col-5"><input type="time" class="form-control glass-input" name="due_time" id="edit_due_time" required></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-2">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Progress Notes</label>
-                        <input type="text" class="form-control glass-input py-3" name="status_notes" id="edit_notes" placeholder="[ Detailed update on current blockages or progress... ]">
+                        <input type="text" class="form-control glass-input" name="status_notes" id="edit_notes" placeholder="[ Detailed update on current blockages or progress... ]">
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-5 d-flex justify-content-between">
@@ -325,6 +327,23 @@
                     <button type="submit" class="btn btn-primary-grad rounded-pill px-5 py-3">Save Changes</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Recurring History Modal -->
+<div class="modal fade" id="recurringHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0 p-4">
+            <div class="modal-header border-0 pb-3">
+                <h4 class="fw-bold text-neutral-900 mb-0">Recurring History</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-0">
+                <div id="recurring-logs-container" class="py-2">
+                    <!-- Logs will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -347,9 +366,17 @@ $(document).ready(function() {
             { 
                 data: 'title',
                 render: function(data, type, row) {
+                    let recurringBadge = '';
+                    if (row.is_recurring == 1) {
+                        const typeLabel = row.recurring_type === 'weekly' ? 'Weekly Repeat' : 'Monthly Repeat';
+                        recurringBadge = `<span class="badge bg-purple-grad rounded-pill px-2 py-1 ms-2 text-white" style="font-size: 0.6rem;"><i class="fas fa-sync-alt me-1"></i>${typeLabel}</span>`;
+                    }
                     return `
                         <div class="py-2">
-                            <div class="fw-bold text-neutral-900 mb-1 font-outfit fs-6 lh-sm">${data}</div>
+                            <div class="d-flex align-items-center">
+                                <div class="fw-bold text-neutral-900 mb-1 font-outfit fs-6 lh-sm">${data}</div>
+                                ${recurringBadge}
+                            </div>
                             <div class="text-xs text-neutral-400 font-medium text-truncate" style="max-width: 280px;">${row.description || 'No detailed description provided'}</div>
                         </div>
                     `;
@@ -450,11 +477,33 @@ $(document).ready(function() {
                 data: null,
                 className: 'text-end pe-4',
                 orderable: false,
-                render: function(data) {
+                render: function(data, type, row) {
+                    const isAdmin = '<?= $_SESSION['user_role'] ?>' === 'admin';
+                    let recurringActions = '';
+                    
+                    if (isAdmin) {
+                        recurringActions = `
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header text-xs text-uppercase fw-bold text-neutral-400">Automation</h6></li>
+                            <li><a class="dropdown-item py-2 text-sm fw-medium enable-recurring" href="javascript:void(0)" data-id="${row.id}" data-type="weekly"><i class="fas fa-calendar-week me-2 text-purple-500"></i>Repeat Weekly</a></li>
+                            <li><a class="dropdown-item py-2 text-sm fw-medium enable-recurring" href="javascript:void(0)" data-id="${row.id}" data-type="monthly"><i class="fas fa-calendar-alt me-2 text-purple-500"></i>Repeat Monthly</a></li>
+                            ${row.is_recurring == 1 ? `<li><a class="dropdown-item py-2 text-sm fw-medium disable-recurring text-danger" href="javascript:void(0)" data-id="${row.id}"><i class="fas fa-stop-circle me-2"></i>Disable Repeat</a></li>` : ''}
+                            <li><a class="dropdown-item py-2 text-sm fw-medium view-recurring-logs" href="javascript:void(0)" data-id="${row.id}"><i class="fas fa-history me-2 text-neutral-500"></i>View History</a></li>
+                        `;
+                    }
+
                     return `
-                        <button class="btn btn-link text-primary p-0 edit-task" style="text-decoration: none;">
-                            <i class="fas fa-edit fs-5"></i>
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn action-btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end glass-card border-0 shadow-lg py-2 animate-fade-in" style="min-width: 200px;">
+                                <li><h6 class="dropdown-header text-xs text-uppercase fw-bold text-neutral-400">Manage</h6></li>
+                                <li><a class="dropdown-item py-2 text-sm fw-medium edit-task" href="javascript:void(0)"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
+                                ${isAdmin ? `<li><a class="dropdown-item py-2 text-sm fw-medium delete-task text-danger" href="javascript:void(0)" data-id="${row.id}"><i class="fas fa-trash-alt me-2"></i>Delete</a></li>` : ''}
+                                ${recurringActions}
+                            </ul>
+                        </div>
                     `;
                 }
             }
@@ -628,6 +677,95 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Recurring Task Handlers
+    $(document).on('click', '.enable-recurring', function() {
+        const id = $(this).data('id');
+        const type = $(this).data('type');
+        const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+
+        Swal.fire({
+            title: `Enable ${typeLabel} Repeat?`,
+            text: `This will automatically create a new task every ${type === 'weekly' ? 'week' : 'month'}.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#8b5cf6',
+            confirmButtonText: 'Yes, enable it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('<?= url('/api/tasks/recurring/enable') ?>', { id: id, type: type }, (res) => {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        table.ajax.reload(null, false);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.disable-recurring', function() {
+        const id = $(this).data('id');
+
+        Swal.fire({
+            title: 'Disable Recurring?',
+            text: "No future tasks will be generated for this automation.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            confirmButtonText: 'Yes, disable it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('<?= url('/api/tasks/recurring/disable') ?>', { id: id }, (res) => {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        table.ajax.reload(null, false);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.view-recurring-logs', function() {
+        const id = $(this).data('id');
+        const container = $('#recurring-logs-container');
+        container.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>');
+        
+        $('#recurringHistoryModal').modal('show');
+
+        $.get('<?= url('/api/tasks/recurring/logs') ?>', { id: id }, (res) => {
+            if (res.success && res.data.length > 0) {
+                let html = '<div class="list-group list-group-flush">';
+                res.data.forEach(log => {
+                    html += `
+                        <div class="list-group-item border-0 px-0 py-3 animate-fade-in">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary-soft text-primary rounded-pill px-3 py-1 text-xs fw-bold text-uppercase">${log.recurring_type}</span>
+                                <span class="text-xs text-neutral-400 fw-medium">${moment(log.created_at).format('DD MMM YYYY, hh:mm A')}</span>
+                            </div>
+                            <h6 class="text-sm fw-bold text-neutral-900 mb-1">${log.generated_task_title}</h6>
+                            <p class="text-xs text-neutral-500 mb-0">Generated by ${log.creator_name}</p>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.html(html);
+            } else {
+                container.html(`
+                    <div class="text-center py-5">
+                        <div class="bg-neutral-100 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-history text-neutral-400 fs-4"></i>
+                        </div>
+                        <h6 class="text-neutral-900 fw-bold">No History Found</h6>
+                        <p class="text-neutral-500 text-xs mb-0">No recurring tasks have been generated yet.</p>
+                    </div>
+                `);
+            }
+        });
+    });
 });
 </script>
 
@@ -679,19 +817,72 @@ $(document).ready(function() {
 .form-range::-webkit-slider-thumb:active { transform: scale(1.2); }
 
 /* Premium Glassmorphism Form Elements */
-.glass-input {
+.glass-input, 
+.form-control.glass-input, 
+.form-select.glass-input,
+.input-group.glass-input {
     background: rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(226, 232, 240, 0.8) !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 0 1.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
 }
 
-.glass-input:focus {
+.glass-input:focus,
+.glass-input:focus-within {
     background: #fff !important;
     border-color: #8b5cf6 !important;
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1) !important;
+}
+
+/* Internal Reset for Inputs/Selects */
+.glass-input input, 
+.glass-input select,
+select.glass-input,
+input.glass-input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: 52px !important; /* Matches height for vertical centering */
+    color: inherit !important;
+}
+
+/* Specific Select Fixes */
+select.glass-input, 
+.form-select.glass-input {
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 1.25rem center !important;
+    background-size: 14px 10px !important;
+    padding-right: 3rem !important;
+}
+
+/* Date/Time Input Align */
+input[type="date"].glass-input,
+input[type="time"].glass-input {
+    display: inline-flex !important;
+}
+
+/* Placeholder Styling */
+.glass-input::placeholder {
+    color: #94a3b8 !important;
+    font-weight: 400 !important;
 }
 
 .btn-primary-grad {
@@ -727,10 +918,11 @@ $(document).ready(function() {
     display: flex;
     align-items: center;
     background: rgba(248, 250, 252, 0.6);
-    padding: 10px 15px;
-    border-radius: 12px;
+    padding: 0 1.25rem;
+    border-radius: 14px;
     border: 1px solid #e2e8f0;
     flex-grow: 1;
+    height: 52px !important;
 }
 
 .premium-slider {
@@ -760,10 +952,6 @@ $(document).ready(function() {
     background: #7c3aed;
 }
 
-.bg-primary-soft {
-    background: rgba(139, 92, 246, 0.1);
-}
-
 /* Dynamic Task Block Animations */
 .task-block-card {
     transition: all 0.4s ease;
@@ -780,28 +968,7 @@ $(document).ready(function() {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.btn-danger-soft {
-    background: rgba(244, 63, 94, 0.1);
-    color: #e11d48;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.btn-danger-soft:hover {
-    background: #e11d48;
-    color: white;
-}
-
-.btn-primary-soft {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    transition: all 0.3s ease;
-}
-
 .btn-primary-soft:hover {
-    background: rgba(139, 92, 246, 0.2);
-    color: #7c3aed;
     transform: translateY(-1px);
 }
 
@@ -855,4 +1022,19 @@ $(document).ready(function() {
 }
 
 .font-outfit { font-family: 'Outfit', sans-serif; }
+
+/* Custom Task View Enhancements */
+.bg-purple-grad {
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+}
+
+.text-purple-500 {
+    color: #a855f7 !important;
+}
+
+.dropdown-item.text-danger:hover {
+    background: #fff1f2 !important;
+    color: #e11d48 !important;
+}
 </style>

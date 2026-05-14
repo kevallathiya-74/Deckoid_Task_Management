@@ -18,11 +18,11 @@
             <form id="filterForm" class="row g-4 align-items-end">
                 <div class="col-lg-4">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Department Filter</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-neutral-50 border-0 rounded-start-pill ps-3">
+                    <div class="input-group bg-neutral-50 rounded-pill">
+                        <span class="input-group-text ps-3">
                             <i class="fas fa-briefcase text-neutral-300"></i>
                         </span>
-                        <select class="form-select border-0 bg-neutral-50 rounded-end-pill py-2 text-sm fw-bold" name="filter_role" id="filter_role">
+                        <select class="form-select text-sm fw-bold h-100" name="filter_role" id="filter_role">
                             <option value="">All Departments</option>
                             <?php foreach ($roles as $role): ?>
                                 <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
@@ -32,11 +32,11 @@
                 </div>
                 <div class="col-lg-4">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Status Type</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-neutral-50 border-0 rounded-start-pill ps-3">
+                    <div class="input-group bg-neutral-50 rounded-pill">
+                        <span class="input-group-text ps-3">
                             <i class="fas fa-toggle-on text-neutral-300"></i>
                         </span>
-                        <select class="form-select border-0 bg-neutral-50 rounded-end-pill py-2 text-sm fw-bold" name="filter_status" id="filter_status">
+                        <select class="form-select text-sm fw-bold h-100" name="filter_status" id="filter_status">
                             <option value="">All Active/Inactive</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <button type="button" id="resetFilters" class="btn btn-secondary border-0 bg-neutral-50 w-100 rounded-pill py-2 text-xs fw-bold text-neutral-600">
+                    <button type="button" id="resetFilters" class="btn btn-secondary border-0 bg-neutral-50 w-100 rounded-pill h-100 text-xs fw-bold text-neutral-600">
                         <i class="fas fa-filter-circle-xmark me-2"></i> Clear All Filters
                     </button>
                 </div>
@@ -87,26 +87,26 @@
                 <div class="modal-body py-0">
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Full Name</label>
-                        <input type="text" class="form-control rounded-4 py-3" name="full_name" placeholder="Enter full name" required>
+                        <input type="text" class="form-control rounded-4" name="full_name" placeholder="Enter full name" required>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Username</label>
-                            <input type="text" class="form-control rounded-4 py-3" name="username" placeholder="Enter username" required>
+                            <input type="text" class="form-control rounded-4" name="username" placeholder="Enter username" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Password</label>
-                            <input type="password" class="form-control rounded-4 py-3" name="password" placeholder="••••••••" required>
+                            <input type="password" class="form-control rounded-4" name="password" placeholder="••••••••" required>
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Email Address</label>
-                        <input type="email" class="form-control rounded-4 py-3" name="email" placeholder="Enter email" required>
+                        <input type="email" class="form-control rounded-4" name="email" placeholder="Enter email" required>
                     </div>
                     <div class="row g-4 mb-2">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department Role</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="role_id" required>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="role_id" required>
                                 <option value="">Select Role</option>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
@@ -115,7 +115,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Status</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="status">
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="status">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
@@ -147,26 +147,26 @@
                 <div class="modal-body py-0">
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Full Name</label>
-                        <input type="text" class="form-control rounded-4 py-3" name="full_name" id="edit_full_name" required>
+                        <input type="text" class="form-control rounded-4" name="full_name" id="edit_full_name" required>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Username</label>
-                            <input type="text" class="form-control rounded-4 py-3" name="username" id="edit_username" required>
+                            <input type="text" class="form-control rounded-4" name="username" id="edit_username" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Update Password (Optional)</label>
-                            <input type="password" class="form-control rounded-4 py-3" name="password" placeholder="••••••••">
+                            <input type="password" class="form-control rounded-4" name="password" placeholder="••••••••">
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Email Address</label>
-                        <input type="email" class="form-control rounded-4 py-3" name="email" id="edit_email" required>
+                        <input type="email" class="form-control rounded-4" name="email" id="edit_email" required>
                     </div>
                     <div class="row g-4 mb-2">
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department Role</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="role_id" id="edit_role_id" required>
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="role_id" id="edit_role_id" required>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
                                 <?php endforeach; ?>
@@ -174,7 +174,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Status</label>
-                            <select class="form-select border-0 bg-neutral-50 rounded-4 py-3 text-sm fw-bold" name="status" id="edit_status">
+                            <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold" name="status" id="edit_status">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>

@@ -1,5 +1,5 @@
 -- Taskly: Task Management & Performance SaaS Database Schema
--- Last Updated: 2026-05-13
+-- Last Updated: 2026-05-14
 
 CREATE DATABASE IF NOT EXISTS task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE task_management;
@@ -86,6 +86,11 @@ CREATE TABLE IF NOT EXISTS tasks (
     priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
     completed_at TIMESTAMP NULL,
     admin_alert_sent TINYINT(1) DEFAULT 0,
+    is_recurring TINYINT(1) DEFAULT 0,
+    recurring_type ENUM('weekly', 'monthly') NULL,
+    recurring_parent_id CHAR(36) NULL,
+    next_repeat_date DATE NULL,
+    repeat_status ENUM('active', 'paused', 'completed') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
@@ -94,7 +99,10 @@ CREATE TABLE IF NOT EXISTS tasks (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE RESTRICT,
     INDEX (status),
     INDEX (due_date),
-    INDEX (priority)
+    INDEX (priority),
+    INDEX (is_recurring, repeat_status),
+    INDEX (recurring_parent_id),
+    INDEX (next_repeat_date)
 ) ENGINE=InnoDB;
 
 -- 6. Task Comments Table
@@ -123,7 +131,22 @@ CREATE TABLE IF NOT EXISTS task_alerts (
     INDEX (is_read)
 ) ENGINE=InnoDB;
 
--- 8. KPI Records Table (Daily Performance Scoring)
+-- 8. Recurring Task Logs Table
+CREATE TABLE IF NOT EXISTS task_recurring_logs (
+    id CHAR(36) PRIMARY KEY,
+    task_id CHAR(36) NOT NULL,
+    recurring_type ENUM('weekly', 'monthly') NOT NULL,
+    generated_task_id CHAR(36) NOT NULL,
+    generated_date DATE NOT NULL,
+    created_by CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (generated_task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- 9. KPI Records Table (Daily Performance Scoring)
 CREATE TABLE IF NOT EXISTS kpi_records (
     id CHAR(36) PRIMARY KEY,
     user_id CHAR(36) NOT NULL,
@@ -143,7 +166,7 @@ CREATE TABLE IF NOT EXISTS kpi_records (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 9. Leave Requests Table (HR Management)
+-- 10. Leave Requests Table (HR Management)
 CREATE TABLE IF NOT EXISTS leave_requests (
     id CHAR(36) PRIMARY KEY,
     user_id CHAR(36) NOT NULL,
@@ -164,7 +187,7 @@ CREATE TABLE IF NOT EXISTS leave_requests (
     INDEX (from_date)
 ) ENGINE=InnoDB;
 
--- 10. Activity Logs Table (Audit Trail)
+-- 11. Activity Logs Table (Audit Trail)
 CREATE TABLE IF NOT EXISTS activity_logs (
     id CHAR(36) PRIMARY KEY,
     user_id CHAR(36) NOT NULL,

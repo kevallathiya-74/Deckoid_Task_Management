@@ -8,11 +8,6 @@
                 <h3 class="fw-bold text-neutral-900 mb-1">Project Dashboard</h3>
                 <p class="text-neutral-500 mb-0">Real-time overview of your workspace performance</p>
             </div>
-            <div class="d-flex gap-3">
-                <button class="btn btn-primary" onclick="window.location.href='<?= url('/admin/tasks') ?>'">
-                    <i class="fas fa-plus me-2"></i>New Task
-                </button>
-            </div>
         </div>
 
         <!-- Statistics Grid -->
@@ -164,7 +159,7 @@
                             <h5 class="fw-bold text-neutral-900 mb-1">Growth Analysis</h5>
                             <p class="text-xs text-neutral-400 mb-0">Visualizing team productivity and task completion velocity</p>
                         </div>
-                        <select class="form-select border-0 bg-neutral-50 px-4 py-2 rounded-pill text-xs fw-bold" style="width: auto;">
+                        <select class="form-select border-0 bg-neutral-50 rounded-pill" style="width: auto; height: 38px; min-height: 38px;">
                             <option>Last 7 Days</option>
                             <option>Last 30 Days</option>
                         </select>
