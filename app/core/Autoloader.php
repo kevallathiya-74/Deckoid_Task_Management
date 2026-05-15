@@ -10,7 +10,14 @@ spl_autoload_register(function ($class) {
     }
 
     $relative_class = substr($class, $len);
-    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+    $segments = explode('\\', $relative_class);
+    if (count($segments) > 1) {
+        for ($i = 0; $i < count($segments) - 1; $i++) {
+            $segments[$i] = strtolower($segments[$i]);
+        }
+    }
+
+    $file = $base_dir . implode('/', $segments) . '.php';
 
     if (file_exists($file)) {
         require $file;

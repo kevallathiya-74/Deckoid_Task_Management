@@ -1,8 +1,8 @@
 -- Taskly: Task Management & Performance SaaS Database Schema
 -- Last Updated: 2026-05-14
 
-CREATE DATABASE IF NOT EXISTS task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE task_management;
+-- CREATE DATABASE IF NOT EXISTS task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- USE task_management;
 
 -- 1. Roles Table (Departments/Modules)
 CREATE TABLE IF NOT EXISTS roles (
