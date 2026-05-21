@@ -27,17 +27,22 @@ class TaskController
 
     public function index()
     {
-        $title = 'Task Management';
-        $active_page = 'tasks';
-        
-        $projects = $this->projectModel->listAll();
-        $staff = $this->userModel->listAll();
-        $roles = $this->roleModel->all();
+        try {
+            $title = 'Task Management';
+            $active_page = 'tasks';
+            
+            $projects = $this->projectModel->listAll();
+            $staff = $this->userModel->listAll();
+            $roles = $this->roleModel->all();
 
-        require_once ROOT_PATH . '/app/views/layouts/header.php';
-        require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
-        require_once ROOT_PATH . '/app/views/tasks/index.php';
-        require_once ROOT_PATH . '/app/views/layouts/footer.php';
+            require_once ROOT_PATH . '/app/views/layouts/header.php';
+            require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
+            require_once ROOT_PATH . '/app/views/tasks/index.php';
+            require_once ROOT_PATH . '/app/views/layouts/footer.php';
+        } catch (\Exception $e) {
+            http_response_code(500);
+            die("Error loading tasks page: " . $e->getMessage());
+        }
     }
 
     public function list()

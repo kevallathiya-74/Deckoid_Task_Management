@@ -272,6 +272,51 @@ CREATE TABLE IF NOT EXISTS todo_lists (
 ) ENGINE=InnoDB;
 
 
+-- 16. Project Departments Table
+CREATE TABLE IF NOT EXISTS project_departments (
+    id CHAR(36) PRIMARY KEY,
+    project_id CHAR(36) NOT NULL,
+    role_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    UNIQUE KEY (project_id, role_id)
+) ENGINE=InnoDB;
+
+-- 17. Project Assignments Table
+CREATE TABLE IF NOT EXISTS project_assignments (
+    id CHAR(36) PRIMARY KEY,
+    project_id CHAR(36) NOT NULL,
+    user_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY (project_id, user_id)
+) ENGINE=InnoDB;
+
+-- 18. Task Departments Table
+CREATE TABLE IF NOT EXISTS task_departments (
+    id CHAR(36) PRIMARY KEY,
+    task_id CHAR(36) NOT NULL,
+    role_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    UNIQUE KEY (task_id, role_id)
+) ENGINE=InnoDB;
+
+-- 19. Task Assignments Table
+CREATE TABLE IF NOT EXISTS task_assignments (
+    id CHAR(36) PRIMARY KEY,
+    task_id CHAR(36) NOT NULL,
+    user_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY (task_id, user_id)
+) ENGINE=InnoDB;
+
+
 -- ==========================================
 -- SEED DATA
 -- ==========================================

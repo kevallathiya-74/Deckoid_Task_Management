@@ -23,15 +23,20 @@ class ProjectController
 
     public function index()
     {
-        $title = 'Project Management';
-        $active_page = 'projects';
-        $roles = $this->roleModel->all();
-        $staff = $this->userModel->listAll();
+        try {
+            $title = 'Project Management';
+            $active_page = 'projects';
+            $roles = $this->roleModel->all();
+            $staff = $this->userModel->listAll();
 
-        require_once ROOT_PATH . '/app/views/layouts/header.php';
-        require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
-        require_once ROOT_PATH . '/app/views/projects/index.php';
-        require_once ROOT_PATH . '/app/views/layouts/footer.php';
+            require_once ROOT_PATH . '/app/views/layouts/header.php';
+            require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
+            require_once ROOT_PATH . '/app/views/projects/index.php';
+            require_once ROOT_PATH . '/app/views/layouts/footer.php';
+        } catch (\Exception $e) {
+            http_response_code(500);
+            die("Error loading projects page: " . $e->getMessage());
+        }
     }
 
     public function list()
