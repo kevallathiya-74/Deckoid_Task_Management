@@ -130,7 +130,7 @@ function loadLeaves() {
     const staffId = $('#filter-staff').val();
 
     $.get('<?= url('/api/leaves/list') ?>', { status: status, user_id: staffId }, function(res) {
-        if (res.success) {
+        if (res.status === 'success') {
             renderLeaves(res.data);
         }
     });
@@ -198,7 +198,7 @@ function processLeave(status) {
         status: status, 
         admin_comment: comment 
     }, function(res) {
-        if (res.success) {
+        if (res.status === 'success') {
             toastr.success(res.message);
             $('#leaveActionModal').modal('hide');
             loadLeaves();

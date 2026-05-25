@@ -133,7 +133,7 @@
 
 <!-- Add Task Modal -->
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content glass-card border-0 p-4">
             <div class="modal-header border-0 pb-3">
                 <h4 class="fw-bold text-neutral-900 mb-0">Create New Task</h4>
@@ -260,7 +260,7 @@
 
 <!-- Edit Task Modal -->
 <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content glass-card border-0 p-4">
             <div class="modal-header border-0 pb-3">
                 <h4 class="fw-bold text-neutral-900 mb-0">Update Execution Details</h4>
@@ -392,7 +392,7 @@ $(document).ready(function() {
             placeholder: $(this).data('placeholder') || 'Select...',
             allowClear: true,
             width: '100%',
-            dropdownParent: $(this).closest('.modal')
+            dropdownParent: $(this).parent()
         });
     });
 
@@ -656,7 +656,7 @@ $(document).ready(function() {
                     placeholder: $(this).data('placeholder') || 'Select...',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $(this).closest('.modal')
+                    dropdownParent: $(this).parent()
                 });
             });
         });

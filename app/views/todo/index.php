@@ -78,6 +78,7 @@
                                 <?php if ($_SESSION['user_role'] === 'admin'): ?>
                                     <th class="py-3">Assigned To</th>
                                 <?php endif; ?>
+                                <th class="py-3 text-center" style="width: 300px;">Remark</th>
                                 <th class="py-3">Status</th>
                                 <th class="py-3">Created Date</th>
                                 <th class="px-4 py-3 text-end">Actions</th>
@@ -183,12 +184,16 @@ $(document).ready(function() {
 
                             let assignedToHtml = '';
                             <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                                assignedToHtml = `<div class="text-xs text-neutral-500">Assigned to: ${todo.assigned_to_name}</div>`;
+                                assignedToHtml = `
+                                    <div class="text-xs text-neutral-500">Assigned to: ${todo.assigned_to_name}</div>
+                                    ${todo.notes ? `<div class="text-xs text-neutral-600 mt-1 bg-neutral-50 p-1 px-2 rounded d-inline-block"><i class="fas fa-comment-dots me-1 text-primary"></i>${todo.notes}</div>` : ''}
+                                `;
                             <?php endif; ?>
 
                             let checkboxHtml = '';
                             <?php if ($_SESSION['user_role'] !== 'admin'): ?>
                                 checkboxHtml = `
+                                    <textarea class="form-control form-control-sm text-xs todo-remark me-3" data-id="${todo.id}" placeholder="Add remark..." rows="1" style="width: 180px; resize: none; background: rgba(255,255,255,0.7);">${todo.notes || ''}</textarea>
                                     <div class="form-check">
                                         <input class="form-check-input toggle-status" type="checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer; border: 2px solid #000 !important;" data-id="${todo.id}" ${todo.status === 'completed' ? 'checked' : ''}>
                                     </div>
@@ -204,6 +209,9 @@ $(document).ready(function() {
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="text-xs text-neutral-500 fw-bold">${formattedDate}</div>
                                         ${checkboxHtml}
+                                        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                                            <button class="btn btn-sm btn-icon btn-danger-subtle delete-todo ms-2" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
+                                        <?php endif; ?>
                                     </div>
                                 </li>
                             `;
@@ -270,6 +278,13 @@ $(document).ready(function() {
                                     </td>
                                     <?php if ($_SESSION['user_role'] === 'admin'): ?>
                                         <td>${todo.assigned_to_name}</td>
+                                        <td class="text-center text-xs text-neutral-600">
+                                            ${todo.notes ? `<div class="bg-neutral-50 p-2 rounded text-start mx-auto" style="max-width: 280px; word-break: break-word;">${todo.notes}</div>` : '<span class="text-neutral-300 fst-italic">No remark</span>'}
+                                        </td>
+                                    <?php else: ?>
+                                        <td class="text-center">
+                                            <textarea class="form-control form-control-sm text-xs todo-remark mx-auto" data-id="${todo.id}" placeholder="Enter remark..." rows="1" style="width: 280px; resize: none;">${todo.notes || ''}</textarea>
+                                        </td>
                                     <?php endif; ?>
                                     <td>${statusBadge}</td>
                                     <td>${new Date(todo.created_at).toLocaleDateString('en-GB')} ${new Date(todo.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
@@ -307,10 +322,26 @@ $(document).ready(function() {
     $(document).on('change', '.toggle-status', function() {
         const id = $(this).data('id');
         const status = this.checked ? 'completed' : 'pending';
+        
+        let dataPayload = { id: id, status: status };
+        
+        // Check for remark if completing
+        const remarkInput = $('.todo-remark[data-id="' + id + '"]');
+        if (remarkInput.length) {
+            const notes = remarkInput.val().trim();
+            if (status === 'completed' && notes === '') {
+                toastr.error('Please write a remark before completing the task.');
+                this.checked = false;
+                return;
+            }
+            dataPayload.notes = notes;
+            remarkInput.data('last-saved', notes); // Update last-saved so blur doesn't fire duplicate
+        }
+
         $.ajax({
             url: '<?= url('/api/todos/update') ?>',
             type: 'POST',
-            data: { id: id, status: status },
+            data: dataPayload,
             success: function(response) {
                 if (response.status === 'success') {
                     toastr.success('Todo status updated');
@@ -320,6 +351,29 @@ $(document).ready(function() {
                     this.checked = !this.checked;
                 }
             }.bind(this)
+        });
+    });
+
+    // Save Remark on blur or change
+    $(document).on('change blur', '.todo-remark', function() {
+        const id = $(this).data('id');
+        const notes = $(this).val();
+        
+        // Prevent multiple fires if blur and change happen together
+        if ($(this).data('last-saved') === notes) return;
+        $(this).data('last-saved', notes);
+        
+        $.ajax({
+            url: '<?= url('/api/todos/update') ?>',
+            type: 'POST',
+            data: { id: id, notes: notes },
+            success: function(response) {
+                if (response.status === 'success') {
+                    toastr.success('Remark saved successfully');
+                } else {
+                    toastr.error(response.message);
+                }
+            }
         });
     });
 

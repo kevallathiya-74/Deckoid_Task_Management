@@ -130,7 +130,7 @@ class TodoController
                     'assigned_to' => $todo['assigned_to'],
                     'status' => $_POST['status'] ?? $todo['status'],
                     'priority' => $todo['priority'],
-                    'notes' => $todo['notes'],
+                    'notes' => $_POST['notes'] ?? $todo['notes'],
                     'is_pinned' => $todo['is_pinned']
                 ];
                 

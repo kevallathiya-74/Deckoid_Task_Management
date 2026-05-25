@@ -92,7 +92,6 @@
                 <thead>
                     <tr>
                         <th class="ps-4">Project & Client</th>
-                        <th>Department</th>
                         <th>Progress</th>
                         <th>Status</th>
                         <th>Deadline</th>
@@ -250,6 +249,50 @@
     </div>
 </div>
 
+<!-- View Project Modal -->
+<div class="modal fade" id="viewProjectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content glass-card border-0 p-4">
+            <div class="modal-header border-0 pb-4">
+                <div>
+                    <h4 class="fw-bold text-neutral-900 mb-1" id="view_project_name">Project Name</h4>
+                    <p class="text-neutral-500 mb-0"><i class="fas fa-building-circle-check me-2"></i><span id="view_client_name">Client Name</span></p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-0">
+                <div class="mb-4">
+                    <h6 class="text-xs fw-bold text-neutral-400 text-uppercase mb-2">Description</h6>
+                    <p class="text-neutral-700 bg-neutral-50 p-3 rounded-4" id="view_description"></p>
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-xs fw-bold text-neutral-400 text-uppercase mb-2">Departments</h6>
+                        <div id="view_departments" class="d-flex flex-wrap"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-xs fw-bold text-neutral-400 text-uppercase mb-2">Status</h6>
+                        <div id="view_status"></div>
+                    </div>
+                </div>
+                <div class="row g-4 mb-2">
+                    <div class="col-md-6">
+                        <h6 class="text-xs fw-bold text-neutral-400 text-uppercase mb-2">Start Date</h6>
+                        <p class="text-neutral-900 fw-bold" id="view_start_date"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-xs fw-bold text-neutral-400 text-uppercase mb-2">Final Deadline</h6>
+                        <p class="text-neutral-900 fw-bold" id="view_deadline"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-4 gap-3">
+                <button type="button" class="btn btn-secondary flex-grow-1 py-3" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
@@ -282,19 +325,13 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div class="py-2">
-                            <div class="fw-bold text-neutral-900 mb-1 font-outfit fs-6">${data}</div>
+                            <div class="fw-bold text-primary mb-1 font-outfit fs-6 view-project" style="cursor: pointer;">${data}</div>
                             <div class="d-flex align-items-center text-xs text-primary fw-bold mb-2">
                                 <i class="fas fa-building-circle-check me-2 opacity-50"></i>${row.client_name}
                             </div>
                             <div class="text-xs text-neutral-400 text-truncate font-medium" style="max-width: 320px;">${row.description || 'Project objective and core scope details pending.'}</div>
                         </div>
                     `;
-                }
-            },
-            { 
-                data: 'role_name',
-                render: function(data) {
-                    return `<span class="badge bg-neutral-50 text-neutral-600 border px-3 py-2 font-outfit fw-bold">${data}</span>`;
                 }
             },
             { 
@@ -411,6 +448,28 @@ $(document).ready(function() {
         $('#edit_assigned_users').val(assignedUsers).trigger('change');
         
         $('#editProjectModal').modal('show');
+    });
+
+    $(document).on('click', '.view-project', function() {
+        const $tr = $(this).closest('tr');
+        const data = table.row($tr).data();
+        $('#view_project_name').text(data.project_name);
+        $('#view_client_name').text(data.client_name);
+        $('#view_description').text(data.description || 'No description provided.');
+        
+        const roles = data.role_name ? data.role_name.split(',') : [];
+        $('#view_departments').html(roles.map(r => `<span class="badge bg-neutral-50 text-neutral-600 border px-2 py-1 m-1">${r.trim()}</span>`).join(''));
+        
+        let cls = 'bg-primary-soft';
+        if (data.status === 'active') cls = 'bg-warning-soft';
+        if (data.status === 'completed') cls = 'bg-success-soft';
+        if (data.status === 'cancelled') cls = 'bg-danger-soft';
+        $('#view_status').html(`<span class="badge ${cls} text-capitalize px-3 py-2">${data.status}</span>`);
+        
+        $('#view_start_date').text(moment(data.start_date).format('DD MMM YYYY'));
+        $('#view_deadline').text(moment(data.deadline).format('DD MMM YYYY'));
+        
+        $('#viewProjectModal').modal('show');
     });
 
     $(document).on('click', '.delete-project', function() {
