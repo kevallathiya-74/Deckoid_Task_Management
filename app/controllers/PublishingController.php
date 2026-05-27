@@ -43,10 +43,11 @@ class PublishingController
             $year = !empty($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
             
             $data = $this->model->fetchReportData($userId, $isAdmin, $month, $year);
-            
+            // Include a sync timestamp so clients can initialize polling correctly
             echo json_encode([
                 'status' => 'success',
-                'data' => $data
+                'data' => $data,
+                'sync_timestamp' => date('Y-m-d H:i:s')
             ]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -133,6 +134,119 @@ class PublishingController
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Publishing table deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Real-time sync: Update a single cell's status
+     * Endpoint: POST /api/publishing/cell-update
+     */
+    public function updateCellStatus()
+    {
+        header('Content-Type: application/json');
+        try {
+            $userId = $_SESSION['user_id'];
+            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!$input) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON input']);
+                return;
+            }
+            
+            $rowId = $input['row_id'] ?? '';
+            $taskIndex = isset($input['task_index']) ? (int)$input['task_index'] : null;
+            $status = $input['status'] ?? null; // null, 'production', 'approval', 'publishing'
+            $tableId = $input['table_id'] ?? '';
+            
+            if (empty($rowId) || $taskIndex === null) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing row_id or task_index']);
+                return;
+            }
+            
+            // Verify authorization
+            if (!$isAdmin) {
+                $stmt = $this->model->getDb()->prepare("
+                    SELECT 1 FROM publishing_assignments 
+                    WHERE table_id = :table_id AND user_id = :user_id
+                ");
+                $stmt->execute(['table_id' => $tableId, 'user_id' => $userId]);
+                if (!$stmt->fetch()) {
+                    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                    return;
+                }
+            }
+            
+            $this->model->updateCellStatus($rowId, $taskIndex, $status, $userId);
+
+            // Backend debug log (to PHP error log)
+            error_log('Publishing color updated: ' . json_encode([
+                'row_id' => $rowId,
+                'task_index' => $taskIndex,
+                'status' => $status,
+                'user_id' => $userId,
+                'table_id' => $tableId,
+                'timestamp' => date('Y-m-d H:i:s')
+            ]));
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Cell status updated',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Real-time sync: Fetch only changed cells since last sync
+     * Endpoint: GET /api/publishing/sync-changes?last_sync=timestamp&table_id=id
+     */
+    public function syncChanges()
+    {
+        header('Content-Type: application/json');
+        try {
+            $userId = $_SESSION['user_id'];
+            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            
+            $lastSync = $_GET['last_sync'] ?? null;
+            $tableId = $_GET['table_id'] ?? null;
+            
+            if (!$lastSync || !$tableId) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing last_sync or table_id']);
+                return;
+            }
+            
+            // Verify authorization
+            if (!$isAdmin) {
+                $stmt = $this->model->getDb()->prepare("
+                    SELECT 1 FROM publishing_assignments 
+                    WHERE table_id = :table_id AND user_id = :user_id
+                ");
+                $stmt->execute(['table_id' => $tableId, 'user_id' => $userId]);
+                if (!$stmt->fetch()) {
+                    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                    return;
+                }
+            }
+            
+            $changes = $this->model->getChangedCells($tableId, $lastSync);
+
+            
+            // Log sync response for debugging
+            error_log('Publishing sync response for table ' . $tableId . ': ' . json_encode(['count' => count($changes), 'since' => $lastSync]));
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'changes' => $changes,
+                    'sync_timestamp' => date('Y-m-d H:i:s')
+                ]
             ]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);

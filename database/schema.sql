@@ -217,13 +217,22 @@ CREATE TABLE IF NOT EXISTS publishing_rows (
     table_id CHAR(36) NOT NULL,
     company_name VARCHAR(255) NOT NULL,
     task_box_1 TEXT NULL,
+    task_status_1 ENUM('production', 'approval', 'publishing') DEFAULT NULL,
     task_box_2 TEXT NULL,
+    task_status_2 ENUM('production', 'approval', 'publishing') DEFAULT NULL,
     task_box_3 TEXT NULL,
+    task_status_3 ENUM('production', 'approval', 'publishing') DEFAULT NULL,
     task_box_4 TEXT NULL,
+    task_status_4 ENUM('production', 'approval', 'publishing') DEFAULT NULL,
     task_box_5 TEXT NULL,
+    task_status_5 ENUM('production', 'approval', 'publishing') DEFAULT NULL,
     task_box_6 TEXT NULL,
+    task_status_6 ENUM('production', 'approval', 'publishing') DEFAULT NULL,
     task_box_7 TEXT NULL,
+    task_status_7 ENUM('production', 'approval', 'publishing') DEFAULT NULL,
     row_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (table_id) REFERENCES publishing_tables(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 

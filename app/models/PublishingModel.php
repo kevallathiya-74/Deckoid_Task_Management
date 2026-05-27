@@ -155,8 +155,8 @@ class PublishingModel
 
             // Add 5 default rows
             $stmtRow = $this->db->prepare("
-                INSERT INTO publishing_rows (id, table_id, company_name, task_box_1, task_box_2, task_box_3, task_box_4, task_box_5, task_box_6, task_box_7, row_order)
-                VALUES (:id, :table_id, '', '', '', '', '', '', '', '', :row_order)
+                INSERT INTO publishing_rows (id, table_id, company_name, task_box_1, task_box_2, task_box_3, task_box_4, task_box_5, task_box_6, task_box_7, task_status_1, task_status_2, task_status_3, task_status_4, task_status_5, task_status_6, task_status_7, row_order)
+                VALUES (:id, :table_id, '', '', '', '', '', '', '', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, :row_order)
             ");
             for ($i = 0; $i < 5; $i++) {
                 $stmtRow->execute([
@@ -241,8 +241,8 @@ class PublishingModel
                                 }
                                 $rowId = $this->generateUuid();
                                 $stmtInsRow = $this->db->prepare("
-                                    INSERT INTO publishing_rows (id, table_id, company_name, task_box_1, task_box_2, task_box_3, task_box_4, task_box_5, task_box_6, task_box_7, row_order)
-                                    VALUES (:id, :table_id, :company_name, :task_box_1, :task_box_2, :task_box_3, :task_box_4, :task_box_5, :task_box_6, :task_box_7, :row_order)
+                                    INSERT INTO publishing_rows (id, table_id, company_name, task_box_1, task_box_2, task_box_3, task_box_4, task_box_5, task_box_6, task_box_7, task_status_1, task_status_2, task_status_3, task_status_4, task_status_5, task_status_6, task_status_7, row_order)
+                                    VALUES (:id, :table_id, :company_name, :task_box_1, :task_box_2, :task_box_3, :task_box_4, :task_box_5, :task_box_6, :task_box_7, :task_status_1, :task_status_2, :task_status_3, :task_status_4, :task_status_5, :task_status_6, :task_status_7, :row_order)
                                 ");
                                 $stmtInsRow->execute([
                                     'id' => $rowId,
@@ -255,6 +255,13 @@ class PublishingModel
                                     'task_box_5' => $row['task_box_5'] ?? '',
                                     'task_box_6' => $row['task_box_6'] ?? '',
                                     'task_box_7' => $row['task_box_7'] ?? '',
+                                    'task_status_1' => $row['task_status_1'] ?? null,
+                                    'task_status_2' => $row['task_status_2'] ?? null,
+                                    'task_status_3' => $row['task_status_3'] ?? null,
+                                    'task_status_4' => $row['task_status_4'] ?? null,
+                                    'task_status_5' => $row['task_status_5'] ?? null,
+                                    'task_status_6' => $row['task_status_6'] ?? null,
+                                    'task_status_7' => $row['task_status_7'] ?? null,
                                     'row_order' => $row['row_order'] ?? 0
                                 ]);
                             } else {
@@ -270,6 +277,13 @@ class PublishingModel
                                             task_box_5 = :task_box_5,
                                             task_box_6 = :task_box_6,
                                             task_box_7 = :task_box_7,
+                                            task_status_1 = :task_status_1,
+                                            task_status_2 = :task_status_2,
+                                            task_status_3 = :task_status_3,
+                                            task_status_4 = :task_status_4,
+                                            task_status_5 = :task_status_5,
+                                            task_status_6 = :task_status_6,
+                                            task_status_7 = :task_status_7,
                                             row_order = :row_order
                                         WHERE id = :id
                                     ");
@@ -283,10 +297,17 @@ class PublishingModel
                                         'task_box_5' => $row['task_box_5'] ?? '',
                                         'task_box_6' => $row['task_box_6'] ?? '',
                                         'task_box_7' => $row['task_box_7'] ?? '',
+                                        'task_status_1' => $row['task_status_1'] ?? null,
+                                        'task_status_2' => $row['task_status_2'] ?? null,
+                                        'task_status_3' => $row['task_status_3'] ?? null,
+                                        'task_status_4' => $row['task_status_4'] ?? null,
+                                        'task_status_5' => $row['task_status_5'] ?? null,
+                                        'task_status_6' => $row['task_status_6'] ?? null,
+                                        'task_status_7' => $row['task_status_7'] ?? null,
                                         'row_order' => $row['row_order'] ?? 0
                                     ]);
                                 } else {
-                                    // Staff can only update task boxes
+                                    // Staff can only update task boxes and task statuses
                                     $stmtUpd = $this->db->prepare("
                                         UPDATE publishing_rows 
                                         SET task_box_1 = :task_box_1,
@@ -295,7 +316,14 @@ class PublishingModel
                                             task_box_4 = :task_box_4,
                                             task_box_5 = :task_box_5,
                                             task_box_6 = :task_box_6,
-                                            task_box_7 = :task_box_7
+                                            task_box_7 = :task_box_7,
+                                            task_status_1 = :task_status_1,
+                                            task_status_2 = :task_status_2,
+                                            task_status_3 = :task_status_3,
+                                            task_status_4 = :task_status_4,
+                                            task_status_5 = :task_status_5,
+                                            task_status_6 = :task_status_6,
+                                            task_status_7 = :task_status_7
                                         WHERE id = :id
                                     ");
                                     $stmtUpd->execute([
@@ -306,7 +334,14 @@ class PublishingModel
                                         'task_box_4' => $row['task_box_4'] ?? '',
                                         'task_box_5' => $row['task_box_5'] ?? '',
                                         'task_box_6' => $row['task_box_6'] ?? '',
-                                        'task_box_7' => $row['task_box_7'] ?? ''
+                                        'task_box_7' => $row['task_box_7'] ?? '',
+                                        'task_status_1' => $row['task_status_1'] ?? null,
+                                        'task_status_2' => $row['task_status_2'] ?? null,
+                                        'task_status_3' => $row['task_status_3'] ?? null,
+                                        'task_status_4' => $row['task_status_4'] ?? null,
+                                        'task_status_5' => $row['task_status_5'] ?? null,
+                                        'task_status_6' => $row['task_status_6'] ?? null,
+                                        'task_status_7' => $row['task_status_7'] ?? null
                                     ]);
                                 }
                             }
@@ -331,5 +366,65 @@ class PublishingModel
 
         $stmt = $this->db->prepare("DELETE FROM publishing_tables WHERE id = :id");
         return $stmt->execute(['id' => $tableId]);
+    }
+
+    /**
+     * Update a single cell's status
+     */
+    public function updateCellStatus($rowId, $taskIndex, $status, $userId)
+    {
+        $statusField = "task_status_{$taskIndex}";
+        
+        $stmt = $this->db->prepare("
+            UPDATE publishing_rows 
+            SET {$statusField} = :status,
+                updated_at = NOW()
+            WHERE id = :row_id
+        ");
+        
+        return $stmt->execute([
+            'row_id' => $rowId,
+            'status' => $status
+        ]);
+    }
+
+    /**
+     * Get cells changed since last sync timestamp
+     */
+    public function getChangedCells($tableId, $lastSync)
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                id as row_id,
+                table_id,
+                task_box_1, task_status_1,
+                task_box_2, task_status_2,
+                task_box_3, task_status_3,
+                task_box_4, task_status_4,
+                task_box_5, task_status_5,
+                task_box_6, task_status_6,
+                task_box_7, task_status_7,
+                company_name,
+                updated_at
+            FROM publishing_rows
+            WHERE table_id = :table_id 
+              AND updated_at > :last_sync
+            ORDER BY updated_at DESC
+        ");
+        
+        $stmt->execute([
+            'table_id' => $tableId,
+            'last_sync' => $lastSync
+        ]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get database connection for authorization checks
+     */
+    public function getDb()
+    {
+        return $this->db;
     }
 }

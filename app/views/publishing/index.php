@@ -430,6 +430,18 @@
     line-height: 1.45;
     resize: vertical;
     overflow: auto;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+}
+
+/* When task textarea is inside a status cell, remove direct padding/border */
+.pub-task-cell .pub-task-textarea {
+    padding: 0;
+    margin: 0;
+    background: transparent !important;
+    border: none !important;
 }
 
 .pub-company-input::placeholder,
@@ -439,8 +451,8 @@
 
 .pub-company-input:focus,
 .pub-task-textarea:focus {
-    background: #f8f5ff;
-    outline: none;
+    background: transparent !important;
+    outline: none !important;
 }
 
 .pub-assignment-wrapper {
@@ -637,6 +649,140 @@
 /* Ensure table header remains visually separated when sticky */
 .pub-table thead th { box-shadow: 0 6px 12px rgba(15,23,42,0.04); }
 
+/* ========================================
+   TASK STATUS COLOR SYSTEM
+   ======================================== */
+
+/* Task Cell Base Styling */
+.pub-task-cell {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: stretch;
+    min-height: 42px;
+}
+
+.pub-task-cell:hover {
+    transform: scale(1.01);
+}
+
+.pub-task-cell .pub-task-textarea {
+    flex: 1;
+    padding: 0;
+    margin: 0;
+}
+
+/* Status: Production (Yellow) */
+.pub-task-cell[data-status="production"] {
+    background-color: #FFF3BF;
+    border: 1px solid #F4D03F;
+    color: #333333;
+}
+
+.pub-task-cell[data-status="production"]:hover {
+    background-color: #FEE680;
+    box-shadow: 0 4px 12px rgba(244, 208, 63, 0.25);
+}
+
+/* Status: Approval (Orange) */
+.pub-task-cell[data-status="approval"] {
+    background-color: #FFE0B2;
+    border: 1px solid #F5B041;
+    color: #333333;
+}
+
+.pub-task-cell[data-status="approval"]:hover {
+    background-color: #FFD699;
+    box-shadow: 0 4px 12px rgba(245, 176, 65, 0.25);
+}
+
+/* Status: Publishing (Green) */
+.pub-task-cell[data-status="publishing"] {
+    background-color: #D5F5E3;
+    border: 1px solid #58D68D;
+    color: #155724;
+    font-weight: 600;
+}
+
+.pub-task-cell[data-status="publishing"]:hover {
+    background-color: #AEF0C5;
+    box-shadow: 0 4px 12px rgba(88, 214, 141, 0.25);
+}
+
+/* Status: Empty/Default (White) */
+.pub-task-cell[data-status=""],
+.pub-task-cell:not([data-status]),
+.pub-task-cell[data-status="null"] {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    color: #333333;
+}
+
+.pub-task-cell[data-status=""]:hover,
+.pub-task-cell:not([data-status]):hover,
+.pub-task-cell[data-status="null"]:hover {
+    background-color: #F9FAFB;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* Legend Styling */
+.pub-status-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.pub-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.pub-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.pub-legend-dot.production {
+    background-color: #F4D03F;
+    box-shadow: 0 0 0 1px #D4AF2F;
+}
+
+.pub-legend-dot.approval {
+    background-color: #F5B041;
+    box-shadow: 0 0 0 1px #D89A35;
+}
+
+.pub-legend-dot.publishing {
+    background-color: #58D68D;
+    box-shadow: 0 0 0 1px #3CAF6D;
+}
+
+/* Responsive Legend */
+@media (max-width: 720px) {
+    .pub-status-legend {
+        gap: 10px;
+        margin-left: 0;
+        margin-top: 12px;
+        justify-content: flex-start;
+    }
+    
+    .pub-legend-item {
+        font-size: 0.78rem;
+    }
+}
+
 </style>
 
 <script>
@@ -653,6 +799,9 @@ $(document).ready(function() {
     
     let currentCategory = 'posts';
     let isSaving = false;
+    let autoSyncInterval = null;
+    const AUTO_SYNC_INTERVAL = 2000; // Sync every 2 seconds (per prompt requirement)
+    let lastSyncTime = null;
 
     // Tab Filters
     $('.pub-cat-pill').on('click', function() {
@@ -679,6 +828,12 @@ $(document).ready(function() {
             if (res.status === 'success') {
                 reportState = res.data;
                 renderReport();
+                // Initialize lastSyncTime from server to avoid missing prior updates
+                if (res.sync_timestamp) {
+                    lastSyncTime = res.sync_timestamp;
+                } else {
+                    lastSyncTime = new Date().toISOString();
+                }
             } else {
                 toastr.error(res.message || 'Failed to fetch report');
             }
@@ -723,6 +878,25 @@ $(document).ready(function() {
             const $weekBox = $('<div>').addClass('pub-week-box');
             $weekBox.html(`<span>Week ${table.week_number}</span>`);
             $headerBar.append($weekBox);
+
+            // Add Status Legend
+            const $legend = $('<div>').addClass('pub-status-legend');
+            $legend.append(
+                $('<div>').addClass('pub-legend-item').html(
+                    '<span class="pub-legend-dot production"></span> Production'
+                )
+            );
+            $legend.append(
+                $('<div>').addClass('pub-legend-item').html(
+                    '<span class="pub-legend-dot approval"></span> Approval'
+                )
+            );
+            $legend.append(
+                $('<div>').addClass('pub-legend-item').html(
+                    '<span class="pub-legend-dot publishing"></span> Publishing'
+                )
+            );
+            $headerBar.append($legend);
 
             // Admin Actions on Table
             if (isAdmin) {
@@ -777,6 +951,7 @@ $(document).ready(function() {
                         table_id: table.id,
                         company_name: '',
                         task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '',
+                        task_status_1: null, task_status_2: null, task_status_3: null, task_status_4: null, task_status_5: null, task_status_6: null, task_status_7: null,
                         row_order: r
                     };
                     reportState.rows.push(newRow);
@@ -810,6 +985,7 @@ $(document).ready(function() {
                         table_id: table.id,
                         company_name: '',
                         task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '',
+                        task_status_1: null, task_status_2: null, task_status_3: null, task_status_4: null, task_status_5: null, task_status_6: null, task_status_7: null,
                         row_order: tableRows.length
                     };
                     reportState.rows.push(newRow);
@@ -865,9 +1041,29 @@ $(document).ready(function() {
         // 2. Task Box 1 to 7
         for (let i = 1; i <= 7; i++) {
             const field = `task_box_${i}`;
+            const statusField = `task_status_${i}`;
             const $td = $('<td>');
-            const $textarea = $('<textarea>').addClass('pub-task-textarea')
-                .val(row[field] || '');
+            
+            // Create a wrapper div for the task cell with status capability
+            const $cellWrapper = $('<div>')
+                .addClass('pub-task-cell')
+                .attr('data-task-index', i)
+                .attr('data-row-id', row.id)
+                .attr('data-status', row[statusField] || '');
+            
+            const $textarea = $('<textarea>')
+                .addClass('pub-task-textarea')
+                .val(row[field] || '')
+                .attr('placeholder', 'Task...')
+                .css('width', '100%')
+                .css('height', 'auto')
+                .css('border', 'none')
+                .css('background', 'transparent')
+                .css('padding', '0')
+                .css('margin', '0')
+                .css('resize', 'vertical')
+                .css('font-size', '0.92rem')
+                .css('line-height', '1.45');
 
             if (!isAdmin) {
                 $textarea.attr('disabled', true);
@@ -878,7 +1074,14 @@ $(document).ready(function() {
                 row[field] = $(this).val();
             });
 
-            $td.append($textarea);
+            // Add double-click handler for status cycling
+            $cellWrapper.on('dblclick', function(e) {
+                e.preventDefault();
+                cycleTaskStatus($cellWrapper, row, statusField);
+            });
+
+            $cellWrapper.append($textarea);
+            $td.append($cellWrapper);
             $tr.append($td);
         }
 
@@ -987,6 +1190,183 @@ $(document).ready(function() {
         });
     }
 
+    /**
+     * Cycle task status through: empty → production → approval → publishing → empty
+     * This function is called when a task cell is double-clicked
+     */
+    function cycleTaskStatus($cellWrapper, row, statusField) {
+        // Only allow status changes if user is admin or authorized
+        // Current state is stored in data-status attribute
+        const currentStatus = $cellWrapper.attr('data-status') || '';
+        
+        // Status cycle order: '' → 'production' → 'approval' → 'publishing' → ''
+        let nextStatus = '';
+        
+        if (currentStatus === '' || currentStatus === 'null' || !currentStatus) {
+            nextStatus = 'production';
+        } else if (currentStatus === 'production') {
+            nextStatus = 'approval';
+        } else if (currentStatus === 'approval') {
+            nextStatus = 'publishing';
+        } else if (currentStatus === 'publishing') {
+            nextStatus = '';
+        } else {
+            nextStatus = 'production'; // Default fallback
+        }
+        
+        // Update the DOM element
+        $cellWrapper.attr('data-status', nextStatus);
+        
+        // Update the row data model
+        row[statusField] = nextStatus || null;
+        
+        // Immediately save this specific status change to database (auto-save)
+        saveTaskStatusChange(row.id, statusField, nextStatus || null);
+    }
+
+    /**
+     * Save a single task status change immediately
+     */
+    function saveTaskStatusChange(rowId, statusField, statusValue) {
+        // Send a lightweight single-cell update to the cell-update API
+        // statusField format: task_status_N -> extract N
+        const match = statusField.match(/task_status_(\d+)/);
+        const taskIndex = match ? parseInt(match[1], 10) : 1;
+        const payload = {
+            row_id: rowId,
+            table_id: $('[data-table-id]').first().attr('data-table-id') || '',
+            task_index: taskIndex,
+            status: statusValue || null,
+            updated_by: userId
+        };
+
+        console.log('Saving color', payload);
+
+        $.ajax({
+            url: '<?= url('/api/publishing/cell-update') ?>',
+            type: 'POST',
+            data: JSON.stringify(payload),
+            contentType: 'application/json',
+            timeout: 5000,
+            success: function(res) {
+                console.log('Save response', res);
+                if (res && res.status === 'success') {
+                    // Optionally update lastSyncTime to keep polls efficient
+                    lastSyncTime = res.updated_at || lastSyncTime;
+                }
+            },
+            error: function(xhr, status, err) {
+                console.warn('Auto-save status change failed:', err);
+            }
+        });
+    }
+
+    /**
+     * Auto-sync: Fetch updated report data and merge changes without losing local edits
+     */
+    function autoSyncReportData() {
+        // Use incremental sync endpoint to fetch only changed cells since lastSyncTime
+        const month = $('#select-month').val();
+        const year = $('#select-year').val();
+
+        // Determine visible table ids to scope polling
+        const visibleTables = reportState.tables.filter(t => t.category === currentCategory).map(t => t.id);
+        if (visibleTables.length === 0) return;
+
+        // Use a single table scope per poll to keep queries small; poll each table sequentially
+        visibleTables.forEach(function(tblId) {
+            const params = {
+                last_sync: lastSyncTime || new Date().toISOString(),
+                table_id: tblId
+            };
+
+            $.get('<?= url('/api/publishing/sync-changes') ?>', params, function(res) {
+                console.log('Polling changes', res);
+                if (res.status === 'success' && res.data && res.data.changes) {
+                    mergeRemoteChanges({ rows: res.data.changes });
+                    // Update lastSyncTime from server to avoid missing entries
+                    if (res.data.sync_timestamp) {
+                        lastSyncTime = res.data.sync_timestamp;
+                    } else {
+                        lastSyncTime = new Date().toISOString();
+                    }
+                }
+            }).fail(function() {
+                console.warn('Auto-sync failed for table', tblId);
+            });
+        });
+    }
+
+    /**
+     * Intelligently merge remote changes with local state
+     * Only updates cells that have changed on the remote side
+     */
+    function mergeRemoteChanges(remoteData) {
+        if (!remoteData || !remoteData.rows) return;
+        
+        // Create a map of remote rows by ID
+        const remoteRowMap = {};
+        remoteData.rows.forEach(row => {
+            remoteRowMap[row.id] = row;
+        });
+        
+        // Update local rows with remote status changes (only status fields)
+        reportState.rows.forEach(localRow => {
+            const remoteRow = remoteRowMap[localRow.id];
+            if (remoteRow) {
+                // Update status fields (task_status_1 through 7)
+                for (let i = 1; i <= 7; i++) {
+                    const statusField = `task_status_${i}`;
+                    const remoteStatus = remoteRow[statusField];
+                    const localStatus = localRow[statusField];
+                    
+                    // Only update if remote has changed and local hasn't been edited
+                    if (remoteStatus !== localStatus) {
+                        // Update the DOM cell if it exists
+                        const $cell = $(`.pub-task-cell[data-row-id="${localRow.id}"][data-task-index="${i}"]`);
+                        if ($cell.length > 0) {
+                            const currentDOMStatus = $cell.attr('data-status') || '';
+                            const newStatus = remoteStatus || '';
+                            
+                            // Update if they differ
+                            if (currentDOMStatus !== newStatus) {
+                                $cell.attr('data-status', newStatus);
+                                console.log(`Updated task status for row ${localRow.id}, task ${i} to ${newStatus}`);
+                            }
+                        }
+                        
+                        // Update the data model
+                        localRow[statusField] = remoteStatus;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Start auto-sync if not already running
+     */
+    function startAutoSync() {
+        if (autoSyncInterval) return; // Already running
+        
+        autoSyncInterval = setInterval(function() {
+            autoSyncReportData();
+        }, AUTO_SYNC_INTERVAL);
+        
+        console.log('Auto-sync started (interval:', AUTO_SYNC_INTERVAL, 'ms)');
+    }
+
+    /**
+     * Stop auto-sync
+     */
+    function stopAutoSync() {
+        if (autoSyncInterval) {
+            clearInterval(autoSyncInterval);
+            autoSyncInterval = null;
+            console.log('Auto-sync stopped');
+        }
+    }
+
     function createTable(weekNum) {
         const month = $('#select-month').val();
         const year = $('#select-year').val();
@@ -1070,7 +1450,13 @@ $(document).ready(function() {
         fetchReport();
     });
 
-    // Initial load
+    // Initial load and start auto-sync
     fetchReport();
+    startAutoSync();
+    
+    // Stop auto-sync when leaving the page
+    $(window).on('beforeunload', function() {
+        stopAutoSync();
+    });
 });
 </script>
