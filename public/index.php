@@ -46,6 +46,10 @@ session_start();
 
 // Load Router
 use App\Core\Router;
+use App\Core\ErrorHandler;
+
+// Initialize error handling
+ErrorHandler::initialize();
 
 $router = new Router();
 

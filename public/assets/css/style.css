@@ -627,6 +627,72 @@ textarea.form-control {
         padding: calc(var(--topbar-height) + var(--space-4)) var(--space-4) var(--space-6);
     }
     h1 { font-size: var(--text-2xl); }
+    
+    /* Fix table overflow on mobile */
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Fix modal overflow */
+    .modal-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+    
+    /* Fix dropdown positioning */
+    .dropdown-menu {
+        position: fixed !important;
+        max-width: 90vw !important;
+    }
+    
+    /* Ensure inputs don't get zoomed on iOS */
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-content {
+        padding: calc(var(--topbar-height) + var(--space-3)) var(--space-3) var(--space-4);
+    }
+    
+    /* Stack flex containers */
+    .d-flex.flex-wrap {
+        flex-direction: column !important;
+    }
+    
+    /* Fix card margins */
+    .card {
+        margin-bottom: var(--space-4);
+    }
+    
+    /* Make buttons full-width on small screens */
+    .btn {
+        min-height: 44px;
+    }
+    
+    /* Fix form control padding */
+    .form-control, .form-select {
+        font-size: 16px !important;
+        padding: 12px !important;
+    }
+    
+    /* Prevent horizontal scroll */
+    body, html {
+        overflow-x: hidden;
+    }
+    
+    /* Fix table headers */
+    .table thead th {
+        font-size: 0.7rem;
+        padding: 8px 4px !important;
+    }
+    
+    /* Fix modal on mobile */
+    .modal-dialog {
+        margin: var(--space-3) !important;
+        max-width: calc(100% - calc(var(--space-3) * 2)) !important;
+    }
 }
 
 /* Custom Scrollbar */
@@ -646,4 +712,33 @@ textarea.form-control {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--neutral-400);
+}
+
+/* Additional responsive fixes */
+@media (max-width: 992px) {
+    .container-fluid {
+        overflow-x: hidden;
+    }
+    
+    /* Fix for Select2 dropdowns */
+    .select2-container {
+        width: 100% !important;
+    }
+}
+
+/* Fix for sticky positioned elements causing layout shift */
+.modal-open body {
+    overflow: hidden;
+}
+
+/* Ensure form inputs are properly visible and not clipped */
+.form-control:focus, .form-select:focus {
+    outline: none;
+}
+
+/* Prevent input zoom on iOS */
+@supports (-webkit-touch-callout: none) {
+    input, select, textarea {
+        font-size: 16px !important;
+    }
 }

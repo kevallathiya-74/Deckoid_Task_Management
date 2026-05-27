@@ -260,9 +260,7 @@ CREATE TABLE IF NOT EXISTS daily_report_rows (
     FOREIGN KEY (report_id) REFERENCES daily_reports(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-
-
--- 12. Todo Lists Table
+-- 17. Todo Lists Table
 CREATE TABLE IF NOT EXISTS todo_lists (
     id CHAR(36) PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -281,8 +279,7 @@ CREATE TABLE IF NOT EXISTS todo_lists (
     INDEX (created_at)
 ) ENGINE=InnoDB;
 
-
--- 16. Project Departments Table
+-- 18. Project Departments Table
 CREATE TABLE IF NOT EXISTS project_departments (
     id CHAR(36) PRIMARY KEY,
     project_id CHAR(36) NOT NULL,
@@ -293,7 +290,7 @@ CREATE TABLE IF NOT EXISTS project_departments (
     UNIQUE KEY (project_id, role_id)
 ) ENGINE=InnoDB;
 
--- 17. Project Assignments Table
+-- 19. Project Assignments Table
 CREATE TABLE IF NOT EXISTS project_assignments (
     id CHAR(36) PRIMARY KEY,
     project_id CHAR(36) NOT NULL,
@@ -304,7 +301,7 @@ CREATE TABLE IF NOT EXISTS project_assignments (
     UNIQUE KEY (project_id, user_id)
 ) ENGINE=InnoDB;
 
--- 18. Task Departments Table
+-- 20. Task Departments Table
 CREATE TABLE IF NOT EXISTS task_departments (
     id CHAR(36) PRIMARY KEY,
     task_id CHAR(36) NOT NULL,
@@ -315,7 +312,7 @@ CREATE TABLE IF NOT EXISTS task_departments (
     UNIQUE KEY (task_id, role_id)
 ) ENGINE=InnoDB;
 
--- 19. Task Assignments Table
+-- 21. Task Assignments Table
 CREATE TABLE IF NOT EXISTS task_assignments (
     id CHAR(36) PRIMARY KEY,
     task_id CHAR(36) NOT NULL,

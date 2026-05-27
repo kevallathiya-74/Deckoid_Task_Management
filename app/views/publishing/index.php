@@ -9,9 +9,11 @@
                 <p class="pub-page-subtitle">Track content production and publishing status</p>
             </div>
             <div class="pub-topbar-actions">
-                <div class="pub-filter-pill">
-                    <label for="select-month" class="pub-filter-label">Select month</label>
-                    <select id="select-month" class="form-select form-select-sm pub-filter-select">
+                <div class="pub-filters-group">
+                    <div class="pub-filter-pill">
+                        <label for="select-month" class="pub-filter-label">Select month</label>
+                        <div class="pub-filter-control">
+                            <select id="select-month" class="form-select form-select-sm pub-filter-select">
                         <?php
                         $months = [
                             1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
@@ -23,19 +25,23 @@
                         ?>
                             <option value="<?= $val ?>" <?= $val == $currentMonth ? 'selected' : '' ?>><?= $name ?></option>
                         <?php endforeach; ?>
-                    </select>
-                </div>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="pub-filter-pill">
-                    <label for="select-year" class="pub-filter-label">Select year</label>
-                    <select id="select-year" class="form-select form-select-sm pub-filter-select">
+                    <div class="pub-filter-pill">
+                        <label for="select-year" class="pub-filter-label">Select year</label>
+                        <div class="pub-filter-control">
+                            <select id="select-year" class="form-select form-select-sm pub-filter-select">
                         <?php
                         $currentYear = date('Y');
                         for ($y = $currentYear - 1; $y <= $currentYear + 2; $y++):
                         ?>
                             <option value="<?= $y ?>" <?= $y == $currentYear ? 'selected' : '' ?>><?= $y ?></option>
                         <?php endfor; ?>
-                    </select>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <button type="button" class="pub-button-filter" id="btn-load-report" aria-label="Load report">
@@ -105,29 +111,67 @@
     flex-wrap: wrap;
 }
 
+.pub-filters-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
 .pub-filter-pill {
     background: #ffffff;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
-    border-radius: 999px;
-    padding: 6px 10px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.02);
+    border-radius: 18px;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+    max-width: 160px;
+}
+
+.pub-filter-control {
+    width: auto;
+    flex: 1 1 auto;
+}
+
+.pub-filter-label {
+    font-size: 0.68rem;
+    color: #9aa7b7;
+    margin: 0 6px 0 0;
+    white-space: nowrap;
 }
 
 .pub-filter-select {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
-    min-width: 136px;
-    height: 44px;
-    font-size: 0.95rem;
-    color: #111827;
-    padding-left: 14px;
-    padding-right: 14px;
+    min-width: 80px;
+    height: 30px;
+    font-size: 0.92rem;
+    color: #0f172a;
+    padding-left: 6px;
+    padding-right: 6px;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .pub-filter-select:focus {
     outline: none !important;
     box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.22) !important;
+}
+
+.pub-filter-pill:hover {
+    transform: translateY(-3px);
+    transition: transform 0.18s ease;
+}
+
+/* Reduce visual weight for desktop */
+@media (min-width: 900px) {
+    .pub-filter-label { display: none; }
+    .pub-filter-pill { padding: 5px 10px; }
+    .pub-filter-select { min-width: 95px; height: 32px; }
 }
 
 .pub-button-filter {
@@ -141,6 +185,28 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+}
+
+.pub-button-filter { margin-left: 6px; }
+
+@media (max-width: 900px) {
+    .pub-topbar {
+        align-items: flex-start;
+    }
+    .pub-topbar-title {
+        width: 100%;
+    }
+    .pub-topbar-actions {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+    .pub-filters-group {
+        order: 2;
+    }
+    .pub-button-filter {
+        order: 3;
+    }
 }
 
 .pub-button-filter:hover {

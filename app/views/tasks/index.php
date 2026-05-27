@@ -176,7 +176,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Assign Team Lead</label>
+                                    <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Assign Team</label>
                                     <select class="form-select glass-input text-sm select2-multi" name="tasks[0][assigned_users][]" multiple required data-placeholder="Select Members...">
                                         <?php foreach ($staff as $s): ?>
                                             <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?> (<?= $s['role_name'] ?>)</option>
@@ -611,82 +611,134 @@ $(document).ready(function() {
         $('#edit_progress').val(val);
     });
 
-    // Dynamic Task Blocks Logic
+    // Dynamic Task Blocks Logic - IMPROVED for proper Select2 handling
     let taskCount = 1;
+    
+    function initializeSelect2(element) {
+        element.select2({
+            placeholder: element.data('placeholder') || 'Select...',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: element.parent(),
+            templateResult: function(option) {
+                if (!option.id) { return option.text; }
+                return $('<span></span>').text(option.text);
+            }
+        });
+    }
+    
     $('#add-more-tasks').on('click', function() {
         const firstBlock = $('.task-block-card').first();
-        const newBlock = firstBlock.clone();
+        const newBlock = firstBlock.clone(true, true); // Clone with events and data
         
-        // Remove Select2 wrapper and show original select
-        newBlock.find('.select2-container').remove();
-        newBlock.find('.select2-multi').removeClass('select2-hidden-accessible').removeAttr('data-select2-id').show();
-        
-        // Reset values and update indices
-        newBlock.find('input, select, textarea').each(function() {
-            const name = $(this).attr('name');
-            if (name) {
-                $(this).attr('name', name.replace(/tasks\[\d+\]/, `tasks[${taskCount}]`));
+        // Completely destroy and clean Select2 instances
+        newBlock.find('.select2-multi').each(function() {
+            if ($(this).data('select2')) {
+                $(this).select2('destroy');
             }
-            if ($(this).is('input') || $(this).is('textarea')) {
-                if ($(this).attr('type') !== 'date' && $(this).attr('type') !== 'time' && $(this).attr('type') !== 'hidden') {
-                    $(this).val('');
-                } else if ($(this).hasClass('add-progress-input')) {
-                    $(this).val(0);
-                }
-            } else if ($(this).is('select')) {
-                $(this).val([]); // Reset multi-select
+            $(this).removeData('select2');
+            $(this).removeAttr('data-select2-id').removeAttr('aria-hidden');
+        });
+        
+        // Also remove the Select2 container divs
+        newBlock.find('.select2-container').remove();
+        
+        // Reset all form values
+        newBlock.find('input, select, textarea').each(function() {
+            const $el = $(this);
+            const name = $el.attr('name');
+            
+            // Update name attribute with new index
+            if (name) {
+                $el.attr('name', name.replace(/tasks\[\d+\]/, `tasks[${taskCount}]`));
+                // Remove any validation classes
+                $el.removeClass('is-invalid is-valid');
+            }
+            
+            // Reset value based on type
+            if ($el.is('textarea') || ($el.is('input') && $el.attr('type') !== 'date' && $el.attr('type') !== 'time' && $el.attr('type') !== 'hidden')) {
+                $el.val('');
+            } else if ($el.is('select')) {
+                $el.val([]).change();
+            } else if ($el.hasClass('add-progress-input')) {
+                $el.val(0);
             }
         });
 
         // Reset progress slider UI
-        newBlock.find('.add-progress-range').val(0);
+        newBlock.find('.add-progress-range').val(0).change();
         newBlock.find('.add-progress-val').text('0%');
         
+        // Reset date/time to defaults
+        newBlock.find('input[type="date"]').val(new Date().toISOString().split('T')[0]);
+        newBlock.find('input[type="time"]').val('09:00');
+        
         // Update number badge
-        newBlock.find('.bg-primary-grad').text(taskCount + 1);
+        newBlock.find('.bg-primary-grad').first().text(taskCount + 1);
         
         // Show remove button
         newBlock.find('.remove-task-block').removeClass('d-none');
         
         // Append with animation
-        newBlock.hide().appendTo('#task-blocks-container').slideDown(400, function() {
-            // Initialize Select2 on the new block
+        newBlock.hide().appendTo('#task-blocks-container').slideDown(300, function() {
+            // Re-initialize Select2 AFTER DOM insertion
             $(this).find('.select2-multi').each(function() {
-                $(this).select2({
-                    placeholder: $(this).data('placeholder') || 'Select...',
-                    allowClear: true,
-                    width: '100%',
-                    dropdownParent: $(this).parent()
-                });
+                initializeSelect2($(this));
+            });
+            
+            // Re-attach event handlers for progress slider
+            $(this).find('.add-progress-range').off('input').on('input', function() {
+                const val = $(this).val();
+                $(this).closest('.task-block-card').find('.add-progress-val').text(val + '%');
+                $(this).closest('.task-block-card').find('.add-progress-input').val(val);
             });
         });
         taskCount++;
     });
 
-    $(document).on('click', '.remove-task-block', function() {
-        $(this).closest('.task-block-card').slideUp(400, function() {
+    $(document).on('click', '.remove-task-block', function(e) {
+        e.preventDefault();
+        const $block = $(this).closest('.task-block-card');
+        
+        // Destroy Select2 before removal
+        $block.find('.select2-multi').each(function() {
+            if ($(this).data('select2')) {
+                $(this).select2('destroy');
+            }
+        });
+        
+        $block.slideUp(300, function() {
             $(this).remove();
             reindexTaskBlocks();
         });
     });
 
     function reindexTaskBlocks() {
-        taskCount = 0;
+        let index = 0;
         $('.task-block-card').each(function() {
-            const index = taskCount;
-            $(this).find('.bg-primary-grad').text(index + 1);
-            $(this).find('input, select, textarea').each(function() {
-                const name = $(this).attr('name');
+            const $block = $(this);
+            
+            // Update number badge
+            $block.find('.bg-primary-grad').first().text(index + 1);
+            
+            // Update all input/select names
+            $block.find('input, select, textarea').each(function() {
+                const $el = $(this);
+                const name = $el.attr('name');
                 if (name) {
-                    $(this).attr('name', name.replace(/tasks\[\d+\]/, `tasks[${index}]`));
+                    const newName = name.replace(/tasks\[\d+\]/, `tasks[${index}]`);
+                    $el.attr('name', newName);
                 }
             });
+            
+            // Toggle remove button visibility
             if (index === 0) {
-                $(this).find('.remove-task-block').addClass('d-none');
+                $block.find('.remove-task-block').addClass('d-none');
             } else {
-                $(this).find('.remove-task-block').removeClass('d-none');
+                $block.find('.remove-task-block').removeClass('d-none');
             }
-            taskCount++;
+            
+            index++;
         });
     }
 

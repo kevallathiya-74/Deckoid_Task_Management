@@ -78,7 +78,7 @@
                                 <?php if ($_SESSION['user_role'] === 'admin'): ?>
                                     <th class="py-3">Assigned To</th>
                                 <?php endif; ?>
-                                <th class="py-3 text-center" style="width: 300px;">Remark</th>
+                                <th class="py-3 text-start" style="width: 220px; min-width:180px;">Remark</th>
                                 <th class="py-3">Status</th>
                                 <th class="py-3">Created Date</th>
                                 <th class="px-4 py-3 text-end">Actions</th>
@@ -278,12 +278,12 @@ $(document).ready(function() {
                                     </td>
                                     <?php if ($_SESSION['user_role'] === 'admin'): ?>
                                         <td>${todo.assigned_to_name}</td>
-                                        <td class="text-center text-xs text-neutral-600">
-                                            ${todo.notes ? `<div class="bg-neutral-50 p-2 rounded text-start mx-auto" style="max-width: 280px; word-break: break-word;">${todo.notes}</div>` : '<span class="text-neutral-300 fst-italic">No remark</span>'}
+                                        <td class="text-start text-xs text-neutral-600 align-middle">
+                                            ${todo.notes ? `<div class="bg-neutral-50 p-2 rounded text-start" style="max-width: 260px; word-break: break-word;">${todo.notes}</div>` : '<span class="text-neutral-300 fst-italic">No remark</span>'}
                                         </td>
                                     <?php else: ?>
-                                        <td class="text-center">
-                                            <textarea class="form-control form-control-sm text-xs todo-remark mx-auto" data-id="${todo.id}" placeholder="Enter remark..." rows="1" style="width: 280px; resize: none;">${todo.notes || ''}</textarea>
+                                        <td class="text-start align-middle">
+                                            <textarea class="form-control form-control-sm text-xs todo-remark" data-id="${todo.id}" placeholder="Enter remark..." rows="1" style="width: 220px; max-width:100%; resize: none;">${todo.notes || ''}</textarea>
                                         </td>
                                     <?php endif; ?>
                                     <td>${statusBadge}</td>

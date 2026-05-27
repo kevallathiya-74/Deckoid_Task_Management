@@ -140,7 +140,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Assign Team Lead</label>
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Assign Team</label>
                             <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold select2-multi" name="assigned_users[]" multiple data-placeholder="Select Members...">
                                 <?php foreach ($staff as $s): ?>
                                     <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?> (<?= $s['role_name'] ?>)</option>
@@ -213,7 +213,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Assign Team Lead</label>
+                            <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Assign Team</label>
                             <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold select2-multi" name="assigned_users[]" id="edit_assigned_users" multiple data-placeholder="Select Members...">
                                 <?php foreach ($staff as $s): ?>
                                     <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?> (<?= $s['role_name'] ?>)</option>
