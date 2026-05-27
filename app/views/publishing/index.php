@@ -1,156 +1,617 @@
 <?php require_once ROOT_PATH . '/app/views/layouts/topbar.php'; ?>
 
 <main class="main-content">
-    <div class="container-fluid animate-fade-up">
+    <div class="container-fluid animate-fade-up" style="padding-top: 10px;">
         <!-- Page Header -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-5">
-            <div>
-                <h3 class="fw-bold text-neutral-900 mb-1" id="report-title-display">Publishing Report</h3>
-                <p class="text-neutral-500 mb-0">Track content production and publishing status</p>
+        <div class="pub-topbar">
+            <div class="pub-topbar-title">
+                <h3 class="pub-page-title" id="report-title-display">Publishing Report</h3>
+                <p class="pub-page-subtitle">Track content production and publishing status</p>
             </div>
-            <div class="d-flex gap-2 align-items-center">
-                <?php if ($_SESSION['user_role'] == 'admin'): ?>
-                <select id="select-month" class="form-select form-select-sm rounded-pill" style="width: 120px;">
-                    <?php
-                    $months = [
-                        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-                    ];
-                    $currentMonth = date('n');
-                    foreach ($months as $val => $name):
-                    ?>
-                        <option value="<?= $val ?>" <?= $val == $currentMonth ? 'selected' : '' ?>><?= $name ?></option>
-                    <?php endforeach; ?>
-                </select>
-                        
-                <select id="select-year" class="form-select form-select-sm rounded-pill" style="width: 100px;">
-                    <?php
-                    $currentYear = date('Y');
-                    for ($y = $currentYear - 1; $y <= $currentYear + 2; $y++):
-                    ?>
-                        <option value="<?= $y ?>" <?= $y == $currentYear ? 'selected' : '' ?>><?= $y ?></option>
-                    <?php endfor; ?>
-                </select>
+            <div class="pub-topbar-actions">
+                <div class="pub-filter-pill">
+                    <label for="select-month" class="pub-filter-label">Select month</label>
+                    <select id="select-month" class="form-select form-select-sm pub-filter-select">
+                        <?php
+                        $months = [
+                            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                        ];
+                        $currentMonth = date('n');
+                        foreach ($months as $val => $name):
+                        ?>
+                            <option value="<?= $val ?>" <?= $val == $currentMonth ? 'selected' : '' ?>><?= $name ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="btn-load-report">
-                    <i class="fas fa-sync me-1"></i> Load
-                </button>
+                <div class="pub-filter-pill">
+                    <label for="select-year" class="pub-filter-label">Select year</label>
+                    <select id="select-year" class="form-select form-select-sm pub-filter-select">
+                        <?php
+                        $currentYear = date('Y');
+                        for ($y = $currentYear - 1; $y <= $currentYear + 2; $y++):
+                        ?>
+                            <option value="<?= $y ?>" <?= $y == $currentYear ? 'selected' : '' ?>><?= $y ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
 
-                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" id="btn-create-month">
-                    <i class="fas fa-plus me-1"></i> Create Month
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btn-edit-title">
-                    <i class="fas fa-pen me-1"></i> Title
-                </button>
-                <?php endif; ?>
-
-                <button type="button" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm ms-2" id="btn-save-report">
-                    <i class="fas fa-save me-2"></i> Save Report
+                <button type="button" class="pub-button-filter" id="btn-load-report" aria-label="Load report">
+                    <i class="fas fa-sync"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Color Legend -->
-        <div class="glass-card mb-4 p-3">
-            <div class="d-flex align-items-center gap-4">
-
-                <div class="d-flex align-items-center gap-2">
-                    <div class="color-dot bg-yellow"></div>
-                    <span class="text-sm text-neutral-700">Production</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="color-dot bg-orange"></div>
-                    <span class="text-sm text-neutral-700">Approval</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="color-dot bg-green"></div>
-                    <span class="text-sm text-neutral-700">Published</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="color-dot bg-empty"></div>
-                    <span class="text-sm text-neutral-700">Empty</span>
-                </div>
-            </div>
+        <!-- CATEGORY FILTERS -->
+        <div class="pub-category-filters" id="category-filters-container">
+            <button class="pub-cat-pill active" data-cat="posts">Posts</button>
+            <button class="pub-cat-pill" data-cat="reels">Reels</button>
+            <button class="pub-cat-pill" data-cat="facebook_ads">Facebook Ads</button>
         </div>
 
         <!-- Report Content -->
-        <div id="report-container">
-            <!-- Sections will be rendered here -->
+        <div class="pub-report-shell">
+            <div class="pub-report-panel">
+                <div id="report-container">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-neutral-500">Loading report data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+/* ==========================================
+   PUBLISHING REPORT - UI REFINEMENT
+   ========================================== */
+.pub-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.pub-topbar-title {
+    min-width: 240px;
+}
+
+.pub-page-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    color: #111827;
+}
+
+.pub-page-subtitle {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.pub-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pub-filter-pill {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    border-radius: 999px;
+    padding: 6px 10px;
+}
+
+.pub-filter-select {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    min-width: 136px;
+    height: 44px;
+    font-size: 0.95rem;
+    color: #111827;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.pub-filter-select:focus {
+    outline: none !important;
+    box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.22) !important;
+}
+
+.pub-button-filter {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.pub-button-filter:hover {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.pub-category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.pub-cat-pill {
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #334155;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+.pub-cat-pill:hover {
+    background: #f8f5ff;
+    border-color: #ddd6fe;
+    color: #5b21b6;
+    transform: translateY(-1px);
+}
+
+.pub-cat-pill.active {
+    background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 18px 40px rgba(124, 58, 237, 0.16);
+}
+
+.pub-report-shell {
+    display: flex;
+    justify-content: center;
+}
+
+.pub-report-panel {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
+    padding: 22px;
+}
+
+.pub-empty-state {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 44px 32px;
+    border: 1px dashed rgba(124, 58, 237, 0.3);
+    border-radius: 28px;
+    background: rgba(243, 229, 255, 0.45);
+    color: #334155;
+    text-align: center;
+}
+
+.pub-empty-state .empty-icon {
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: rgba(124, 58, 237, 0.12);
+    color: #7c3aed;
+    font-size: 1.4rem;
+}
+
+.pub-empty-state h3 {
+    margin: 0 0 10px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.pub-empty-state p {
+    margin: 0 0 22px;
+    color: #475569;
+    font-size: 0.99rem;
+    line-height: 1.75;
+}
+
+.pub-btn-create {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 26px;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 16px 36px rgba(124, 58, 237, 0.18);
+    transition: all 0.2s ease;
+}
+
+.pub-btn-create:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+}
+
+.pub-report-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    margin-bottom: 26px;
+    overflow: hidden;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.05);
+}
+
+.pub-week-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 24px 24px 18px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.pub-week-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 999px;
+    padding: 12px 18px;
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.pub-table-wrapper {
+    width: 100%;
+    border-radius: 0 0 24px 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: #ffffff;
+    border-top: 1px solid #f3f4f6;
+}
+
+.pub-table {
+    width: 100%;
+    min-width: 960px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.pub-table thead th {
+    padding: 14px 14px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #111827;
+    background: #f8f5ff;
+    border-bottom: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.pub-table thead th:first-child {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.pub-table thead th:last-child {
+    border-right: none;
+}
+
+.pub-table tbody td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+    background: #ffffff;
+    vertical-align: middle;
+}
+
+.pub-table tbody td:last-child {
+    border-right: none;
+}
+
+.pub-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.pub-company-input,
+.pub-task-textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 8px 10px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #111827;
+    box-sizing: border-box;
+}
+
+.pub-company-input {
+    min-height: 42px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.pub-task-textarea {
+    min-height: 42px;
+    max-height: 220px;
+    padding: 8px 10px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    resize: vertical;
+    overflow: auto;
+}
+
+.pub-company-input::placeholder,
+.pub-task-textarea::placeholder {
+    color: #94a3b8;
+}
+
+.pub-company-input:focus,
+.pub-task-textarea:focus {
+    background: #f8f5ff;
+    outline: none;
+}
+
+.pub-assignment-wrapper {
+    padding: 8px 10px;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background: #f8f8ff;
+}
+
+.pub-assignment-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+}
+
+.pub-assignment-chip {
+    background: rgba(124, 58, 237, 0.12);
+    border: 1px solid rgba(167, 139, 250, 0.45);
+    color: #6d28d9;
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+}
+
+.pub-assignment-chip-empty {
+    color: #94a3b8;
+    font-size: 0.88rem;
+}
+
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 14px !important;
+    min-height: 48px;
+    padding: 6px 8px;
+    background: #ffffff;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #7c3aed !important;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12) !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: rgba(124, 58, 237, 0.12) !important;
+    border: 1px solid rgba(167, 139, 250, 0.6) !important;
+    color: #5b21b6 !important;
+    border-radius: 999px !important;
+    padding: 4px 10px !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: #5b21b6 !important;
+}
+
+.pub-actions-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 48px;
+    gap: 8px;
+}
+
+.pub-btn-action {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: #f8f5ff;
+    color: #7c3aed;
+    transition: all 0.15s ease;
+}
+
+.pub-btn-action:hover {
+    background: #efe2ff;
+}
+
+.pub-btn-delete {
+    color: #dc2626;
+}
+
+.pub-table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0 0;
+    flex-wrap: wrap;
+}
+
+/* Tighter empty state when used inside table */
+.pub-empty-state {
+    padding: 24px 18px;
+    max-width: 520px;
+}
+
+.pub-btn-save {
+    background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+    color: #ffffff;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    box-shadow: 0 16px 34px rgba(124, 58, 237, 0.18);
+}
+
+.pub-btn-save:hover,
+.pub-btn-save:focus {
+    transform: translateY(-1px);
+    opacity: 0.97;
+}
+
+.pub-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pub-btn-add {
+    background: transparent;
+    color: #3730a3;
+    border: 1px solid #e5e7eb;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.pub-btn-add:hover {
+    background: #f8f5ff;
+    transform: translateY(-1px);
+}
+
+.pub-generate-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 992px) {
+    .pub-table { min-width: 820px; }
+}
+
+@media (max-width: 820px) {
+    .pub-table { min-width: 680px; }
+    .pub-week-header-bar { padding: 20px 18px 14px; }
+}
+
+@media (max-width: 720px) {
+    .pub-table { min-width: 560px; }
+    .pub-filter-select { min-width: 120px; }
+    .pub-category-filters { gap: 8px; }
+    .pub-btn-add, .pub-btn-save { width: 100%; }
+}
+
+@media (max-width: 560px) {
+    .pub-report-panel { padding: 18px; }
+    .pub-week-header-bar { gap: 12px; }
+    .pub-topbar-actions { width: 100%; justify-content: flex-start; }
+    .pub-filter-pill { width: 100%; }
+    .pub-topbar { align-items: flex-start; }
+}
+
+/* Small UX & responsiveness improvements */
+.pub-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+.pub-col-company { width: 260px; min-width: 180px; }
+.pub-col-task { width: auto; min-width: 110px; }
+.pub-col-assignment { width: 220px; min-width: 160px; }
+.pub-col-actions { width: 90px; min-width: 70px; }
+
+.pub-table-wrapper {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+.pub-assignment-wrapper { justify-content: flex-start; }
+.pub-assignment-chips { justify-content: flex-start; }
+
+.pub-company-input, .pub-task-textarea { word-break: break-word; }
+
+/* Ensure table header remains visually separated when sticky */
+.pub-table thead th { box-shadow: 0 6px 12px rgba(15,23,42,0.04); }
+
+</style>
+
+<script>
+$(document).ready(function() {
+    const isAdmin = '<?= strtolower($_SESSION['user_role']) ?>' === 'admin';
+    const userId = '<?= $_SESSION['user_id'] ?>';
+    
+    let reportState = {
+        tables: [],
+        rows: [],
+        assignments: {},
+        users: []
+    };
+    
+    let currentCategory = 'posts';
+    let isSaving = false;
+
+    // Tab Filters
+    $('.pub-cat-pill').on('click', function() {
+        $('.pub-cat-pill').removeClass('active');
+        $(this).addClass('active');
+        currentCategory = $(this).data('cat');
+        renderReport();
+    });
+
+    function fetchReport() {
+        const month = $('#select-month').val();
+        const year = $('#select-year').val();
+        
+        $('#report-container').html(`
             <div class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
                 <p class="mt-2 text-neutral-500">Loading report data...</p>
             </div>
-        </div>
-    </div>
-</main>
-
-<!-- Edit Report Title Modal -->
-<div class="modal fade" id="editTitleModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass-card border-0 p-4">
-            <div class="modal-header border-0 pb-3">
-                <h5 class="fw-bold text-neutral-900 mb-0">Edit Report Title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body py-0">
-                <div class="mb-3">
-                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Title</label>
-                    <input type="text" class="form-control rounded-4 title-input" id="input-report-title" placeholder="Enter report title">
-                </div>
-            </div>
-            <div class="modal-footer border-0 pt-3">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="btn-save-title">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-$(document).ready(function() {
-    const isAdmin = '<?= $_SESSION['user_role'] ?>' === 'admin';
-    const userId = '<?= $_SESSION['user_id'] ?>';
-    const allUsers = <?= json_encode($users ?? []) ?>;
-    
-    let reportState = {
-        report: {},
-        sections: [],
-        rows: [],
-        cells: []
-    };
-    
-    let isSaving = false;
-
-    function fetchReport() {
-        const month = $('#select-month').val();
-        const year = $('#select-year').val();
+        `);
         
         $.get('<?= url('/api/publishing/fetch-report') ?>', { month: month, year: year }, function(res) {
             if (res.status === 'success') {
                 reportState = res.data;
-                
-                if (!reportState.report || !reportState.report.id) {
-                    $('#report-title-display').text('No Report Found');
-                    let html = '<div class="text-center py-5 text-neutral-500"><p>No report found for selected month.</p>';
-                    if (isAdmin) {
-                        html += '<button class="btn btn-success rounded-pill px-4" id="btn-create-month-inline"><i class="fas fa-plus me-2"></i>Create Month</button>';
-                    }
-                    html += '</div>';
-                    $('#report-container').html(html);
-                    
-                    // Add click handler for inline button
-                    $('#btn-create-month-inline').on('click', function() {
-                        createMonth();
-                    });
-                    return;
-                }
-                
-                $('#report-title-display').text(reportState.report.title);
-                $('#input-report-title').val(reportState.report.title);
-                
                 renderReport();
             } else {
                 toastr.error(res.message || 'Failed to fetch report');
@@ -160,321 +621,361 @@ $(document).ready(function() {
         });
     }
 
-    function createMonth() {
-        const month = $('#select-month').val();
-        const year = $('#select-year').val();
-        
-        $.post('<?= url('/api/publishing/create-month') ?>', { month: month, year: year }, function(res) {
-            if (res.status === 'success') {
-                toastr.success(res.message);
-                fetchReport(); // Reload to show the new report
-            } else {
-                toastr.error(res.message);
-            }
-        });
-    }
-
     function renderReport() {
         const $container = $('#report-container');
         $container.empty();
 
-        if (reportState.sections.length === 0) {
-            const msg = isAdmin ? 'No sections found.' : 'No Publishing Tasks Assigned';
-            $container.html(`<div class="text-center py-5 text-neutral-500">${msg}</div>`);
+        // Filter tables matching the current category
+        const catTables = reportState.tables.filter(t => t.category === currentCategory);
+
+        if (catTables.length === 0) {
+            let html = `<div class="pub-empty-state">`;
+            html += `<div class="empty-icon"><i class="fas fa-file-invoice"></i></div>`;
+            html += `<h3>No Weekly Tables Yet</h3>`;
+            html += `<p>Create your first weekly publishing report table for this category.</p>`;
+            if (isAdmin) {
+                html += `<button class="pub-btn-create" id="btn-create-first-table"><i class="fas fa-plus"></i>+ Create Week 1 Table</button>`;
+            }
+            html += `</div>`;
+            $container.html(html);
+
+            $('#btn-create-first-table').on('click', function() {
+                createTable(1);
+            });
             return;
         }
 
-        reportState.sections.forEach(section => {
-            const totalDays = reportState.report.total_days || 15;
-            const $sectionCard = $('<div>').addClass('glass-card mb-5 overflow-hidden');
-            const $sectionHeader = $('<div>').addClass('p-4 border-bottom border-light bg-neutral-50 d-flex justify-content-between align-items-center')
-                .html(`<h5 class="fw-bold text-neutral-900 mb-0">${section.section_name}</h5>`);
-            
-            if (isAdmin) {
-                const $addRowBtn = $('<button>').addClass('btn btn-sm btn-outline-primary rounded-pill px-3')
-                    .html('<i class="fas fa-plus me-1"></i> Add Row')
-                    .on('click', () => addRow(section.id));
-                $sectionHeader.append($addRowBtn);
-            }
-            
-            $sectionCard.append($sectionHeader);
+        // Render each table (which represents a week)
+        catTables.forEach(table => {
+            const tableRows = reportState.rows.filter(r => r.table_id === table.id);
 
-            const $tableResponsive = $('<div>').addClass('table-responsive');
-            const $table = $('<table>').addClass('table table-bordered align-middle mb-0').css('min-width', '1200px');
+            const $reportContainer = $('<div>').addClass('pub-report-container').attr('data-table-id', table.id);
+
+            // Week Header & Controls
+            const $headerBar = $('<div>').addClass('pub-week-header-bar');
             
-            // Header (Generic top headers)
-            const $thead = $('<thead>').addClass('bg-neutral-50');
-            const $headerRow = $('<tr>');
-            $headerRow.append('<th class="ps-4 sticky-col" style="min-width: 250px; width: 250px;">Title</th>');
-            $headerRow.append(`<th colspan="16" class="text-center">Publishing Days</th>`);
+            const $weekBox = $('<div>').addClass('pub-week-box');
+            $weekBox.html(`<span>Week ${table.week_number}</span>`);
+            $headerBar.append($weekBox);
+
+            // Admin Actions on Table
             if (isAdmin) {
-                $headerRow.append('<th class="text-center" style="min-width: 250px; width: 250px;">Assignment</th>');
-                $headerRow.append('<th class="text-center" style="min-width: 80px; width: 80px;">Actions</th>');
+                const $tblDeleteBtn = $('<button>').addClass('btn btn-sm btn-outline-danger rounded-pill px-3')
+                    .html('<i class="fas fa-trash-alt me-2"></i>Delete Table')
+                    .on('click', function() {
+                        deleteTable(table.id);
+                    });
+                $headerBar.append($tblDeleteBtn);
+            }
+
+            $reportContainer.append($headerBar);
+
+            // Table Wrapper
+            const $tableWrapper = $('<div>').addClass('pub-table-wrapper');
+            const $table = $('<table>').addClass('pub-table');
+
+            // Colgroup
+            const $colgroup = $('<colgroup>');
+            $colgroup.append('<col class="pub-col-company">');
+            for (let i = 0; i < 7; i++) {
+                $colgroup.append('<col class="pub-col-task">');
+            }
+            $colgroup.append('<col class="pub-col-assignment">');
+            if (isAdmin) {
+                $colgroup.append('<col class="pub-col-actions">');
+            }
+            $table.append($colgroup);
+
+            // Thead
+            const $thead = $('<thead>');
+            const $headerRow = $('<tr>');
+            $headerRow.append('<th class="pub-col-company">COMPANY NAME</th>');
+            for (let i = 1; i <= 7; i++) {
+                $headerRow.append(`<th class="pub-col-task">TASK BOX ${i}</th>`);
+            }
+            $headerRow.append('<th class="pub-col-assignment">ASSIGNMENT</th>');
+            if (isAdmin) {
+                $headerRow.append('<th class="pub-col-actions">ACTIONS</th>');
             }
             $thead.append($headerRow);
             $table.append($thead);
 
-            // Body
+            // Tbody
             const $tbody = $('<tbody>');
-            const sectionRows = reportState.rows.filter(r => r.section_id === section.id);
-
-            if (sectionRows.length === 0) {
-                const colspan = 18;
-                $tbody.append(`<tr><td colspan="${colspan}" class="text-center py-4 text-neutral-400">No rows in this section</td></tr>`);
-            } else {
-                sectionRows.forEach(row => {
-                    // Row 1: Header Day 1 -> 15
-                    const $tr1 = $('<tr>');
-                    
-                    // Title (rowspan=4)
-                    const $titleTd = $('<td>').addClass('ps-4 sticky-col').attr('rowspan', 4);
-                    if (isAdmin) {
-                        const $input = $('<input>').addClass('form-control form-control-sm title-input')
-                            .val(row.title)
-                            .on('change', (e) => {
-                                row.title = e.target.value;
-                            });
-                        $titleTd.append($input);
-                    } else {
-                        $titleTd.html(`<span class="fw-bold text-neutral-800">${row.title}</span>`);
-                    }
-                    $tr1.append($titleTd);
-
-                    // Day 1..15 Headers
-                    for (let i = 1; i <= 15; i++) {
-                        $tr1.append(`<th class="text-center bg-neutral-50 text-xs fw-bold" style="width: 60px;">Day ${i}</th>`);
-                    }
-                    // 16th column blank header
-                    $tr1.append(`<th class="bg-neutral-50" style="width: 60px;"></th>`);
-
-                    if (isAdmin) {
-                        // Assignment (rowspan=4)
-                        const $assignTd = $('<td>').addClass('text-center').attr('rowspan', 4);
-                        const $select = $('<select>').addClass('form-control form-control-sm select2-assign')
-                            .attr('multiple', 'multiple')
-                            .css('width', '100%');
-                            
-                        let assignedUsers = [];
-                        try {
-                            assignedUsers = JSON.parse(row.assigned_users_json) || [];
-                        } catch(e) {
-                            assignedUsers = [];
-                        }
-                        
-                        allUsers.forEach(u => {
-                            const isSelected = assignedUsers.includes(u.id);
-                            const $option = $('<option>')
-                                .val(u.id)
-                                .text(`${u.full_name} (${u.role_name || 'Staff'})`)
-                                .prop('selected', isSelected);
-                            $select.append($option);
-                        });
-                        
-                        $select.on('change', function() {
-                            const selectedIds = $(this).val() || [];
-                            row.assigned_users_json = JSON.stringify(selectedIds);
-                        });
-                        
-                        $assignTd.append($select);
-                        $tr1.append($assignTd);
-
-                        // Actions (rowspan=4)
-                        const $actionsTd = $('<td>').addClass('text-center').attr('rowspan', 4);
-                        const $deleteBtn = $('<button>').addClass('btn btn-sm btn-link text-danger p-0')
-                            .html('<i class="fas fa-trash-can"></i>')
-                            .on('click', () => deleteRow(row.id));
-                        $actionsTd.append($deleteBtn);
-                        $tr1.append($actionsTd);
-                    }
-
-                    $tbody.append($tr1);
-
-                    // Row 2: Data Day 1 -> 15
-                    const $trD1 = $('<tr>');
-                    for (let i = 1; i <= 15; i++) {
-                        const cell = reportState.cells.find(c => c.row_id === row.id && parseInt(c.day_number) === i) || { row_id: row.id, day_number: i, status_color: 'empty', cell_value: '' };
-                        
-                        const $cellTd = $('<td>').addClass('text-center p-0').css('height', '50px');
-                        const $cellDiv = $('<div>').addClass(`cell-box bg-${cell.status_color}`)
-                            .attr('data-row-id', row.id)
-                            .attr('data-day', i)
-                            .attr('contenteditable', 'true')
-                            .html(cell.cell_value || '');
-                        
-                        $cellDiv.on('dblclick', function() { cycleColor(cell, $cellDiv); });
-                        
-                        $cellDiv.on('input', function() {
-                            const text = $(this).text();
-                            const stateCellIndex = reportState.cells.findIndex(c => c.row_id === cell.row_id && parseInt(c.day_number) === i);
-                            if (stateCellIndex !== -1) {
-                                reportState.cells[stateCellIndex].cell_value = text;
-                            } else {
-                                cell.cell_value = text;
-                                reportState.cells.push(cell);
-                            }
-                        });
-                        
-                        $cellTd.append($cellDiv);
-                        $trD1.append($cellTd);
-                    }
-                    $trD1.append($('<td>').addClass('bg-neutral-50/50')); // 16th column blank
-                    $tbody.append($trD1);
-
-                    // Row 3: Header Day 16 -> 31
-                    const $trH2 = $('<tr>');
-                    for (let i = 16; i <= 31; i++) {
-                        if (i <= totalDays) {
-                            $trH2.append(`<th class="text-center bg-neutral-50 text-xs fw-bold" style="width: 60px;">Day ${i}</th>`);
-                        } else {
-                            $trH2.append(`<th class="bg-neutral-50" style="width: 60px;"></th>`);
-                        }
-                    }
-                    $tbody.append($trH2);
-
-                    // Row 4: Data Day 16 -> 31
-                    const $trD2 = $('<tr>');
-                    for (let i = 16; i <= 31; i++) {
-                        if (i <= totalDays) {
-                            const cell = reportState.cells.find(c => c.row_id === row.id && parseInt(c.day_number) === i) || { row_id: row.id, day_number: i, status_color: 'empty', cell_value: '' };
-                            
-                            const $cellTd = $('<td>').addClass('text-center p-0').css('height', '50px');
-                            const $cellDiv = $('<div>').addClass(`cell-box bg-${cell.status_color}`)
-                                .attr('data-row-id', row.id)
-                                .attr('data-day', i)
-                                .attr('contenteditable', 'true')
-                                .html(cell.cell_value || '');
-                            
-                            $cellDiv.on('dblclick', function() { cycleColor(cell, $cellDiv); });
-                            
-                            $cellDiv.on('input', function() {
-                                const text = $(this).text();
-                                const stateCellIndex = reportState.cells.findIndex(c => c.row_id === cell.row_id && parseInt(c.day_number) === i);
-                                if (stateCellIndex !== -1) {
-                                    reportState.cells[stateCellIndex].cell_value = text;
-                                } else {
-                                    cell.cell_value = text;
-                                    reportState.cells.push(cell);
-                                }
-                            });
-                            
-                            $cellTd.append($cellDiv);
-                            $trD2.append($cellTd);
-                        } else {
-                            $trD2.append($('<td>').addClass('bg-neutral-50/50'));
-                        }
-                    }
-                    $tbody.append($trD2);
-                });
+            if (tableRows.length === 0) {
+                // If somehow no rows exist, add an empty placeholder or add empty rows
+                for (let r = 0; r < 5; r++) {
+                    const tempId = 'temp-' + Math.random().toString(36).substr(2, 9);
+                    const newRow = {
+                        id: tempId,
+                        table_id: table.id,
+                        company_name: '',
+                        task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '',
+                        row_order: r
+                    };
+                    reportState.rows.push(newRow);
+                    tableRows.push(newRow);
+                }
             }
 
-            $table.append($tbody);
-            $tableResponsive.append($table);
-            $sectionCard.append($tableResponsive);
-            $container.append($sectionCard);
-        });
-        
-        // Initialize Select2
-        if (isAdmin) {
-            $('.select2-assign').select2({
-                placeholder: 'Assign users',
-                allowClear: true
+            tableRows.forEach(row => {
+                $tbody.append(buildTableRow(row, table.id));
             });
+
+            $table.append($tbody);
+            $tableWrapper.append($table);
+            $reportContainer.append($tableWrapper);
+
+            // Bottom Buttons inside each table
+            const $tableFooter = $('<div>').addClass('pub-table-footer');
+            
+            if (isAdmin) {
+                const $saveBtn = $('<button>').addClass('pub-btn-save').text('SAVE TABLE');
+                $saveBtn.on('click', function() {
+                    saveReport($(this));
+                });
+                $tableFooter.append($saveBtn);
+
+                const $addRowBtn = $('<button>').addClass('pub-btn-add').html('<i class="fas fa-plus me-2"></i>Add Row');
+                $addRowBtn.on('click', function() {
+                    const tempId = 'temp-' + Math.random().toString(36).substr(2, 9);
+                    const newRow = {
+                        id: tempId,
+                        table_id: table.id,
+                        company_name: '',
+                        task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '',
+                        row_order: tableRows.length
+                    };
+                    reportState.rows.push(newRow);
+                    renderReport();
+                });
+                $tableFooter.append($addRowBtn);
+            }
+
+            $reportContainer.append($tableFooter);
+            $container.append($reportContainer);
+        });
+
+        // Add Category-level "CREATE MORE TABLE +" at the very bottom
+        if (isAdmin) {
+            const nextWeekNum = catTables.length + 1;
+            const $genFooter = $('<div>').addClass('pub-generate-footer');
+            const $createTblBtn = $('<button>').addClass('pub-btn-add').css('background', '#f5f3ff').css('border-color', '#7e22ce').css('color', '#7e22ce')
+                .html(`<i class="fas fa-folder-plus me-2"></i>CREATE MORE TABLE (WEEK ${nextWeekNum})`);
+            $createTblBtn.on('click', function() {
+                createTable(nextWeekNum);
+            });
+            $genFooter.append($createTblBtn);
+            $container.append($genFooter);
         }
+
+        // Initialize Select2 dropdowns
+        initSelect2Dropdowns();
+        
+        // Auto resize task textareas
+        autoResizeTextareas();
     }
 
-    function cycleColor(cell, $el) {
-        const colors = ['empty', 'yellow', 'orange', 'green'];
-        let currentIndex = colors.indexOf(cell.status_color);
-        if (currentIndex === -1) currentIndex = 0;
-        
-        const nextIndex = (currentIndex + 1) % colors.length;
-        const nextColor = colors[nextIndex];
-        
-        $el.removeClass(`bg-${cell.status_color}`).addClass(`bg-${nextColor}`);
-        cell.status_color = nextColor;
-        
-        // Update state
-        const stateCellIndex = reportState.cells.findIndex(c => c.row_id === cell.row_id && c.day_number === cell.day_number);
-        if (stateCellIndex !== -1) {
-            reportState.cells[stateCellIndex].status_color = nextColor;
+    function buildTableRow(row, tableId) {
+        const $tr = $('<tr>').attr('data-row-id', row.id);
+
+        // 1. Company Name
+        const $companyTd = $('<td>');
+        const $companyInput = $('<input>').addClass('pub-company-input')
+            .attr('type', 'text')
+            .attr('placeholder', 'Company name...')
+            .val(row.company_name || '');
+
+        if (!isAdmin) {
+            $companyInput.attr('disabled', true);
+        }
+
+        $companyInput.on('input change', function() {
+            row.company_name = $(this).val();
+        });
+        $companyTd.append($companyInput);
+        $tr.append($companyTd);
+
+        // 2. Task Box 1 to 7
+        for (let i = 1; i <= 7; i++) {
+            const field = `task_box_${i}`;
+            const $td = $('<td>');
+            const $textarea = $('<textarea>').addClass('pub-task-textarea')
+                .val(row[field] || '');
+
+            if (!isAdmin) {
+                $textarea.attr('disabled', true);
+            }
+
+            $textarea.on('input', function() {
+                autoResize(this);
+                row[field] = $(this).val();
+            });
+
+            $td.append($textarea);
+            $tr.append($td);
+        }
+
+        // 3. Assignment
+        const $assignTd = $('<td>');
+        const $assignWrapper = $('<div>').addClass('pub-assignment-wrapper');
+
+        if (isAdmin) {
+            const $select = $('<select>').addClass('form-select form-select-sm pub-select-users')
+                .attr('multiple', 'multiple')
+                .css('width', '100%');
+
+            const currentAssigns = reportState.assignments[tableId] || [];
+            const assignedIds = currentAssigns.map(a => a.user_id);
+
+            reportState.users.forEach(user => {
+                const $opt = $('<option>')
+                    .val(user.id)
+                    .text(user.full_name)
+                    .attr('selected', assignedIds.includes(user.id));
+                $select.append($opt);
+            });
+
+            $select.on('change', function() {
+                const selectedIds = $(this).val() || [];
+                const updatedAssigns = selectedIds.map(uid => {
+                    const u = reportState.users.find(usr => usr.id === uid);
+                    return {
+                        user_id: uid,
+                        full_name: u ? u.full_name : '',
+                        username: u ? u.username : ''
+                    };
+                });
+                reportState.assignments[tableId] = updatedAssigns;
+            });
+
+            $assignWrapper.append($select);
         } else {
-            reportState.cells.push({ ...cell, status_color: nextColor });
-        }
-    }
+            const $chips = $('<div>').addClass('pub-assignment-chips');
+            const currentAssigns = reportState.assignments[tableId] || [];
 
-    function addRow(sectionId) {
-        const newId = 'temp-' + Math.random().toString(36).substr(2, 9);
-        const newRow = {
-            id: '', // Empty for backend to generate UUID
-            section_id: sectionId,
-            title: 'New Row',
-            assigned_users_json: '[]',
-            sort_order: reportState.rows.filter(r => r.section_id === sectionId).length
-        };
-        
-        // We need a temp ID for the frontend state to map cells
-        const tempRow = { ...newRow, id: newId };
-        
-        reportState.rows.push(tempRow);
-        renderReport();
-    }
-
-    function deleteRow(rowId) {
-        if (rowId.startsWith('temp-')) {
-            reportState.rows = reportState.rows.filter(r => r.id !== rowId);
-            reportState.cells = reportState.cells.filter(c => c.row_id !== rowId);
-            renderReport();
-            return;
+            if (currentAssigns.length > 0) {
+                currentAssigns.forEach(assign => {
+                    $chips.append($('<span>').addClass('pub-assignment-chip').text(assign.full_name));
+                });
+            } else {
+                $chips.append($('<span>').addClass('pub-assignment-chip-empty').text('No assignments'));
+            }
+            $assignWrapper.append($chips);
         }
 
+        $assignTd.append($assignWrapper);
+        $tr.append($assignTd);
+
+        if (isAdmin) {
+            const $actionsTd = $('<td>');
+            const $actionsWrapper = $('<div>').addClass('pub-actions-wrapper');
+
+            const $deleteRowBtn = $('<button>').addClass('pub-btn-action pub-btn-delete')
+                .attr('title', 'Delete row')
+                .html('<i class="fas fa-times"></i>');
+
+            $deleteRowBtn.on('click', function() {
+                Swal.fire({
+                    title: 'Delete row?',
+                    text: 'Are you sure you want to remove this row from the table?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Delete'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        reportState.rows = reportState.rows.filter(r => r.id !== row.id);
+                        renderReport();
+                    }
+                });
+            });
+
+            $actionsWrapper.append($deleteRowBtn);
+            $actionsTd.append($actionsWrapper);
+            $tr.append($actionsTd);
+        }
+
+        return $tr;
+    }
+
+    function initSelect2Dropdowns() {
+        $('.pub-select-users').select2({
+            placeholder: 'Assign members...',
+            allowClear: true,
+            closeOnSelect: false
+        });
+    }
+
+    function autoResize(textarea) {
+        textarea.style.height = '56px';
+        if (textarea.scrollHeight > 56) {
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+    }
+    
+    function autoResizeTextareas() {
+        $('.pub-task-textarea').each(function() {
+            autoResize(this);
+        });
+    }
+
+    function createTable(weekNum) {
+        const month = $('#select-month').val();
+        const year = $('#select-year').val();
+
+        $.post('<?= url('/api/publishing/create-table') ?>', {
+            category: currentCategory,
+            week_number: weekNum,
+            month: month,
+            year: year
+        }, function(res) {
+            if (res.status === 'success') {
+                toastr.success(res.message);
+                fetchReport();
+            } else {
+                toastr.error(res.message);
+            }
+        }).fail(function() {
+            toastr.error('Failed to create table');
+        });
+    }
+
+    function deleteTable(tableId) {
         Swal.fire({
-            title: 'Delete Row?',
-            text: "This action cannot be undone!",
+            title: 'Are you sure you want to delete this table?',
+            text: "This will permanently delete the table, all rows, and related assignments! No orphan data will remain.",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#e11d48',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                $.post('<?= url('/api/publishing/delete-row') ?>', { id: rowId }, function(res) {
+                $.post('<?= url('/api/publishing/delete-table') ?>', { id: tableId }, function(res) {
                     if (res.status === 'success') {
                         toastr.success(res.message);
-                        reportState.rows = reportState.rows.filter(r => r.id !== rowId);
-                        reportState.cells = reportState.cells.filter(c => c.row_id !== rowId);
-                        renderReport();
+                        fetchReport();
                     } else {
                         toastr.error(res.message);
                     }
                 }).fail(function() {
-                    toastr.error('Failed to delete row');
+                    toastr.error('Failed to delete table');
                 });
             }
         });
     }
 
-    $('#btn-save-report').on('click', function() {
+    function saveReport($btn) {
         if (isSaving) return;
         
         isSaving = true;
-        $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+        const originalText = $btn.text();
+        $btn.prop('disabled', true).text('Saving...');
         
-        // Send full state, backend handles temp IDs
         const dataToSend = JSON.parse(JSON.stringify(reportState));
-        
-        // Also map cells that belong to temp rows to have empty row_id or handle it.
-        // Wait, if row_id is empty, backend won't know which row it belongs to.
-        // So we should probably save rows first, get IDs, then save cells.
-        // But the prompt says "transaction -> save rows -> save cells".
-        // This implies the backend handles it or we send the hierarchy.
-        // Let's assume the frontend sends the data, and if a row is new, the backend inserts it and uses the new ID for its cells?
-        // That requires mapping.
-        // Let's assume the frontend can't add cells to a row that hasn't been saved yet? No, that's not Airtable-like.
-        // Let's assume the backend handles it by looking at the order or we send rows and cells associated.
-        // Better: Let's assume the frontend sends the full state, and for new rows, we handle it.
-        // Wait, if we send `rows` and `cells` separately, and row has no ID, how do we link cells?
-        // We can use the index or temp ID in the request!
-        // Let's keep the temp ID in the request, and the backend can use it to map!
-        // Yes, that's clean. The backend generates a real UUID and replaces the temp ID in the cells list.
         
         $.ajax({
             url: '<?= url('/api/publishing/save-report') ?>',
@@ -484,110 +985,26 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.status === 'success') {
                     toastr.success(res.message);
-                    fetchReport(); // Refetch to get real IDs and clean state
+                    fetchReport(); 
                 } else {
                     toastr.error(res.message);
                 }
             },
+            error: function() {
+                toastr.error('Failed to save table data');
+            },
             complete: function() {
                 isSaving = false;
-                $('#btn-save-report').prop('disabled', false).html('<i class="fas fa-save me-2"></i> Save Report');
+                $btn.prop('disabled', false).text(originalText);
             }
         });
-    });
-
-    $('#btn-edit-title').on('click', function() {
-        $('#editTitleModal').modal('show');
-    });
-
-    $('#btn-save-title').on('click', function() {
-        const newTitle = $('#input-report-title').val();
-        reportState.report.title = newTitle;
-        $('#report-title-display').text(newTitle);
-        $('#editTitleModal').modal('hide');
-    });
+    }
 
     $('#btn-load-report').on('click', function() {
         fetchReport();
-    });
-
-    $('#btn-create-month').on('click', function() {
-        createMonth();
     });
 
     // Initial load
     fetchReport();
 });
 </script>
-
-<style>
-.color-dot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.1);
-}
-.bg-yellow { background-color: #fef08a !important; } /* Yellow 200 */
-.bg-orange { background-color: #fed7aa !important; } /* Orange 200 */
-.bg-green { background-color: #bbf7d0 !important; } /* Green 200 */
-.bg-empty { background-color: #f3f4f6 !important; } /* Gray 100 */
-
-.cell-box {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #1f2937;
-}
-.cell-box:hover {
-    filter: brightness(0.95);
-}
-
-.table th, .table td {
-    padding: 0.5rem;
-    vertical-align: middle;
-}
-
-.table-bordered th, .table-bordered td {
-    border-color: #e5e7eb !important;
-}
-
-.title-input {
-    background-color: #FFFFFF !important;
-    color: #111827 !important;
-    border: 1px solid #D1D5DB !important;
-    border-radius: 0.375rem !important;
-    padding: 12px 14px !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    line-height: 1.5 !important;
-    width: 100% !important;
-    display: block !important;
-}
-.title-input:focus {
-    border-color: #7C3AED !important;
-    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
-    outline: none !important;
-}
-.title-input::placeholder {
-    color: #9CA3AF !important;
-    opacity: 1 !important;
-}
-
-.sticky-col {
-    position: sticky;
-    left: 0;
-    background-color: #FFFFFF !important;
-    z-index: 10;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-}
-
-thead .sticky-col {
-    z-index: 11;
-}
-</style>

@@ -24,7 +24,7 @@ class PublishingController
         $extra_js = '<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>';
         
         $userModel = new \App\Models\User();
-        $users = $userModel->listAll();
+        $users = $userModel->listAll(['status' => 'active']);
         
         require_once ROOT_PATH . '/app/views/layouts/header.php';
         require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
@@ -37,10 +37,10 @@ class PublishingController
         header('Content-Type: application/json');
         try {
             $userId = $_SESSION['user_id'];
-            $isAdmin = ($_SESSION['user_role'] === 'admin');
+            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
             
-            $month = !empty($_GET['month']) ? $_GET['month'] : date('n');
-            $year = !empty($_GET['year']) ? $_GET['year'] : date('Y');
+            $month = !empty($_GET['month']) ? (int)$_GET['month'] : (int)date('n');
+            $year = !empty($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
             
             $data = $this->model->fetchReportData($userId, $isAdmin, $month, $year);
             
@@ -53,30 +53,33 @@ class PublishingController
         }
     }
 
-    public function createMonth()
+    public function createTable()
     {
         header('Content-Type: application/json');
         try {
-            $isAdmin = ($_SESSION['user_role'] === 'admin');
+            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
             if (!$isAdmin) {
-                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Only Admin can create tables.']);
                 return;
             }
             
-            $month = $_POST['month'] ?? '';
-            $year = $_POST['year'] ?? '';
+            $category = $_POST['category'] ?? '';
+            $weekNumber = isset($_POST['week_number']) ? (int)$_POST['week_number'] : 1;
+            $month = isset($_POST['month']) ? (int)$_POST['month'] : (int)date('n');
+            $year = isset($_POST['year']) ? (int)$_POST['year'] : (int)date('Y');
             
-            if (empty($month) || empty($year)) {
-                echo json_encode(['status' => 'error', 'message' => 'Month and Year are required']);
+            if (empty($category) || empty($weekNumber)) {
+                echo json_encode(['status' => 'error', 'message' => 'Category and Week Number are required']);
                 return;
             }
             
-            $reportId = $this->model->createMonthReport($month, $year);
+            $userId = $_SESSION['user_id'];
+            $tableId = $this->model->createTable($category, $weekNumber, $month, $year, $userId, $isAdmin);
             
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Month report created successfully',
-                'report_id' => $reportId
+                'message' => 'Publishing table created successfully',
+                'table_id' => $tableId
             ]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -88,7 +91,7 @@ class PublishingController
         header('Content-Type: application/json');
         try {
             $userId = $_SESSION['user_id'];
-            $isAdmin = ($_SESSION['user_role'] === 'admin');
+            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
             
             $input = json_decode(file_get_contents('php://input'), true);
             
@@ -101,31 +104,35 @@ class PublishingController
             
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Report saved successfully'
+                'message' => 'Publishing table saved successfully.'
             ]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
-    public function deleteRow()
+    public function deleteTable()
     {
         header('Content-Type: application/json');
         try {
-            $isAdmin = ($_SESSION['user_role'] === 'admin');
-            
-            $rowId = $_POST['id'] ?? '';
-            
-            if (empty($rowId)) {
-                echo json_encode(['status' => 'error', 'message' => 'Row ID is missing']);
+            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            if (!$isAdmin) {
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Only Admin can delete tables.']);
                 return;
             }
             
-            $this->model->deleteRow($rowId, $isAdmin);
+            $tableId = $_POST['id'] ?? '';
+            
+            if (empty($tableId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Table ID is missing']);
+                return;
+            }
+            
+            $this->model->deleteTable($tableId, $isAdmin);
             
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Row deleted successfully'
+                'message' => 'Publishing table deleted successfully.'
             ]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);

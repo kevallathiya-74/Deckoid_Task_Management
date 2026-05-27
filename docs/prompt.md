@@ -1,105 +1,202 @@
-PIN TASK UI DESIGN UPDATE
+TASK MANAGEMENT — MULTI SELECT DROPDOWN FIX
 
-IMPORTANT:
-Current pin task design is incorrect.
+CRITICAL ISSUE:
+When user clicks:
++ Add Another Task
 
-Pinned tasks should NOT appear like normal todo rows.
+The newly added task block has broken dropdown behavior for:
 
-When:
-admin selects "Pin Task"
+1. Assign Team Lead
+2. Department
 
-AND:
-creates todo
+Problems:
+- dropdown not opening properly
+- selected users not rendering properly
+- width broken
+- multi-select state broken
+- search not working
+- z-index/layout broken
+- cloned dropdown keeps previous instance state
+- newly added task form not initialized correctly
 
-THEN:
-show task inside dedicated stacked boxes.
+==================================================
+ROOT CAUSE
+==================================================
 
-Pinned task section should look like:
+Current implementation is cloning HTML directly.
 
----
+BUT:
+JavaScript multiselect plugins like:
+- Select2
+- TomSelect
+- Choices.js
 
-+----------------------------------+
-| Pin Task Title                   || Date + Time                      |
-+----------------------------------+
+DO NOT work correctly when DOM is cloned without reinitialization. :contentReference[oaicite:1]{index=1}
 
-+----------------------------------+
-| Pin Task Title                   || Date + Time                      |
-+----------------------------------+
+The old plugin instance is being duplicated.
 
-+----------------------------------+
-| Pin Task Title                   || Date + Time                      |
-+----------------------------------+
+This causes:
+- corrupted dropdown state
+- broken UI
+- missing selections
+- width calculation issues
+- dropdown overlap issues
 
----
+==================================================
+PERMANENT FIX REQUIRED
+==================================================
 
-ONLY SHOW:
+DO NOT clone initialized dropdown HTML.
 
-* Task Title
-* Date
-* Time
+Instead:
 
-DO NOT SHOW:
+STEP 1:
+Clone CLEAN TEMPLATE ONLY.
 
-* assigned user
-* status
-* buttons
-* priority
-* description
-* notes
-* progress
+STEP 2:
+Destroy old select instances before cloning.
 
-Each pin task card:
+STEP 3:
+Generate UNIQUE IDs for:
+- assign dropdown
+- department dropdown
 
-* full width
-* medium height
-* rounded corners
-* soft border
-* glassmorphism light effect
-* subtle purple left border
-* spacing between cards
-* hover animation
+STEP 4:
+Reinitialize multiselect plugin AFTER append.
 
-Create dedicated section:
+==================================================
+REQUIRED IMPLEMENTATION
+==================================================
 
-Pinned Tasks
+AFTER new task block append:
 
-Position:
-TOP of Todo page.
+1. reset all field values
+2. reset selected members
+3. reset department
+4. generate unique IDs
+5. initialize dropdown plugin again
 
-Normal todos remain separate below.
+==================================================
+REQUIRED UI FIXES
+==================================================
 
-Example:
+Fix:
+- dropdown width
+- alignment
+- responsive sizing
+- selected tag overflow
+- spacing
+- vertical alignment
+- search box styling
 
-18 May 2026 10:30 AM
+Dropdown must:
+- fully match project UI
+- purple theme
+- responsive
+- clean pills/tags
+- proper border radius
+- proper hover state
 
-Use existing:
-created_at timestamp.
+==================================================
+MULTI SELECT REQUIREMENTS
+==================================================
 
-No extra fields needed.
+Assign Team Lead:
+- multi-select enabled
+- searchable
+- multiple users selectable
+- selected users shown as pills/tags
+- remove button on each selected user
+
+Department:
+- searchable dropdown
+- clean responsive UI
+- proper width
+
+==================================================
+REQUIRED CSS FIXES
+==================================================
+
+Fix:
+- z-index
+- overflow hidden
+- dropdown clipping
+- modal overlap issue
+
+Add proper:
+z-index: 9999
+
+for dropdown menu container if needed. :contentReference[oaicite:2]{index=2}
+
+==================================================
+RESPONSIVE REQUIREMENTS
+==================================================
 
 Desktop:
-stack vertically
+- two-column layout
 
 Tablet:
-full width cards
+- proper wrapping
 
 Mobile:
-compact cards
+- stacked layout
+- full width dropdowns
 
-Use:
-modern SaaS productivity app design.
+NO overflow.
 
-Do NOT:
-change existing todo logic.
+==================================================
+PERFORMANCE FIX
+==================================================
 
-Only:
-change pinned task rendering UI.
+Optimize dynamic task creation.
 
-Pinned tasks should feel like:
+DO NOT:
+- initialize all dropdowns repeatedly
+- duplicate event listeners
+- create memory leaks
 
-* sticky reminders
-* always visible notes
-* lightweight work instructions
+USE:
+event delegation + scoped initialization
 
-NOT like:
-task table rows.
+==================================================
+TESTING REQUIRED
+==================================================
+
+TEST:
+1. Create first task
+2. Select multiple users
+3. Add second task
+4. Select different users
+5. Add third/fourth task
+6. Remove tasks
+7. Edit tasks
+8. Open/close modal repeatedly
+
+VERIFY:
+- all dropdowns work
+- no duplicated selections
+- no broken widths
+- no console errors
+- no overlapping dropdown
+- no frozen dropdown
+- no hidden dropdown
+
+==================================================
+IMPORTANT
+==================================================
+
+DO NOT break:
+- existing task save system
+- existing backend
+- modal structure
+- responsive layout
+
+ONLY fix:
+- dynamic dropdown initialization
+- cloned form behavior
+- multiselect UI/UX
+- dropdown responsiveness
+
+FINAL RESULT:
+Every newly added task must have fully functional,
+clean, responsive multi-select dropdowns.

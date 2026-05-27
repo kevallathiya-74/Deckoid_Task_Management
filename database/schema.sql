@@ -1,8 +1,8 @@
 -- Taskly: Task Management & Performance SaaS Database Schema
 -- Last Updated: 2026-05-14
 
--- CREATE DATABASE IF NOT EXISTS deckoid_task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- USE deckoid_task_management;
+CREATE DATABASE IF NOT EXISTS deckoid_task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE deckoid_task_management;
 
 -- 1. Roles Table (Departments/Modules)
 CREATE TABLE IF NOT EXISTS roles (
@@ -200,56 +200,66 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 12. Publishing Reports Table
-CREATE TABLE IF NOT EXISTS publishing_reports (
+-- 12. Publishing Tables
+CREATE TABLE IF NOT EXISTS publishing_tables (
     id CHAR(36) PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    report_month INT NULL,
-    report_year INT NULL,
-    total_days INT DEFAULT 15,
+    category VARCHAR(50) NOT NULL,
+    week_number INT NOT NULL,
     created_by CHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE RESTRICT,
-    UNIQUE KEY unique_month_year (report_month, report_year)
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- 13. Publishing Sections Table
-CREATE TABLE IF NOT EXISTS publishing_sections (
-    id CHAR(36) PRIMARY KEY,
-    report_id CHAR(36) NOT NULL,
-    section_key VARCHAR(50) NOT NULL, -- facebook_ads, posts, reels
-    section_name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (report_id) REFERENCES publishing_reports(id) ON DELETE CASCADE,
-    UNIQUE KEY (report_id, section_key)
-) ENGINE=InnoDB;
-
--- 14. Publishing Rows Table
+-- 13. Publishing Rows Table
 CREATE TABLE IF NOT EXISTS publishing_rows (
     id CHAR(36) PRIMARY KEY,
-    section_id CHAR(36) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    assigned_users_json JSON NULL, -- Array of user IDs
-    sort_order INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (section_id) REFERENCES publishing_sections(id) ON DELETE CASCADE,
-    UNIQUE KEY (section_id, title)
+    table_id CHAR(36) NOT NULL,
+    company_name VARCHAR(255) NOT NULL,
+    task_box_1 TEXT NULL,
+    task_box_2 TEXT NULL,
+    task_box_3 TEXT NULL,
+    task_box_4 TEXT NULL,
+    task_box_5 TEXT NULL,
+    task_box_6 TEXT NULL,
+    task_box_7 TEXT NULL,
+    row_order INT DEFAULT 0,
+    FOREIGN KEY (table_id) REFERENCES publishing_tables(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 15. Publishing Cells Table
-CREATE TABLE IF NOT EXISTS publishing_cells (
+-- 14. Publishing Assignments Table
+CREATE TABLE IF NOT EXISTS publishing_assignments (
     id CHAR(36) PRIMARY KEY,
-    row_id CHAR(36) NOT NULL,
-    day_number INT NOT NULL,
-    cell_value VARCHAR(255) NULL,
-    status_color VARCHAR(20) NULL, -- yellow, orange, green, empty
+    table_id CHAR(36) NOT NULL,
+    user_id CHAR(36) NOT NULL,
+    FOREIGN KEY (table_id) REFERENCES publishing_tables(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_assignment (table_id, user_id)
+) ENGINE=InnoDB;
+
+-- 15. Daily Reports (Staff-submitted)
+CREATE TABLE IF NOT EXISTS daily_reports (
+    id CHAR(36) PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+    report_date DATE NOT NULL,
+    total_tasks INT DEFAULT 0,
+    total_value DECIMAL(12,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (row_id) REFERENCES publishing_rows(id) ON DELETE CASCADE,
-    UNIQUE KEY (row_id, day_number)
+    UNIQUE KEY unique_user_date (user_id, report_date),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS daily_report_rows (
+    id CHAR(36) PRIMARY KEY,
+    report_id CHAR(36) NOT NULL,
+    task_text TEXT NULL,
+    number_value DECIMAL(12,4) NULL,
+    row_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (report_id) REFERENCES daily_reports(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 
 
 -- 12. Todo Lists Table

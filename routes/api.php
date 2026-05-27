@@ -62,5 +62,17 @@ $router->post('/api/leaves/cancel', 'LeaveController@cancelRequest');
 // Publishing Report Management
 $router->get('/api/publishing/fetch-report', 'PublishingController@fetchReport');
 $router->post('/api/publishing/save-report', 'PublishingController@saveReport');
-$router->post('/api/publishing/delete-row', 'PublishingController@deleteRow');
-$router->post('/api/publishing/create-month', 'PublishingController@createMonth');
+$router->post('/api/publishing/delete-table', 'PublishingController@deleteTable');
+$router->post('/api/publishing/create-table', 'PublishingController@createTable');
+
+// Daily Report APIs
+$router->get('/api/daily-report/today', 'DailyReportController@fetchTodayReport');
+$router->get('/staff/api/daily-report/today', 'DailyReportController@fetchTodayReport');
+$router->get('/api/daily-report/fetch', 'DailyReportController@fetchReport');
+$router->post('/api/daily-report/save', 'DailyReportController@saveReport');
+$router->post('/api/daily-report/update/{id}', 'DailyReportController@updateReport');
+$router->get('/api/daily-report/admin-list', 'DailyReportController@fetchAdminReports');
+$router->get('/admin/api/daily-report/user/{id}', 'DailyReportController@fetchReportsByUser');
+$router->get('/admin/api/daily-report/user/{id}/{date}', 'DailyReportController@fetchReportByUserDate');
+$router->post('/admin/api/daily-report/save', 'DailyReportController@saveReport');
+$router->post('/staff/api/daily-report/save', 'DailyReportController@saveReport');

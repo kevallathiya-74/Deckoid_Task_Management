@@ -29,6 +29,10 @@ $router->get('/staff/todo', 'TodoController@index');
 $router->get('/admin/publishing', 'PublishingController@index');
 $router->get('/staff/publishing', 'PublishingController@index');
 
+// Daily Report (Staff + Admin)
+$router->get('/admin/daily-report', 'DailyReportController@index');
+$router->get('/staff/daily-report', 'DailyReportController@index');
+
 $router->get('/admin/kpi', 'KPIController@index');
 $router->get('/admin/kpi/staff-report', 'KPIController@staffReport');
 

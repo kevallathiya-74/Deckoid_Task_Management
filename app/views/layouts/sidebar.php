@@ -54,6 +54,16 @@
                     <span>Todo List</span>
                 </a>
             </li>
+            <?php if ($prefix == 'staff'): ?>
+            <li class="nav-item">
+                <a href="<?= url('/staff/daily-report') ?>" class="nav-link <?= $active_page == 'daily_report' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="Daily Report">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span>Daily Report</span>
+                </a>
+            </li>
+            <?php endif; ?>
         </ul>
 
         <?php if ($prefix == 'admin'): ?>
@@ -81,6 +91,14 @@
                         <i class="fas fa-calendar"></i>
                     </div>
                     <span>Leave Requests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="<?= url('/admin/daily-report') ?>" class="nav-link <?= $active_page == 'daily_report' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="Daily Report Summary">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span>Daily Report Summary</span>
                 </a>
             </li>
         </ul>

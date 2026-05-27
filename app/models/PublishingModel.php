@@ -27,155 +27,147 @@ class PublishingModel
 
     public function fetchReportData($userId, $isAdmin, $month, $year)
     {
-        $stmt = $this->db->prepare("SELECT * FROM publishing_reports WHERE report_month = :m AND report_year = :y");
-        $stmt->execute(['m' => $month, 'y' => $year]);
-        $report = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$report) {
-            return ['report' => null, 'sections' => [], 'rows' => [], 'cells' => []];
-        }
-        
-        $reportId = $report['id'];
+        // Fetch users to populate dropdown
+        $userModel = new User();
+        $users = $userModel->listAll(['status' => 'active']);
 
-        // Fetch sections
-        $stmt = $this->db->prepare("SELECT * FROM publishing_sections WHERE report_id = :report_id");
-        $stmt->execute(['report_id' => $reportId]);
-        $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $params = [
+            'month' => $month,
+            'year' => $year
+        ];
 
-        $sectionIds = array_column($sections, 'id');
-        if (empty($sectionIds)) {
-            return ['report' => $report, 'sections' => [], 'rows' => [], 'cells' => []];
+        if ($isAdmin) {
+            // Admin sees all tables for the month/year
+            $stmt = $this->db->prepare("
+                SELECT * FROM publishing_tables 
+                WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year
+                ORDER BY category ASC, week_number ASC
+            ");
+            $stmt->execute($params);
+            $tables = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            // Staff sees only tables assigned to them
+            $stmt = $this->db->prepare("
+                SELECT t.* FROM publishing_tables t
+                INNER JOIN publishing_assignments a ON t.id = a.table_id
+                WHERE a.user_id = :user_id
+                  AND MONTH(t.created_at) = :month AND YEAR(t.created_at) = :year
+                ORDER BY t.category ASC, t.week_number ASC
+            ");
+            $params['user_id'] = $userId;
+            $stmt->execute($params);
+            $tables = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+
+        if (empty($tables)) {
+            return [
+                'tables' => [],
+                'rows' => [],
+                'assignments' => [],
+                'users' => $users
+            ];
+        }
+
+        $tableIds = array_column($tables, 'id');
+        $placeholders = implode(',', array_fill(0, count($tableIds), '?'));
 
         // Fetch rows
-        $placeholders = implode(',', array_fill(0, count($sectionIds), '?'));
-        $stmt = $this->db->prepare("SELECT * FROM publishing_rows WHERE section_id IN ($placeholders) ORDER BY sort_order ASC");
-        $stmt->execute($sectionIds);
-        $allRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->db->prepare("
+            SELECT * FROM publishing_rows 
+            WHERE table_id IN ($placeholders) 
+            ORDER BY row_order ASC
+        ");
+        $stmt->execute($tableIds);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $rows = [];
-        $rowIds = [];
-        $validSectionIds = [];
-        foreach ($allRows as $row) {
-            $assignedUsers = json_decode($row['assigned_users_json'], true) ?: [];
-            
-            if ($isAdmin || in_array($userId, $assignedUsers)) {
-                $rows[] = $row;
-                $rowIds[] = $row['id'];
-                $validSectionIds[] = $row['section_id'];
-            }
+        // Fetch assignments
+        $stmt = $this->db->prepare("
+            SELECT a.table_id, a.user_id, u.full_name, u.username 
+            FROM publishing_assignments a
+            INNER JOIN users u ON a.user_id = u.id
+            WHERE a.table_id IN ($placeholders)
+        ");
+        $stmt->execute($tableIds);
+        $assignmentsData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Group assignments by table_id
+        $assignments = [];
+        foreach ($tableIds as $tid) {
+            $assignments[$tid] = [];
         }
-
-        if (!$isAdmin) {
-            $validSectionIds = array_unique($validSectionIds);
-            $sections = array_filter($sections, function($sec) use ($validSectionIds) {
-                return in_array($sec['id'], $validSectionIds);
-            });
-            $sections = array_values($sections);
+        foreach ($assignmentsData as $assign) {
+            $assignments[$assign['table_id']][] = [
+                'user_id' => $assign['user_id'],
+                'full_name' => $assign['full_name'],
+                'username' => $assign['username']
+            ];
         }
-
-        if (empty($rowIds)) {
-            return ['report' => $report, 'sections' => $sections, 'rows' => [], 'cells' => []];
-        }
-
-        // Fetch cells
-        $placeholders = implode(',', array_fill(0, count($rowIds), '?'));
-        $stmt = $this->db->prepare("SELECT * FROM publishing_cells WHERE row_id IN ($placeholders)");
-        $stmt->execute($rowIds);
-        $cells = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return [
-            'report' => $report,
-            'sections' => $sections,
+            'tables' => $tables,
             'rows' => $rows,
-            'cells' => $cells
+            'assignments' => $assignments,
+            'users' => $users
         ];
     }
 
-    public function createMonthReport($month, $year)
+    public function createTable($category, $weekNumber, $month, $year, $userId, $isAdmin)
     {
-        // 1. Check if already exists
-        $stmt = $this->db->prepare("SELECT id FROM publishing_reports WHERE report_month = :m AND report_year = :y");
-        $stmt->execute(['m' => $month, 'y' => $year]);
-        if ($stmt->fetch()) {
-            throw new \Exception("Report for this month and year already exists.");
+        if (!$isAdmin) {
+            throw new \Exception("Only admins can create tables.");
         }
 
-        // 2. Find latest report to clone structure
-        $stmt = $this->db->query("SELECT id FROM publishing_reports ORDER BY created_at DESC LIMIT 1");
-        $latestReport = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Prevent invalid week creation (check if week already exists for this category/month/year)
+        $stmt = $this->db->prepare("
+            SELECT id FROM publishing_tables 
+            WHERE category = :category 
+              AND week_number = :week_number 
+              AND MONTH(created_at) = :month 
+              AND YEAR(created_at) = :year
+        ");
+        $stmt->execute([
+            'category' => $category,
+            'week_number' => $weekNumber,
+            'month' => $month,
+            'year' => $year
+        ]);
+        if ($stmt->fetch()) {
+            throw new \Exception("Week $weekNumber already exists for this category.");
+        }
 
         $this->db->beginTransaction();
         try {
-            // Calculate total days
-            $totalDays = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            $tableId = $this->generateUuid();
+            // Set created_at to YYYY-MM-DD to respect month/year filtering
+            $createdAt = sprintf('%04d-%02d-01 00:00:00', $year, $month);
 
-            // Create new report
-            $reportId = $this->generateUuid();
-            $stmt = $this->db->prepare("INSERT INTO publishing_reports (id, title, report_month, report_year, total_days, created_by) VALUES (:id, :title, :report_month, :report_year, :total_days, :created_by)");
+            $stmt = $this->db->prepare("
+                INSERT INTO publishing_tables (id, category, week_number, created_by, created_at, updated_at)
+                VALUES (:id, :category, :week_number, :created_by, :created_at, NOW())
+            ");
             $stmt->execute([
-                'id' => $reportId,
-                'title' => 'Publishing Report',
-                'report_month' => $month,
-                'report_year' => $year,
-                'total_days' => $totalDays,
-                'created_by' => $_SESSION['user_id'] ?? 'e3e3e3e3-e3e3-4e3e-a3e3-e3e3e3e3e3e3'
+                'id' => $tableId,
+                'category' => $category,
+                'week_number' => $weekNumber,
+                'created_by' => $userId,
+                'created_at' => $createdAt
             ]);
 
-            if ($latestReport) {
-                // Clone sections
-                $stmt = $this->db->prepare("SELECT * FROM publishing_sections WHERE report_id = :report_id");
-                $stmt->execute(['report_id' => $latestReport['id']]);
-                $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                $stmtInsSection = $this->db->prepare("INSERT INTO publishing_sections (id, report_id, section_key, section_name) VALUES (:id, :report_id, :section_key, :section_name)");
-                $stmtRows = $this->db->prepare("SELECT * FROM publishing_rows WHERE section_id = :section_id");
-                $stmtInsRow = $this->db->prepare("INSERT INTO publishing_rows (id, section_id, title, assigned_users_json, sort_order) VALUES (:id, :section_id, :title, :assigned_users_json, :sort_order)");
-
-                foreach ($sections as $section) {
-                    $newSectionId = $this->generateUuid();
-                    $stmtInsSection->execute([
-                        'id' => $newSectionId,
-                        'report_id' => $reportId,
-                        'section_key' => $section['section_key'],
-                        'section_name' => $section['section_name']
-                    ]);
-
-                    // Clone rows for this section
-                    $stmtRows->execute(['section_id' => $section['id']]);
-                    $rows = $stmtRows->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach ($rows as $row) {
-                        $stmtInsRow->execute([
-                            'id' => $this->generateUuid(),
-                            'section_id' => $newSectionId,
-                            'title' => $row['title'],
-                            'assigned_users_json' => $row['assigned_users_json'],
-                            'sort_order' => $row['sort_order']
-                        ]);
-                    }
-                }
-            } else {
-                // Create default sections if no previous report
-                $sectionsToCreate = [
-                    ['key' => 'facebook_ads', 'name' => 'Facebook Ads'],
-                    ['key' => 'posts', 'name' => 'Posts'],
-                    ['key' => 'reels', 'name' => 'Reels']
-                ];
-                
-                foreach ($sectionsToCreate as $sec) {
-                    $stmtIns = $this->db->prepare("INSERT INTO publishing_sections (id, report_id, section_key, section_name) VALUES (:id, :report_id, :section_key, :section_name)");
-                    $stmtIns->execute([
-                        'id' => $this->generateUuid(),
-                        'report_id' => $reportId,
-                        'section_key' => $sec['key'],
-                        'section_name' => $sec['name']
-                    ]);
-                }
+            // Add 5 default rows
+            $stmtRow = $this->db->prepare("
+                INSERT INTO publishing_rows (id, table_id, company_name, task_box_1, task_box_2, task_box_3, task_box_4, task_box_5, task_box_6, task_box_7, row_order)
+                VALUES (:id, :table_id, '', '', '', '', '', '', '', '', :row_order)
+            ");
+            for ($i = 0; $i < 5; $i++) {
+                $stmtRow->execute([
+                    'id' => $this->generateUuid(),
+                    'table_id' => $tableId,
+                    'row_order' => $i
+                ]);
             }
 
             $this->db->commit();
-            return $reportId;
+            return $tableId;
         } catch (\Exception $e) {
             $this->db->rollBack();
             throw $e;
@@ -186,105 +178,158 @@ class PublishingModel
     {
         $this->db->beginTransaction();
         try {
-            $rowIdMap = [];
-            
-            if ($isAdmin) {
-                // Admin can update report title
-                if (isset($data['report']['title']) && isset($data['report']['id'])) {
-                    $stmt = $this->db->prepare("UPDATE publishing_reports SET title = :title, total_days = :total_days WHERE id = :id");
-                    $stmt->execute([
-                        'title' => $data['report']['title'],
-                        'total_days' => $data['report']['total_days'] ?? 15,
-                        'id' => $data['report']['id']
-                    ]);
-                }
+            // Loop through all tables in data
+            if (isset($data['tables']) && is_array($data['tables'])) {
+                foreach ($data['tables'] as $table) {
+                    $tableId = $table['id'];
 
-                // Admin can save rows
-                if (isset($data['rows']) && is_array($data['rows'])) {
-                    foreach ($data['rows'] as $row) {
-                        $isTemp = (strpos($row['id'], 'temp-') === 0);
-                        if (empty($row['id']) || $isTemp) {
-                            $tempId = $row['id'];
-                            $row['id'] = $this->generateUuid();
-                            if ($isTemp) {
-                                $rowIdMap[$tempId] = $row['id'];
+                    if ($isAdmin) {
+                        // Admin updates/saves table level fields if any, and assignments
+                        // Update assignments
+                        $stmtDel = $this->db->prepare("DELETE FROM publishing_assignments WHERE table_id = :table_id");
+                        $stmtDel->execute(['table_id' => $tableId]);
+
+                        if (isset($data['assignments'][$tableId]) && is_array($data['assignments'][$tableId])) {
+                            $stmtIns = $this->db->prepare("
+                                INSERT INTO publishing_assignments (id, table_id, user_id) 
+                                VALUES (:id, :table_id, :user_id)
+                            ");
+                            // Avoid duplicate user IDs in assignments
+                            $addedUsers = [];
+                            foreach ($data['assignments'][$tableId] as $user) {
+                                $uid = $user['user_id'] ?? $user; // handle user object or user_id string
+                                if (!empty($uid) && !in_array($uid, $addedUsers)) {
+                                    $addedUsers[] = $uid;
+                                    $stmtIns->execute([
+                                        'id' => $this->generateUuid(),
+                                        'table_id' => $tableId,
+                                        'user_id' => $uid
+                                    ]);
+                                }
                             }
-                            $stmt = $this->db->prepare("INSERT INTO publishing_rows (id, section_id, title, assigned_users_json, sort_order) VALUES (:id, :section_id, :title, :assigned_users_json, :sort_order)");
-                            $stmt->execute([
-                                'id' => $row['id'],
-                                'section_id' => $row['section_id'],
-                                'title' => $row['title'],
-                                'assigned_users_json' => $row['assigned_users_json'] ?? '[]',
-                                'sort_order' => $row['sort_order'] ?? 0
-                            ]);
-                        } else {
-                            $stmt = $this->db->prepare("UPDATE publishing_rows SET title = :title, assigned_users_json = :assigned_users_json, sort_order = :sort_order WHERE id = :id");
-                            $stmt->execute([
-                                'id' => $row['id'],
-                                'title' => $row['title'],
-                                'assigned_users_json' => $row['assigned_users_json'] ?? '[]',
-                                'sort_order' => $row['sort_order'] ?? 0
-                            ]);
-                        }
-                    }
-                }
-            }
-
-            // Both Admin and Staff can save cells (with restrictions for staff)
-            if (isset($data['cells']) && is_array($data['cells'])) {
-                foreach ($data['cells'] as $cell) {
-                    // Map row_id if it's a temp ID
-                    if (isset($rowIdMap[$cell['row_id']])) {
-                        $cell['row_id'] = $rowIdMap[$cell['row_id']];
-                    }
-
-                    // If staff, verify permission for this row
-                    if (!$isAdmin) {
-                        $stmt = $this->db->prepare("SELECT assigned_users_json FROM publishing_rows WHERE id = :id");
-                        $stmt->execute(['id' => $cell['row_id']]);
-                        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                        
-                        if (!$row) {
-                            throw new \Exception("Row not found.");
-                        }
-                        
-                        $assignedUsers = json_decode($row['assigned_users_json'], true) ?: [];
-                        if (!in_array($userId, $assignedUsers)) {
-                            throw new \Exception("You are not assigned to this row.");
                         }
                     }
 
-                    // Save cell (upsert)
-                    $stmt = $this->db->prepare("
-                        INSERT INTO publishing_cells (id, row_id, day_number, cell_value, status_color) 
-                        VALUES (:id, :row_id, :day_number, :cell_value, :status_color)
-                        ON DUPLICATE KEY UPDATE cell_value = VALUES(cell_value), status_color = VALUES(status_color)
-                    ");
-                    $stmt->execute([
-                        'id' => $this->generateUuid(),
-                        'row_id' => $cell['row_id'],
-                        'day_number' => $cell['day_number'],
-                        'cell_value' => $cell['cell_value'] ?? '',
-                        'status_color' => $cell['status_color'] ?? 'empty'
-                    ]);
+                    // Save Rows
+                    if (isset($data['rows']) && is_array($data['rows'])) {
+                        foreach ($data['rows'] as $row) {
+                            if ($row['table_id'] !== $tableId) {
+                                continue;
+                            }
+
+                            // If staff, verify assignment
+                            if (!$isAdmin) {
+                                $stmtVerify = $this->db->prepare("
+                                    SELECT 1 FROM publishing_assignments 
+                                    WHERE table_id = :table_id AND user_id = :user_id
+                                ");
+                                $stmtVerify->execute([
+                                    'table_id' => $tableId,
+                                    'user_id' => $userId
+                                ]);
+                                if (!$stmtVerify->fetch()) {
+                                    throw new \Exception("Unauthorized: You are not assigned to this table.");
+                                }
+                            }
+
+                            // Prepare SQL depending on role and existence of row
+                            $isTemp = (strpos($row['id'], 'temp-') === 0);
+
+                            if ($isTemp) {
+                                if (!$isAdmin) {
+                                    throw new \Exception("Unauthorized: Staff cannot add new rows.");
+                                }
+                                $rowId = $this->generateUuid();
+                                $stmtInsRow = $this->db->prepare("
+                                    INSERT INTO publishing_rows (id, table_id, company_name, task_box_1, task_box_2, task_box_3, task_box_4, task_box_5, task_box_6, task_box_7, row_order)
+                                    VALUES (:id, :table_id, :company_name, :task_box_1, :task_box_2, :task_box_3, :task_box_4, :task_box_5, :task_box_6, :task_box_7, :row_order)
+                                ");
+                                $stmtInsRow->execute([
+                                    'id' => $rowId,
+                                    'table_id' => $tableId,
+                                    'company_name' => $row['company_name'] ?? '',
+                                    'task_box_1' => $row['task_box_1'] ?? '',
+                                    'task_box_2' => $row['task_box_2'] ?? '',
+                                    'task_box_3' => $row['task_box_3'] ?? '',
+                                    'task_box_4' => $row['task_box_4'] ?? '',
+                                    'task_box_5' => $row['task_box_5'] ?? '',
+                                    'task_box_6' => $row['task_box_6'] ?? '',
+                                    'task_box_7' => $row['task_box_7'] ?? '',
+                                    'row_order' => $row['row_order'] ?? 0
+                                ]);
+                            } else {
+                                if ($isAdmin) {
+                                    // Admin can update everything including company name
+                                    $stmtUpd = $this->db->prepare("
+                                        UPDATE publishing_rows 
+                                        SET company_name = :company_name,
+                                            task_box_1 = :task_box_1,
+                                            task_box_2 = :task_box_2,
+                                            task_box_3 = :task_box_3,
+                                            task_box_4 = :task_box_4,
+                                            task_box_5 = :task_box_5,
+                                            task_box_6 = :task_box_6,
+                                            task_box_7 = :task_box_7,
+                                            row_order = :row_order
+                                        WHERE id = :id
+                                    ");
+                                    $stmtUpd->execute([
+                                        'id' => $row['id'],
+                                        'company_name' => $row['company_name'] ?? '',
+                                        'task_box_1' => $row['task_box_1'] ?? '',
+                                        'task_box_2' => $row['task_box_2'] ?? '',
+                                        'task_box_3' => $row['task_box_3'] ?? '',
+                                        'task_box_4' => $row['task_box_4'] ?? '',
+                                        'task_box_5' => $row['task_box_5'] ?? '',
+                                        'task_box_6' => $row['task_box_6'] ?? '',
+                                        'task_box_7' => $row['task_box_7'] ?? '',
+                                        'row_order' => $row['row_order'] ?? 0
+                                    ]);
+                                } else {
+                                    // Staff can only update task boxes
+                                    $stmtUpd = $this->db->prepare("
+                                        UPDATE publishing_rows 
+                                        SET task_box_1 = :task_box_1,
+                                            task_box_2 = :task_box_2,
+                                            task_box_3 = :task_box_3,
+                                            task_box_4 = :task_box_4,
+                                            task_box_5 = :task_box_5,
+                                            task_box_6 = :task_box_6,
+                                            task_box_7 = :task_box_7
+                                        WHERE id = :id
+                                    ");
+                                    $stmtUpd->execute([
+                                        'id' => $row['id'],
+                                        'task_box_1' => $row['task_box_1'] ?? '',
+                                        'task_box_2' => $row['task_box_2'] ?? '',
+                                        'task_box_3' => $row['task_box_3'] ?? '',
+                                        'task_box_4' => $row['task_box_4'] ?? '',
+                                        'task_box_5' => $row['task_box_5'] ?? '',
+                                        'task_box_6' => $row['task_box_6'] ?? '',
+                                        'task_box_7' => $row['task_box_7'] ?? ''
+                                    ]);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
             $this->db->commit();
             return true;
         } catch (\Exception $e) {
-            $this->db->rollback();
+            $this->db->rollBack();
             throw $e;
         }
     }
 
-    public function deleteRow($rowId, $isAdmin)
+    public function deleteTable($tableId, $isAdmin)
     {
         if (!$isAdmin) {
-            throw new \Exception("Only admins can delete rows.");
+            throw new \Exception("Only admins can delete tables.");
         }
 
-        $stmt = $this->db->prepare("DELETE FROM publishing_rows WHERE id = :id");
-        return $stmt->execute(['id' => $rowId]);
+        $stmt = $this->db->prepare("DELETE FROM publishing_tables WHERE id = :id");
+        return $stmt->execute(['id' => $tableId]);
     }
 }
