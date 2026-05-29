@@ -1,215 +1,329 @@
-Fix the Publishing Report color synchronization bug permanently WITHOUT using sockets/WebSockets.
+PROJECT: DECKOID TASK MANAGEMENT SYSTEM
 
-CURRENT BUG:
-- Admin changes task color → reflects on staff side ✅
-- Staff changes task color → does NOT reflect on admin side ❌
+FEATURE REQUEST + DATA CONSISTENCY FIX
 
-REQUIRED RESULT:
-- Admin and Staff both use the SAME database data source.
-- When ANYONE changes a task color:
-  → save instantly into database
-  → update updated_at timestamp
-  → auto refresh on other panel within 1–2 seconds
-  → no page refresh required
+PAGE:
+http://localhost/Deckoid_Task_Management/admin/publishing
 
-IMPLEMENT THIS USING DATABASE + AJAX POLLING ONLY.
+USE FULL AGENCY-AGENTS EXECUTION.
+
+Repository:
+[Agency Agents GitHub Repository](https://github.com/msitarzewski/agency-agents?utm_source=chatgpt.com)
 
 ==================================================
-STEP 1 — SINGLE SOURCE OF TRUTH
-==================================================
+AGENTS REQUIRED
+===============
 
-Use ONE table for publishing task cell status.
-
-Example columns:
-
-id
-report_id
-row_id
-column_key
-task_text
-status_color
-updated_by
-updated_at
-
-status_color values:
-- white
-- production
-- approval
-- publishing
-
-DO NOT store color only in frontend state.
+@agency-system-architect
+@agency-senior-laravel-engineer
+@agency-database-architect
+@agency-state-management-engineer
+@agency-frontend-engineer
+@agency-ui-engineer
+@agency-bug-hunter
+@agency-qa-engineer
+@agency-data-flow-engineer
+@agency-refactoring-engineer
 
 ==================================================
-STEP 2 — COLOR CYCLE SYSTEM
-==================================================
+CURRENT ISSUE
+=============
 
-Double click behavior:
+When Admin clicks:
 
-white → production (yellow)
-production → approval (orange)
-approval → publishing (green)
-publishing → white
+CREATE MORE TABLE (WEEK 2)
 
-Cycle must repeat infinitely.
+Current behavior:
 
-==================================================
-STEP 3 — SAVE CHANGES IMMEDIATELY
-==================================================
-
-When user/admin double clicks:
-
-1. Update UI instantly
-2. Send AJAX request immediately
-
-Example:
-
-POST /api/publishing/cell/update
-
-Payload:
-{
-  cell_id,
-  status_color,
-  updated_by
-}
-
-Backend must:
-- validate user permission
-- update database
-- update updated_at timestamp
-- return latest saved data
+New table creates empty rows.
 
 ==================================================
-STEP 4 — REMOVE ROLE-BASED SAVE DIFFERENCE
-==================================================
+REQUIRED BEHAVIOR
+=================
 
-Currently admin save works but staff save fails.
+When Admin clicks:
 
-Fix this:
-- admin and staff MUST use same save logic
-- same controller
-- same service
-- same database update function
+CREATE MORE TABLE (WEEK 2)
 
-DO NOT create separate logic for staff/admin.
+System must automatically clone structure from WEEK 1.
+
+NOT blank table.
 
 ==================================================
-STEP 5 — AUTO SYNC WITHOUT SOCKET
-==================================================
+COPY THESE VALUES
+=================
 
-Create lightweight polling system.
+From WEEK 1 copy:
 
-Every 2 seconds:
+Company Names
 
-GET /api/publishing/changes?last_sync=timestamp
+Assigned Members
 
-Return ONLY changed cells.
+Existing Rows
 
-Example response:
-{
-  changes: [
-    {
-      cell_id: 12,
-      status_color: "approval",
-      updated_at: "2026-05-27 18:30:00"
-    }
-  ]
-}
+Row Count
 
-==================================================
-STEP 6 — APPLY LIVE UI UPDATE
-==================================================
+Table Structure
 
-When polling receives changes:
+Column Structure
 
-- update ONLY changed cells
-- do NOT reload full table
-- do NOT refresh page
-- do NOT rerender entire component
+Task Box Layout
 
-Use direct DOM/state patching.
+Color Status Layout
+
+Week Configuration
+
+Category Configuration
 
 ==================================================
-STEP 7 — FIX STAFF SAVE BUG
-==================================================
+DO NOT COPY
+===========
 
-Current issue:
-Staff side likely:
-- updates local UI only
-OR
-- API endpoint failing
-OR
-- DB table mismatch
-OR
-- permission middleware blocking update
+Task Text Values
 
-Find exact root cause and permanently fix it.
+Daily Numbers
 
-==================================================
-STEP 8 — ADD DEBUG LOGGING
-==================================================
+Task Content
 
-FRONTEND:
-console.log("Saving color", payload)
-console.log("Polling changes", response)
+Notes
 
-BACKEND:
-Log::info('Publishing color updated', [
-  'cell_id' => $cellId,
-  'status' => $status,
-  'user_id' => auth()->id()
-]);
+User Entered Data
+
+Only copy structure.
 
 ==================================================
-STEP 9 — REQUIRED TESTING
-==================================================
+EXAMPLE
+=======
 
-TEST 1:
-Staff changes yellow
-→ admin updates in 1–2 sec
+WEEK 1
 
-TEST 2:
-Staff changes orange
-→ admin updates in 1–2 sec
+Row 1:
+Company = test
 
-TEST 3:
-Staff changes green
-→ admin updates in 1–2 sec
+Assigned =
+Keval
+Darsh
 
-TEST 4:
-Admin changes color
-→ staff updates in 1–2 sec
+DAY1 = 1
+DAY2 = 2
+DAY3 = 3
 
-TEST 5:
-Refresh both browsers
-→ latest colors remain saved
+---
 
-==================================================
-STEP 10 — PERFORMANCE RULES
-==================================================
+Row 2:
+Company = test 2
 
-DO NOT:
-- use WebSockets
-- use socket.io
-- reload full page
-- rerender full table
-- duplicate polling requests
+Assigned =
+Keval
+Darsh
 
-DO:
-- use optimized polling
-- fetch only changed rows
-- use updated_at sync strategy
-- update only changed cells
+---
+
+Admin clicks:
+
+CREATE MORE TABLE (WEEK 2)
 
 ==================================================
-FINAL EXPECTED RESULT
+EXPECTED RESULT
+===============
+
+WEEK 2
+
+Row 1:
+Company = test
+
+Assigned =
+Keval
+Darsh
+
+DAY1 = empty
+DAY2 = empty
+DAY3 = empty
+
+---
+
+Row 2:
+Company = test 2
+
+Assigned =
+Keval
+Darsh
+
+DAY1 = empty
+DAY2 = empty
+DAY3 = empty
+
 ==================================================
+DATABASE REQUIREMENTS
+=====================
 
-Publishing Report should behave like a collaborative live dashboard:
+Create proper week separation.
 
-- Admin and Staff stay synchronized
-- Changes reflect automatically
-- Database is always source of truth
-- No refresh needed
-- No sockets used
-- Stable and optimized
-- Works instantly both directions
+Week 1 data:
+
+week_number = 1
+
+Week 2 data:
+
+week_number = 2
+
+Never overwrite Week 1.
+
+Week data must remain isolated.
+
+==================================================
+UI REQUIREMENTS
+===============
+
+After click:
+
+CREATE MORE TABLE (WEEK 2)
+
+Immediately render new table.
+
+Header:
+
+WEEK 2
+
+Same design as WEEK 1.
+
+Same assignments.
+
+Same companies.
+
+Empty task fields.
+
+==================================================
+STAFF SIDE REQUIREMENTS
+=======================
+
+Staff dashboard must also show:
+
+WEEK 1
+
+WEEK 2
+
+Only assigned rows.
+
+Same structure.
+
+Same company names.
+
+Same assignments.
+
+==================================================
+CRITICAL VALIDATION
+===================
+
+Prevent duplicate week creation.
+
+If WEEK 2 already exists:
+
+Show:
+
+"Week 2 already created"
+
+Do NOT create duplicate.
+
+==================================================
+AUTO INCREMENT
+==============
+
+If existing:
+
+WEEK 1
+WEEK 2
+
+Then next button click:
+
+Create:
+
+WEEK 3
+
+Automatically.
+
+==================================================
+QA TESTS
+========
+
+TEST 1
+
+Create Week 2
+
+Companies copied
+
+PASS
+
+---
+
+TEST 2
+
+Assignments copied
+
+PASS
+
+---
+
+TEST 3
+
+Task values empty
+
+PASS
+
+---
+
+TEST 4
+
+Week 1 untouched
+
+PASS
+
+---
+
+TEST 5
+
+Staff sees Week 2
+
+PASS
+
+---
+
+TEST 6
+
+No duplicate week creation
+
+PASS
+
+---
+
+TEST 7
+
+Week numbering automatic
+
+PASS
+
+==================================================
+FINAL RESULT
+============
+
+CREATE MORE TABLE button must work like:
+
+Clone Week Structure
++
+Keep Assignments
++
+Keep Companies
++
+Create New Week
++
+Keep Task Fields Empty
++
+Save In Database
++
+Show On Admin
++
+Show On Staff
+
+No manual recreation required.
+
+Production-ready implementation only.

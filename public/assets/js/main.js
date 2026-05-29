@@ -111,6 +111,12 @@ $(document).ready(function() {
     });
 
     $('.modal').on('hidden.bs.modal', function() {
+        // Hide any lingering tooltips
+        if (typeof $.fn.tooltip === 'function') {
+            $('.tooltip').tooltip('hide');
+            $('[data-bs-toggle="tooltip"]').tooltip('hide');
+        }
+
         const $form = $(this).find('form');
         if ($form.length && !$form.hasClass('no-reset')) {
             $form[0].reset();

@@ -23,11 +23,7 @@ class Task
                 t.completed_at, t.admin_alert_sent, t.created_at, t.updated_at,
                 t.is_recurring, t.recurring_type, t.recurring_parent_id, 
                 t.next_repeat_date, t.repeat_status,
-                p.project_name, p.client_name,
-                (SELECT GROUP_CONCAT(r.name SEPARATOR ', ') FROM task_departments td JOIN roles r ON td.role_id = r.id WHERE td.task_id = t.id) as role_name,
-                (SELECT GROUP_CONCAT(td.role_id) FROM task_departments td WHERE td.task_id = t.id) as role_ids_csv,
-                (SELECT GROUP_CONCAT(u.full_name SEPARATOR ', ') FROM task_assignments ta JOIN users u ON ta.user_id = u.id WHERE ta.task_id = t.id) as assigned_to_names,
-                (SELECT GROUP_CONCAT(ta.user_id) FROM task_assignments ta WHERE ta.task_id = t.id) as assigned_to_ids
+                p.project_name, p.client_name
             FROM tasks t
             JOIN projects p ON t.project_id = p.id
             WHERE t.deleted_at IS NULL
@@ -59,161 +55,243 @@ class Task
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        $tasks = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($tasks)) {
+            return [];
+        }
+
+        // Map relationships in PHP to avoid N+1
+        $taskIds = array_column($tasks, 'id');
+        $placeholders = implode(',', array_fill(0, count($taskIds), '?'));
+
+        // Fetch roles
+        $stmtRoles = $this->db->prepare("
+            SELECT td.task_id, r.id as role_id, r.name as role_name
+            FROM task_departments td
+            JOIN roles r ON td.role_id = r.id
+            WHERE td.task_id IN ($placeholders)
+        ");
+        $stmtRoles->execute($taskIds);
+        $rolesData = $stmtRoles->fetchAll(\PDO::FETCH_ASSOC);
+
+        $taskRoles = [];
+        foreach ($rolesData as $rd) {
+            $taskRoles[$rd['task_id']][] = $rd;
+        }
+
+        // Fetch assignments
+        $stmtAssign = $this->db->prepare("
+            SELECT ta.task_id, u.id as user_id, u.full_name
+            FROM task_assignments ta
+            JOIN users u ON ta.user_id = u.id
+            WHERE ta.task_id IN ($placeholders)
+        ");
+        $stmtAssign->execute($taskIds);
+        $assignData = $stmtAssign->fetchAll(\PDO::FETCH_ASSOC);
+
+        $taskAssigns = [];
+        foreach ($assignData as $ad) {
+            $taskAssigns[$ad['task_id']][] = $ad;
+        }
+
+        // Map back to tasks
+        foreach ($tasks as &$task) {
+            $tid = $task['id'];
+            
+            $task['role_name'] = isset($taskRoles[$tid]) ? implode(', ', array_column($taskRoles[$tid], 'role_name')) : '';
+            $task['role_ids_csv'] = isset($taskRoles[$tid]) ? implode(',', array_column($taskRoles[$tid], 'role_id')) : '';
+            
+            $task['assigned_to_names'] = isset($taskAssigns[$tid]) ? implode(', ', array_column($taskAssigns[$tid], 'full_name')) : '';
+            $task['assigned_to_ids'] = isset($taskAssigns[$tid]) ? implode(',', array_column($taskAssigns[$tid], 'user_id')) : '';
+        }
+
+        return $tasks;
     }
 
     public function create($data)
     {
         $id = $this->generateUuid();
-        $stmt = $this->db->prepare("
-            INSERT INTO `tasks` (`id`, `project_id`, `assigned_to`, `role_id`, `title`, `description`, `status`, `due_date`, `due_time`, `priority`, `progress_percentage`, `status_notes`, `is_completed`, `is_incomplete`, `admin_alert_sent`, `is_recurring`, `recurring_type`, `recurring_parent_id`, `next_repeat_date`, `repeat_status`) 
-            VALUES (:id, :project_id, :assigned_to, :role_id, :title, :description, :status, :due_date, :due_time, :priority, :progress_percentage, :status_notes, :is_completed, :is_incomplete, :admin_alert_sent, :is_recurring, :recurring_type, :recurring_parent_id, :next_repeat_date, :repeat_status)
-        ");
-        
-        $role_id = !empty($data['role_ids']) ? $data['role_ids'][0] : '';
-        
-        $result = $stmt->execute([
-            'id' => $id,
-            'project_id' => $data['project_id'],
-            'assigned_to' => $data['assigned_to'] ?: (!empty($data['assigned_users']) ? $data['assigned_users'][0] : ''),
-            'role_id' => $role_id,
-            'title' => $data['title'],
-            'description' => $data['description'] ?? null,
-            'status' => $data['status'] ?? 'pending',
-            'due_date' => $data['due_date'],
-            'due_time' => $data['due_time'] ?? null,
-            'priority' => $data['priority'] ?? 'medium',
-            'progress_percentage' => $data['progress_percentage'] ?? 0,
-            'status_notes' => $data['status_notes'] ?? null,
-            'is_completed' => $data['is_completed'] ?? 0,
-            'is_incomplete' => $data['is_incomplete'] ?? 0,
-            'admin_alert_sent' => $data['admin_alert_sent'] ?? 0,
-            'is_recurring' => $data['is_recurring'] ?? 0,
-            'recurring_type' => $data['recurring_type'] ?? null,
-            'recurring_parent_id' => $data['recurring_parent_id'] ?? null,
-            'next_repeat_date' => $data['next_repeat_date'] ?? null,
-            'repeat_status' => $data['repeat_status'] ?? 'active'
-        ]);
- 
-        if ($result) {
-            // Save departments
-            if (!empty($data['role_ids'])) {
-                $stmtInsDept = $this->db->prepare("INSERT INTO task_departments (id, task_id, role_id) VALUES (:id, :task_id, :role_id)");
-                foreach ($data['role_ids'] as $roleId) {
-                    $stmtInsDept->execute([
+        $inTransaction = $this->db->inTransaction();
+        if (!$inTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO `tasks` (`id`, `project_id`, `assigned_to`, `role_id`, `title`, `description`, `status`, `due_date`, `due_time`, `priority`, `progress_percentage`, `status_notes`, `is_completed`, `is_incomplete`, `admin_alert_sent`, `is_recurring`, `recurring_type`, `recurring_parent_id`, `next_repeat_date`, `repeat_status`) 
+                VALUES (:id, :project_id, :assigned_to, :role_id, :title, :description, :status, :due_date, :due_time, :priority, :progress_percentage, :status_notes, :is_completed, :is_incomplete, :admin_alert_sent, :is_recurring, :recurring_type, :recurring_parent_id, :next_repeat_date, :repeat_status)
+            ");
+            
+            $role_id = !empty($data['role_ids']) ? $data['role_ids'][0] : '';
+            
+            $result = $stmt->execute([
+                'id' => $id,
+                'project_id' => $data['project_id'],
+                'assigned_to' => $data['assigned_to'] ?: (!empty($data['assigned_users']) ? $data['assigned_users'][0] : ''),
+                'role_id' => $role_id,
+                'title' => $data['title'],
+                'description' => $data['description'] ?? null,
+                'status' => $data['status'] ?? 'pending',
+                'due_date' => $data['due_date'],
+                'due_time' => $data['due_time'] ?? null,
+                'priority' => $data['priority'] ?? 'medium',
+                'progress_percentage' => $data['progress_percentage'] ?? 0,
+                'status_notes' => $data['status_notes'] ?? null,
+                'is_completed' => $data['is_completed'] ?? 0,
+                'is_incomplete' => $data['is_incomplete'] ?? 0,
+                'admin_alert_sent' => $data['admin_alert_sent'] ?? 0,
+                'is_recurring' => $data['is_recurring'] ?? 0,
+                'recurring_type' => $data['recurring_type'] ?? null,
+                'recurring_parent_id' => $data['recurring_parent_id'] ?? null,
+                'next_repeat_date' => $data['next_repeat_date'] ?? null,
+                'repeat_status' => $data['repeat_status'] ?? 'active'
+            ]);
+    
+            if ($result) {
+                // Save departments
+                if (!empty($data['role_ids'])) {
+                    $stmtInsDept = $this->db->prepare("INSERT INTO task_departments (id, task_id, role_id) VALUES (:id, :task_id, :role_id)");
+                    foreach ($data['role_ids'] as $roleId) {
+                        $stmtInsDept->execute([
+                            'id' => $this->generateUuid(),
+                            'task_id' => $id,
+                            'role_id' => $roleId
+                        ]);
+                    }
+                }
+
+                $assignedUsers = $data['assigned_users'] ?? [];
+                if (empty($assignedUsers) && !empty($data['assigned_to'])) {
+                    $assignedUsers = [$data['assigned_to']];
+                }
+                
+                foreach ($assignedUsers as $userId) {
+                    $stmtIns = $this->db->prepare("INSERT INTO task_assignments (id, task_id, user_id) VALUES (:id, :task_id, :user_id)");
+                    $stmtIns->execute([
                         'id' => $this->generateUuid(),
                         'task_id' => $id,
-                        'role_id' => $roleId
+                        'user_id' => $userId
                     ]);
                 }
             }
 
-            $assignedUsers = $data['assigned_users'] ?? [];
-            if (empty($assignedUsers) && !empty($data['assigned_to'])) {
-                $assignedUsers = [$data['assigned_to']];
+            if (!$inTransaction) {
+                $this->db->commit();
             }
-            
-            foreach ($assignedUsers as $userId) {
-                $stmtIns = $this->db->prepare("INSERT INTO task_assignments (id, task_id, user_id) VALUES (:id, :task_id, :user_id)");
-                $stmtIns->execute([
-                    'id' => $this->generateUuid(),
-                    'task_id' => $id,
-                    'user_id' => $userId
-                ]);
+            return $result ? $id : false;
+        } catch (\Exception $e) {
+            if (!$inTransaction) {
+                $this->db->rollBack();
             }
+            throw $e;
         }
-        return $result ? $id : false;
     }
 
     public function update($id, $data)
     {
-        $stmt = $this->db->prepare("
-            UPDATE `tasks` SET 
-                `assigned_to` = :assigned_to,
-                `role_id` = :role_id,
-                `title` = :title,
-                `description` = :description,
-                `status` = :status,
-                `due_date` = :due_date,
-                `due_time` = :due_time,
-                `priority` = :priority,
-                `is_completed` = :is_completed,
-                `is_incomplete` = :is_incomplete,
-                `completed_at` = :completed_at,
-                `admin_alert_sent` = :admin_alert_sent,
-                `progress_percentage` = :progress,
-                `status_notes` = :notes,
-                `project_id` = :project_id,
-                `is_recurring` = :is_recurring,
-                `recurring_type` = :recurring_type,
-                `recurring_parent_id` = :recurring_parent_id,
-                `next_repeat_date` = :next_repeat_date,
-                `repeat_status` = :repeat_status
-            WHERE `id` = :id
-        ");
-        
-        $role_id = !empty($data['role_ids']) ? $data['role_ids'][0] : '';
-        
-        $result = $stmt->execute([
-            'id' => $id,
-            'assigned_to' => $data['assigned_to'] ?: (!empty($data['assigned_users']) ? $data['assigned_users'][0] : ''),
-            'role_id' => $role_id,
-            'title' => $data['title'],
-            'description' => $data['description'] ?? null,
-            'status' => $data['status'],
-            'due_date' => $data['due_date'],
-            'due_time' => $data['due_time'] ?? null,
-            'priority' => $data['priority'],
-            'is_completed' => $data['is_completed'] ?? 0,
-            'is_incomplete' => $data['is_incomplete'] ?? 0,
-            'completed_at' => $data['completed_at'] ?? null,
-            'admin_alert_sent' => $data['admin_alert_sent'] ?? 0,
-            'progress' => $data['progress_percentage'] ?? 0,
-            'notes' => $data['status_notes'] ?? null,
-            'project_id' => $data['project_id'],
-            'is_recurring' => $data['is_recurring'] ?? 0,
-            'recurring_type' => $data['recurring_type'] ?? null,
-            'recurring_parent_id' => $data['recurring_parent_id'] ?? null,
-            'next_repeat_date' => $data['next_repeat_date'] ?? null,
-            'repeat_status' => $data['repeat_status'] ?? 'active'
-        ]);
- 
-        if ($result) {
-            // Sync departments
-            $stmtDelDept = $this->db->prepare("DELETE FROM task_departments WHERE task_id = :task_id");
-            $stmtDelDept->execute(['task_id' => $id]);
- 
-            if (!empty($data['role_ids'])) {
-                $stmtInsDept = $this->db->prepare("INSERT INTO task_departments (id, task_id, role_id) VALUES (:id, :task_id, :role_id)");
-                foreach ($data['role_ids'] as $roleId) {
-                    $stmtInsDept->execute([
+        $inTransaction = $this->db->inTransaction();
+        if (!$inTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE `tasks` SET 
+                    `assigned_to` = :assigned_to,
+                    `role_id` = :role_id,
+                    `title` = :title,
+                    `description` = :description,
+                    `status` = :status,
+                    `due_date` = :due_date,
+                    `due_time` = :due_time,
+                    `priority` = :priority,
+                    `is_completed` = :is_completed,
+                    `is_incomplete` = :is_incomplete,
+                    `completed_at` = :completed_at,
+                    `admin_alert_sent` = :admin_alert_sent,
+                    `progress_percentage` = :progress,
+                    `status_notes` = :notes,
+                    `project_id` = :project_id,
+                    `is_recurring` = :is_recurring,
+                    `recurring_type` = :recurring_type,
+                    `recurring_parent_id` = :recurring_parent_id,
+                    `next_repeat_date` = :next_repeat_date,
+                    `repeat_status` = :repeat_status
+                WHERE `id` = :id
+            ");
+            
+            $role_id = !empty($data['role_ids']) ? $data['role_ids'][0] : '';
+            
+            $result = $stmt->execute([
+                'id' => $id,
+                'assigned_to' => $data['assigned_to'] ?: (!empty($data['assigned_users']) ? $data['assigned_users'][0] : ''),
+                'role_id' => $role_id,
+                'title' => $data['title'],
+                'description' => $data['description'] ?? null,
+                'status' => $data['status'],
+                'due_date' => $data['due_date'],
+                'due_time' => $data['due_time'] ?? null,
+                'priority' => $data['priority'],
+                'is_completed' => $data['is_completed'] ?? 0,
+                'is_incomplete' => $data['is_incomplete'] ?? 0,
+                'completed_at' => $data['completed_at'] ?? null,
+                'admin_alert_sent' => $data['admin_alert_sent'] ?? 0,
+                'progress' => $data['progress_percentage'] ?? 0,
+                'notes' => $data['status_notes'] ?? null,
+                'project_id' => $data['project_id'],
+                'is_recurring' => $data['is_recurring'] ?? 0,
+                'recurring_type' => $data['recurring_type'] ?? null,
+                'recurring_parent_id' => $data['recurring_parent_id'] ?? null,
+                'next_repeat_date' => $data['next_repeat_date'] ?? null,
+                'repeat_status' => $data['repeat_status'] ?? 'active'
+            ]);
+    
+            if ($result) {
+                // Sync departments
+                $stmtDelDept = $this->db->prepare("DELETE FROM task_departments WHERE task_id = :task_id");
+                $stmtDelDept->execute(['task_id' => $id]);
+    
+                if (!empty($data['role_ids'])) {
+                    $stmtInsDept = $this->db->prepare("INSERT INTO task_departments (id, task_id, role_id) VALUES (:id, :task_id, :role_id)");
+                    foreach ($data['role_ids'] as $roleId) {
+                        $stmtInsDept->execute([
+                            'id' => $this->generateUuid(),
+                            'task_id' => $id,
+                            'role_id' => $roleId
+                        ]);
+                    }
+                }
+
+                // Sync assignments
+                $stmtDel = $this->db->prepare("DELETE FROM task_assignments WHERE task_id = :task_id");
+                $stmtDel->execute(['task_id' => $id]);
+                
+                $assignedUsers = $data['assigned_users'] ?? [];
+                if (empty($assignedUsers) && !empty($data['assigned_to'])) {
+                    $assignedUsers = [$data['assigned_to']];
+                }
+                
+                foreach ($assignedUsers as $userId) {
+                    $stmtIns = $this->db->prepare("INSERT INTO task_assignments (id, task_id, user_id) VALUES (:id, :task_id, :user_id)");
+                    $stmtIns->execute([
                         'id' => $this->generateUuid(),
                         'task_id' => $id,
-                        'role_id' => $roleId
+                        'user_id' => $userId
                     ]);
                 }
             }
-
-            // Sync assignments
-            $stmtDel = $this->db->prepare("DELETE FROM task_assignments WHERE task_id = :task_id");
-            $stmtDel->execute(['task_id' => $id]);
             
-            $assignedUsers = $data['assigned_users'] ?? [];
-            if (empty($assignedUsers) && !empty($data['assigned_to'])) {
-                $assignedUsers = [$data['assigned_to']];
+            if (!$inTransaction) {
+                $this->db->commit();
             }
-            
-            foreach ($assignedUsers as $userId) {
-                $stmtIns = $this->db->prepare("INSERT INTO task_assignments (id, task_id, user_id) VALUES (:id, :task_id, :user_id)");
-                $stmtIns->execute([
-                    'id' => $this->generateUuid(),
-                    'task_id' => $id,
-                    'user_id' => $userId
-                ]);
+            return $result;
+        } catch (\Exception $e) {
+            if (!$inTransaction) {
+                $this->db->rollBack();
             }
+            throw $e;
         }
-        
-        return $result;
     }
 
     public function softDelete($id)

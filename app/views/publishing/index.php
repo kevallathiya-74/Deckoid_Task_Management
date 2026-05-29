@@ -931,7 +931,7 @@ $(document).ready(function() {
             const $headerRow = $('<tr>');
             $headerRow.append('<th class="pub-col-company">COMPANY NAME</th>');
             for (let i = 1; i <= 7; i++) {
-                $headerRow.append(`<th class="pub-col-task">TASK BOX ${i}</th>`);
+                $headerRow.append(`<th class="pub-col-task">DAY ${i}</th>`);
             }
             $headerRow.append('<th class="pub-col-assignment">ASSIGNMENT</th>');
             if (isAdmin) {
@@ -989,7 +989,10 @@ $(document).ready(function() {
                         row_order: tableRows.length
                     };
                     reportState.rows.push(newRow);
-                    renderReport();
+                    tableRows.push(newRow); // update local tableRows scope
+                    const $tbody = $reportContainer.find('tbody');
+                    $tbody.append(buildTableRow(newRow, table.id));
+                    initSelect2Dropdowns(); // Re-initialize select2 for new row
                 });
                 $tableFooter.append($addRowBtn);
             }
@@ -1033,7 +1036,7 @@ $(document).ready(function() {
         }
 
         $companyInput.on('input change', function() {
-            row.company_name = $(this).val();
+            // Removed reactive binding to preserve last-known database state
         });
         $companyTd.append($companyInput);
         $tr.append($companyTd);
@@ -1071,7 +1074,7 @@ $(document).ready(function() {
 
             $textarea.on('input', function() {
                 autoResize(this);
-                row[field] = $(this).val();
+                // Removed reactive binding to preserve last-known database state
             });
 
             // Add double-click handler for status cycling
@@ -1094,7 +1097,7 @@ $(document).ready(function() {
                 .attr('multiple', 'multiple')
                 .css('width', '100%');
 
-            const currentAssigns = reportState.assignments[tableId] || [];
+            const currentAssigns = reportState.assignments[row.id] || [];
             const assignedIds = currentAssigns.map(a => a.user_id);
 
             reportState.users.forEach(user => {
@@ -1115,13 +1118,38 @@ $(document).ready(function() {
                         username: u ? u.username : ''
                     };
                 });
-                reportState.assignments[tableId] = updatedAssigns;
+                
+                // Only save if it actually changed to prevent loops
+                const currentStr = JSON.stringify(reportState.assignments[row.id] || []);
+                const newStr = JSON.stringify(updatedAssigns);
+                
+                if (currentStr !== newStr) {
+                    reportState.assignments[row.id] = updatedAssigns;
+                    
+                    // Optimistic update: Sync silently to backend immediately
+                    if (!row.id.startsWith('temp-')) {
+                        $.ajax({
+                            url: '<?= url('/api/publishing/update-assignment') ?>',
+                            type: 'POST',
+                            data: JSON.stringify({
+                                row_id: row.id,
+                                assigned_user_ids: selectedIds
+                            }),
+                            contentType: 'application/json',
+                            success: function(res) {
+                                if (res && res.status === 'success') {
+                                    lastSyncTime = res.updated_at || lastSyncTime;
+                                }
+                            }
+                        });
+                    }
+                }
             });
 
             $assignWrapper.append($select);
         } else {
             const $chips = $('<div>').addClass('pub-assignment-chips');
-            const currentAssigns = reportState.assignments[tableId] || [];
+            const currentAssigns = reportState.assignments[row.id] || [];
 
             if (currentAssigns.length > 0) {
                 currentAssigns.forEach(assign => {
@@ -1310,35 +1338,131 @@ $(document).ready(function() {
             remoteRowMap[row.id] = row;
         });
         
-        // Update local rows with remote status changes (only status fields)
+        // Update local rows with remote status changes, text changes, and assignments
         reportState.rows.forEach(localRow => {
             const remoteRow = remoteRowMap[localRow.id];
             if (remoteRow) {
-                // Update status fields (task_status_1 through 7)
+                // Remove from map to track which ones are new
+                delete remoteRowMap[localRow.id];
+
+                // 1. Sync Text Fields and Statuses (task_box_1 through 7 and task_status)
                 for (let i = 1; i <= 7; i++) {
                     const statusField = `task_status_${i}`;
+                    const textField = `task_box_${i}`;
+                    
                     const remoteStatus = remoteRow[statusField];
                     const localStatus = localRow[statusField];
                     
-                    // Only update if remote has changed and local hasn't been edited
-                    if (remoteStatus !== localStatus) {
-                        // Update the DOM cell if it exists
-                        const $cell = $(`.pub-task-cell[data-row-id="${localRow.id}"][data-task-index="${i}"]`);
-                        if ($cell.length > 0) {
-                            const currentDOMStatus = $cell.attr('data-status') || '';
+                    const remoteText = remoteRow[textField];
+                    const localText = localRow[textField];
+                    
+                    const $cellWrapper = $(`.pub-task-cell[data-row-id="${localRow.id}"][data-task-index="${i}"]`);
+                    
+                    if ($cellWrapper.length > 0) {
+                        // Status Sync
+                        if (remoteStatus !== localStatus) {
+                            const currentDOMStatus = $cellWrapper.attr('data-status') || '';
                             const newStatus = remoteStatus || '';
-                            
-                            // Update if they differ
                             if (currentDOMStatus !== newStatus) {
-                                $cell.attr('data-status', newStatus);
-                                console.log(`Updated task status for row ${localRow.id}, task ${i} to ${newStatus}`);
+                                $cellWrapper.attr('data-status', newStatus);
+                            }
+                            localRow[statusField] = remoteStatus;
+                        }
+                        
+                        // Text Sync
+                        const safeRemoteText = remoteText || '';
+                        const safeLocalText = localText || '';
+                        const $textarea = $cellWrapper.find('.pub-task-textarea');
+                        const domValue = $textarea.val() || '';
+
+                        if (safeRemoteText !== safeLocalText) {
+                            // Only overwrite DOM if DOM hasn't been locally modified away from localText (unsaved edits)
+                            if (!$textarea.is(':focus') && domValue === safeLocalText) {
+                                $textarea.val(safeRemoteText);
+                                localRow[textField] = safeRemoteText;
+                            } else if (domValue === safeRemoteText) {
+                                // If the user manually typed exactly the remote value, just update the state
+                                localRow[textField] = safeRemoteText;
+                            }
+                        }
+                    }
+                }
+                
+                // 2. Sync Company Name
+                const safeRemoteCompany = remoteRow.company_name || '';
+                const safeLocalCompany = localRow.company_name || '';
+                
+                if (safeRemoteCompany !== safeLocalCompany) {
+                    const $companyInput = $(`tr[data-row-id="${localRow.id}"] .pub-company-input`);
+                    const domCompany = $companyInput.val() || '';
+                    if (!$companyInput.is(':focus') && domCompany === safeLocalCompany) {
+                        $companyInput.val(safeRemoteCompany);
+                        localRow.company_name = safeRemoteCompany;
+                    } else if (domCompany === safeRemoteCompany) {
+                        localRow.company_name = safeRemoteCompany;
+                    }
+                }
+
+                // 3. Sync Assignments
+                if (remoteRow.assignments) {
+                    const remoteAssignStr = JSON.stringify(remoteRow.assignments);
+                    const localAssignStr = JSON.stringify(reportState.assignments[localRow.id] || []);
+                    if (remoteAssignStr !== localAssignStr) {
+                        const $assignTd = $(`tr[data-row-id="${localRow.id}"] .pub-assignment-wrapper`).parent();
+                        let isOpen = false;
+                        
+                        if (isAdmin) {
+                            const $select = $assignTd.find('.pub-select-users');
+                            if ($select.length) {
+                                // Do not update assignment if the admin is actively modifying it
+                                isOpen = $select.hasClass('select2-hidden-accessible') && $select.select2('isOpen');
                             }
                         }
                         
-                        // Update the data model
-                        localRow[statusField] = remoteStatus;
+                        if (!isOpen) {
+                            reportState.assignments[localRow.id] = remoteRow.assignments;
+                            if ($assignTd.length > 0) {
+                                if (isAdmin) {
+                                    const $select = $assignTd.find('.pub-select-users');
+                                    if ($select.length) {
+                                        const assignedIds = remoteRow.assignments.map(a => a.user_id);
+                                        $select.val(assignedIds).trigger('change.select2'); // use change.select2 to not trigger our change event loop
+                                    }
+                                } else {
+                                    const $chips = $assignTd.find('.pub-assignment-chips');
+                                    if ($chips.length) {
+                                        $chips.empty();
+                                        if (remoteRow.assignments.length > 0) {
+                                            remoteRow.assignments.forEach(assign => {
+                                                $chips.append($('<span>').addClass('pub-assignment-chip').text(assign.full_name));
+                                            });
+                                        } else {
+                                            $chips.append($('<span>').addClass('pub-assignment-chip-empty').text('No assignments'));
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        });
+
+        // 4. Handle completely new rows that were added remotely
+        Object.values(remoteRowMap).forEach(newRemoteRow => {
+            // It's a new row, add it to our local state
+            reportState.rows.push(newRemoteRow);
+            if (newRemoteRow.assignments) {
+                reportState.assignments[newRemoteRow.id] = newRemoteRow.assignments;
+            }
+            
+            // Append it to the corresponding table DOM
+            const $container = $(`.pub-report-container[data-table-id="${newRemoteRow.table_id}"]`);
+            if ($container.length > 0) {
+                const $tbody = $container.find('tbody');
+                const $newRowHtml = buildTableRow(newRemoteRow, newRemoteRow.table_id);
+                $tbody.append($newRowHtml);
+                initSelect2Dropdowns(); // Re-initialize to cover the newly added row
             }
         });
     }
@@ -1421,6 +1545,25 @@ $(document).ready(function() {
         const originalText = $btn.text();
         $btn.prop('disabled', true).text('Saving...');
         
+        // Before saving, we MUST pull the latest values from the DOM into reportState.
+        // We removed reactive bindings earlier to prevent polling from breaking active drafts,
+        // so the DOM is now the only source of truth for the Admin's typed input.
+        $('.pub-report-container').each(function() {
+            $(this).find('tbody tr').each(function() {
+                const rowId = $(this).attr('data-row-id');
+                const localRow = reportState.rows.find(r => r.id === rowId);
+                if (localRow) {
+                    const companyVal = $(this).find('.pub-company-input').val();
+                    if (companyVal !== undefined) localRow.company_name = companyVal;
+                    
+                    for (let i = 1; i <= 7; i++) {
+                        const taskVal = $(this).find(`.pub-task-cell[data-task-index="${i}"] .pub-task-textarea`).val();
+                        if (taskVal !== undefined) localRow[`task_box_${i}`] = taskVal;
+                    }
+                }
+            });
+        });
+        
         const dataToSend = JSON.parse(JSON.stringify(reportState));
         
         $.ajax({
@@ -1431,7 +1574,40 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.status === 'success') {
                     toastr.success(res.message);
-                    fetchReport(); 
+                    
+                    // Replace temp IDs with real database IDs to prevent duplicate inserts on next save
+                    if (res.id_mapping && Object.keys(res.id_mapping).length > 0) {
+                        Object.keys(res.id_mapping).forEach(oldId => {
+                            const newId = res.id_mapping[oldId];
+                            
+                            // 1. Update state
+                            const row = reportState.rows.find(r => r.id === oldId);
+                            if (row) row.id = newId;
+                            
+                            // 2. Update assignments state
+                            if (reportState.assignments[oldId]) {
+                                reportState.assignments[newId] = reportState.assignments[oldId];
+                                delete reportState.assignments[oldId];
+                            }
+                            
+                            // 3. Update DOM
+                            $(`tr[data-row-id="${oldId}"]`).attr('data-row-id', newId);
+                            $(`.pub-task-cell[data-row-id="${oldId}"]`).attr('data-row-id', newId);
+                        });
+                    }
+                    
+                    // Hydrate reportState with the exact data we just saved
+                    dataToSend.rows.forEach(savedRow => {
+                        const targetId = (res.id_mapping && res.id_mapping[savedRow.id]) ? res.id_mapping[savedRow.id] : savedRow.id;
+                        let localR = reportState.rows.find(r => r.id === targetId || r.id === savedRow.id);
+                        if (localR) {
+                            Object.assign(localR, savedRow);
+                            localR.id = targetId; // ensure ID is mapped
+                        }
+                    });
+                    
+                    // Force a lightweight sync to pull in any updated timestamps or changes
+                    autoSyncReportData();
                 } else {
                     toastr.error(res.message);
                 }

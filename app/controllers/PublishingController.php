@@ -101,11 +101,12 @@ class PublishingController
                 return;
             }
             
-            $this->model->saveReportData($input, $userId, $isAdmin);
+            $idMapping = $this->model->saveReportData($input, $userId, $isAdmin);
             
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Publishing table saved successfully.'
+                'message' => 'Publishing table saved successfully.',
+                'id_mapping' => $idMapping
             ]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -171,10 +172,10 @@ class PublishingController
             // Verify authorization
             if (!$isAdmin) {
                 $stmt = $this->model->getDb()->prepare("
-                    SELECT 1 FROM publishing_assignments 
-                    WHERE table_id = :table_id AND user_id = :user_id
+                    SELECT 1 FROM publishing_row_assignments 
+                    WHERE row_id = :row_id AND user_id = :user_id
                 ");
-                $stmt->execute(['table_id' => $tableId, 'user_id' => $userId]);
+                $stmt->execute(['row_id' => $rowId, 'user_id' => $userId]);
                 if (!$stmt->fetch()) {
                     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
                     return;
@@ -204,6 +205,48 @@ class PublishingController
     }
 
     /**
+     * Real-time sync: Update a row's assignments
+     * Endpoint: POST /api/publishing/update-assignment
+     */
+    public function updateAssignment()
+    {
+        header('Content-Type: application/json');
+        try {
+            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            
+            if (!$isAdmin) {
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Only Admin can update assignments.']);
+                return;
+            }
+            
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!$input) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON input']);
+                return;
+            }
+            
+            $rowId = $input['row_id'] ?? '';
+            $assignedUserIds = $input['assigned_user_ids'] ?? [];
+            
+            if (empty($rowId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing row_id']);
+                return;
+            }
+            
+            $this->model->updateRowAssignment($rowId, $assignedUserIds);
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Row assignments updated',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * Real-time sync: Fetch only changed cells since last sync
      * Endpoint: GET /api/publishing/sync-changes?last_sync=timestamp&table_id=id
      */
@@ -224,9 +267,11 @@ class PublishingController
             
             // Verify authorization
             if (!$isAdmin) {
+                // If staff, verify they have at least one row assigned in this table
                 $stmt = $this->model->getDb()->prepare("
-                    SELECT 1 FROM publishing_assignments 
-                    WHERE table_id = :table_id AND user_id = :user_id
+                    SELECT 1 FROM publishing_row_assignments a
+                    INNER JOIN publishing_rows r ON a.row_id = r.id
+                    WHERE r.table_id = :table_id AND a.user_id = :user_id
                 ");
                 $stmt->execute(['table_id' => $tableId, 'user_id' => $userId]);
                 if (!$stmt->fetch()) {
@@ -235,7 +280,7 @@ class PublishingController
                 }
             }
             
-            $changes = $this->model->getChangedCells($tableId, $lastSync);
+            $changes = $this->model->getChangedCells($tableId, $lastSync, $isAdmin ? null : $userId);
 
             
             // Log sync response for debugging

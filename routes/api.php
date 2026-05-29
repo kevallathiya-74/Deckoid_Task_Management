@@ -65,6 +65,7 @@ $router->post('/api/publishing/save-report', 'PublishingController@saveReport');
 $router->post('/api/publishing/delete-table', 'PublishingController@deleteTable');
 $router->post('/api/publishing/create-table', 'PublishingController@createTable');
 $router->post('/api/publishing/cell-update', 'PublishingController@updateCellStatus');
+$router->post('/api/publishing/update-assignment', 'PublishingController@updateAssignment');
 $router->get('/api/publishing/sync-changes', 'PublishingController@syncChanges');
 
 // Daily Report APIs
