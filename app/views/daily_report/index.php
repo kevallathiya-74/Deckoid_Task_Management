@@ -135,13 +135,20 @@ $(function() {
             if (!isNaN(num)) totalNumber += num;
         });
         $('#total-tasks').text(totalTasks);
-        $('#total-number').text(totalNumber);
+        $('#total-number').text(Math.round(totalNumber));
     }
 
     function addRow(task = '', number = '') {
         const idx = $tbody.find('tr').length;
         const safeTask = task ? $('<div>').text(task).html() : '';
-        const safeNumber = number !== null && number !== undefined ? $('<div>').text(number).html() : '';
+        let formattedNumber = '';
+        if (number !== null && number !== undefined && number !== '') {
+            const parsed = parseFloat(number);
+            if (!isNaN(parsed)) {
+                formattedNumber = Math.round(parsed);
+            }
+        }
+        const safeNumber = formattedNumber !== '' ? $('<div>').text(formattedNumber).html() : '';
         const $tr = $(
             `<tr class="daily-row" data-row-index="${idx}">`+
                 `<td style="padding:10px;"><textarea aria-label="Daily Task" class="pub-task-textarea daily-task" data-row-index="${idx}" placeholder="Describe the task...">${safeTask}</textarea></td>`+

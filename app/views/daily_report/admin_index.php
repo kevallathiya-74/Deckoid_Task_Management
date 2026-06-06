@@ -164,7 +164,14 @@ $(function() {
     function showSummary(data) {
         $('#admin-summary-date').text(formatDateLabel(data.report.report_date));
         $('#admin-summary-total-tasks').text(data.report.total_tasks || 0);
-        $('#admin-summary-total-number').text(data.report.total_value || 0);
+        let totalVal = 0;
+        if (data.report.total_value !== null && data.report.total_value !== undefined && data.report.total_value !== '') {
+            const parsed = parseFloat(data.report.total_value);
+            if (!isNaN(parsed)) {
+                totalVal = Math.round(parsed);
+            }
+        }
+        $('#admin-summary-total-number').text(totalVal);
         $('#admin-summary-updated').text(formatTimestamp(data.report.updated_at));
         $summaryPanel.show();
     }
@@ -176,10 +183,17 @@ $(function() {
             return;
         }
         rows.forEach(function(row) {
+            let formattedNumber = '-';
+            if (row.number_value !== null && row.number_value !== undefined && row.number_value !== '') {
+                const parsed = parseFloat(row.number_value);
+                if (!isNaN(parsed)) {
+                    formattedNumber = Math.round(parsed);
+                }
+            }
             $rowsBody.append(`
                 <tr>
                     <td style="padding:12px 10px;vertical-align:top;">${$('<div>').text(row.task_text || '').html()}</td>
-                    <td style="padding:12px 10px;text-align:center;vertical-align:middle;">${row.number_value !== null ? row.number_value : '-'}</td>
+                    <td style="padding:12px 10px;text-align:center;vertical-align:middle;">${formattedNumber}</td>
                 </tr>
             `);
         });
@@ -194,11 +208,18 @@ $(function() {
         reports.forEach(function(report) {
             const created = formatTimestamp(report.created_at);
             const updated = formatTimestamp(report.updated_at);
+            let formattedTotal = 0;
+            if (report.total_value !== null && report.total_value !== undefined && report.total_value !== '') {
+                const parsed = parseFloat(report.total_value);
+                if (!isNaN(parsed)) {
+                    formattedTotal = Math.round(parsed);
+                }
+            }
             $historyRows.append(`
                 <tr class="admin-history-row" data-report-date="${report.report_date}">
                     <td style="padding:12px 10px;">${formatDateLabel(report.report_date)}</td>
                     <td style="padding:12px 10px;text-align:center;">${report.total_tasks}</td>
-                    <td style="padding:12px 10px;text-align:center;">${report.total_value}</td>
+                    <td style="padding:12px 10px;text-align:center;">${formattedTotal}</td>
                     <td style="padding:12px 10px;text-align:center;">${created}</td>
                     <td style="padding:12px 10px;text-align:center;">${updated}</td>
                 </tr>

@@ -920,7 +920,9 @@ $(document).ready(function() {
             for (let i = 0; i < 7; i++) {
                 $colgroup.append('<col class="pub-col-task">');
             }
-            $colgroup.append('<col class="pub-col-assignment">');
+            if (isAdmin) {
+                $colgroup.append('<col class="pub-col-assignment">');
+            }
             if (isAdmin) {
                 $colgroup.append('<col class="pub-col-actions">');
             }
@@ -933,7 +935,9 @@ $(document).ready(function() {
             for (let i = 1; i <= 7; i++) {
                 $headerRow.append(`<th class="pub-col-task">DAY ${i}</th>`);
             }
-            $headerRow.append('<th class="pub-col-assignment">ASSIGNMENT</th>');
+            if (isAdmin) {
+                $headerRow.append('<th class="pub-col-assignment">ASSIGNMENT</th>');
+            }
             if (isAdmin) {
                 $headerRow.append('<th class="pub-col-actions">ACTIONS</th>');
             }
@@ -1089,10 +1093,9 @@ $(document).ready(function() {
         }
 
         // 3. Assignment
-        const $assignTd = $('<td>');
-        const $assignWrapper = $('<div>').addClass('pub-assignment-wrapper');
-
         if (isAdmin) {
+            const $assignTd = $('<td>');
+            const $assignWrapper = $('<div>').addClass('pub-assignment-wrapper');
             const $select = $('<select>').addClass('form-select form-select-sm pub-select-users')
                 .attr('multiple', 'multiple')
                 .css('width', '100%');
@@ -1147,22 +1150,9 @@ $(document).ready(function() {
             });
 
             $assignWrapper.append($select);
-        } else {
-            const $chips = $('<div>').addClass('pub-assignment-chips');
-            const currentAssigns = reportState.assignments[row.id] || [];
-
-            if (currentAssigns.length > 0) {
-                currentAssigns.forEach(assign => {
-                    $chips.append($('<span>').addClass('pub-assignment-chip').text(assign.full_name));
-                });
-            } else {
-                $chips.append($('<span>').addClass('pub-assignment-chip-empty').text('No assignments'));
-            }
-            $assignWrapper.append($chips);
+            $assignTd.append($assignWrapper);
+            $tr.append($assignTd);
         }
-
-        $assignTd.append($assignWrapper);
-        $tr.append($assignTd);
 
         if (isAdmin) {
             const $actionsTd = $('<td>');
