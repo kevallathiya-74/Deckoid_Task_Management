@@ -65,7 +65,7 @@
                 </div>
 
                 <!-- Security Settings -->
-                <div class="glass-card overflow-hidden">
+                <div class="glass-card overflow-hidden p-0">
                     <div class="p-4 border-bottom border-light">
                         <h5 class="fw-bold text-neutral-900 mb-0">Security & Settings</h5>
                     </div>
@@ -74,7 +74,7 @@
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Username</label>
-                                    <input type="text" class="form-control bg-neutral-50 border-0 py-2" value="<?= $user['username'] ?>" readonly>
+                                    <input type="text" class="form-control py-2" name="username" value="<?= $user['username'] ?>">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Role Access</label>

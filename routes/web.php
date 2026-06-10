@@ -22,6 +22,9 @@ $router->get('/staff/projects', 'ProjectController@index');
 
 $router->get('/admin/tasks', 'TaskController@index');
 $router->get('/staff/tasks', 'TaskController@index');
+
+$router->get('/admin/overdue', 'OverdueTaskController@index');
+$router->get('/staff/overdue', 'OverdueTaskController@staffIndex');
  
 $router->get('/admin/todo', 'TodoController@index');
 $router->get('/staff/todo', 'TodoController@index');

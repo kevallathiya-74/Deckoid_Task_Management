@@ -56,6 +56,14 @@
             </li>
             <?php if ($prefix == 'staff'): ?>
             <li class="nav-item">
+                <a href="<?= url('/staff/overdue') ?>" class="nav-link <?= $active_page == 'overdue' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="Overdue Tasks">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-exclamation-circle overdue-sidebar-icon"></i>
+                    </div>
+                    <span class="overdue-sidebar-text">Overdue Tasks</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="<?= url('/staff/daily-report') ?>" class="nav-link <?= $active_page == 'daily_report' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="Daily Report">
                     <div class="nav-icon-container">
                         <i class="fas fa-calendar-check"></i>
@@ -69,6 +77,14 @@
         <?php if ($prefix == 'admin'): ?>
         <div class="sidebar-label">Management</div>
         <ul class="nav flex-column mb-3">
+            <li class="nav-item">
+                <a href="<?= url('/admin/overdue') ?>" class="nav-link <?= $active_page == 'overdue' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="Overdue Tasks">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-exclamation-circle overdue-sidebar-icon"></i>
+                    </div>
+                    <span class="overdue-sidebar-text">Overdue Tasks</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a href="<?= url('/admin/staff') ?>" class="nav-link <?= $active_page == 'staff' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="Team Members">
                     <div class="nav-icon-container">

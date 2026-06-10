@@ -1,329 +1,509 @@
 PROJECT: DECKOID TASK MANAGEMENT SYSTEM
 
-FEATURE REQUEST + DATA CONSISTENCY FIX
+FRAMEWORK:
+Agency-Agents Multi-Agent Execution
 
-PAGE:
-http://localhost/Deckoid_Task_Management/admin/publishing
+REPOSITORY CONTEXT:
+Analyze the entire codebase from entry point to deployment configuration.
 
-USE FULL AGENCY-AGENTS EXECUTION.
-
-Repository:
-[Agency Agents GitHub Repository](https://github.com/msitarzewski/agency-agents?utm_source=chatgpt.com)
-
-==================================================
-AGENTS REQUIRED
-===============
-
-@agency-system-architect
-@agency-senior-laravel-engineer
-@agency-database-architect
-@agency-state-management-engineer
-@agency-frontend-engineer
-@agency-ui-engineer
-@agency-bug-hunter
-@agency-qa-engineer
-@agency-data-flow-engineer
-@agency-refactoring-engineer
-
-==================================================
-CURRENT ISSUE
-=============
-
-When Admin clicks:
-
-CREATE MORE TABLE (WEEK 2)
-
-Current behavior:
-
-New table creates empty rows.
-
-==================================================
-REQUIRED BEHAVIOR
-=================
-
-When Admin clicks:
-
-CREATE MORE TABLE (WEEK 2)
-
-System must automatically clone structure from WEEK 1.
-
-NOT blank table.
-
-==================================================
-COPY THESE VALUES
-=================
-
-From WEEK 1 copy:
-
-Company Names
-
-Assigned Members
-
-Existing Rows
-
-Row Count
-
-Table Structure
-
-Column Structure
-
-Task Box Layout
-
-Color Status Layout
-
-Week Configuration
-
-Category Configuration
-
-==================================================
-DO NOT COPY
-===========
-
-Task Text Values
-
-Daily Numbers
-
-Task Content
-
-Notes
-
-User Entered Data
-
-Only copy structure.
-
-==================================================
-EXAMPLE
+========================================================
+MISSION
 =======
 
-WEEK 1
+Perform a COMPLETE PROJECT AUDIT.
 
-Row 1:
-Company = test
+Act as:
 
-Assigned =
-Keval
-Darsh
+* Principal Software Architect
+* Senior Full Stack Engineer
+* Senior Backend Engineer
+* Senior Frontend Engineer
+* Senior Database Architect
+* Senior Security Engineer
+* Senior DevOps Engineer
+* Senior QA Engineer
 
-DAY1 = 1
-DAY2 = 2
-DAY3 = 3
+Goal:
 
----
+Transform the project into a production-ready SaaS application.
 
-Row 2:
-Company = test 2
+Do not perform superficial fixes.
 
-Assigned =
-Keval
-Darsh
+Find root causes.
 
----
+Apply permanent fixes.
 
-Admin clicks:
+No temporary patches.
 
-CREATE MORE TABLE (WEEK 2)
+No workaround solutions.
 
-==================================================
-EXPECTED RESULT
+========================================================
+AGENT STRUCTURE
 ===============
 
-WEEK 2
+Agent 1:
+Architecture Auditor
 
-Row 1:
-Company = test
+Agent 2:
+Frontend Auditor
 
-Assigned =
-Keval
-Darsh
+Agent 3:
+Backend Auditor
 
-DAY1 = empty
-DAY2 = empty
-DAY3 = empty
+Agent 4:
+Database Auditor
 
----
+Agent 5:
+Security Auditor
 
-Row 2:
-Company = test 2
+Agent 6:
+Performance Auditor
 
-Assigned =
-Keval
-Darsh
+Agent 7:
+QA & Regression Auditor
 
-DAY1 = empty
-DAY2 = empty
-DAY3 = empty
-
-==================================================
-DATABASE REQUIREMENTS
+========================================================
+PHASE 1
+COMPLETE PROJECT SCAN
 =====================
 
-Create proper week separation.
+Scan EVERYTHING.
 
-Week 1 data:
+Frontend:
 
-week_number = 1
+* Pages
+* Components
+* Layouts
+* Tables
+* Forms
+* Modals
+* Pagination
+* Notifications
+* Hooks
+* Utilities
+* API Services
+* State Management
+* Responsive Logic
 
-Week 2 data:
+Backend:
 
-week_number = 2
+* Controllers
+* Services
+* Models
+* Repositories
+* Middleware
+* Helpers
+* Validation
+* Authentication
+* Authorization
+* API Routes
 
-Never overwrite Week 1.
+Database:
 
-Week data must remain isolated.
+* schema.sql
+* migrations
+* foreign keys
+* indexes
+* constraints
+* relations
+* triggers
 
-==================================================
-UI REQUIREMENTS
-===============
+Infrastructure:
 
-After click:
+* .env usage
+* configuration files
+* startup process
+* deployment configuration
 
-CREATE MORE TABLE (WEEK 2)
+========================================================
+PHASE 2
+BUG DETECTION
+=============
 
-Immediately render new table.
+Identify ALL:
 
-Header:
+🔴 Critical Bugs
 
-WEEK 2
+🟠 Major Bugs
 
-Same design as WEEK 1.
+🟡 Minor Bugs
 
-Same assignments.
+Examples:
 
-Same companies.
+* data disappearing
+* data not syncing
+* stale cache
+* broken pagination
+* broken filters
+* broken CRUD
+* broken notifications
+* race conditions
+* duplicate saves
+* state overwrite bugs
+* memory leaks
+* API failures
+* database inconsistencies
+* null reference errors
+* role permission bugs
+* assignment bugs
+* publishing report bugs
+* overdue task bugs
 
-Empty task fields.
+Trace every issue to root cause.
 
-==================================================
-STAFF SIDE REQUIREMENTS
-=======================
+Do not patch symptoms.
 
-Staff dashboard must also show:
-
-WEEK 1
-
-WEEK 2
-
-Only assigned rows.
-
-Same structure.
-
-Same company names.
-
-Same assignments.
-
-==================================================
-CRITICAL VALIDATION
-===================
-
-Prevent duplicate week creation.
-
-If WEEK 2 already exists:
-
-Show:
-
-"Week 2 already created"
-
-Do NOT create duplicate.
-
-==================================================
-AUTO INCREMENT
+========================================================
+PHASE 3
+DATABASE AUDIT
 ==============
 
-If existing:
+Audit schema.sql completely.
 
-WEEK 1
-WEEK 2
+Verify:
 
-Then next button click:
+* every table
+* every column
+* every relation
 
-Create:
+Remove:
 
-WEEK 3
+* unused columns
+* unused tables
+* duplicate fields
+* obsolete schema
 
-Automatically.
+Fix:
 
-==================================================
-QA TESTS
-========
+* foreign keys
+* indexes
+* constraints
+* cascading rules
 
-TEST 1
+Verify:
 
-Create Week 2
+Database schema matches actual application usage.
 
-Companies copied
+No dead database structure allowed.
 
-PASS
+========================================================
+PHASE 4
+API AUDIT
+=========
 
----
+Verify every endpoint.
 
-TEST 2
+Check:
 
-Assignments copied
+GET
+POST
+PUT
+PATCH
+DELETE
 
-PASS
+Validate:
 
----
+* route exists
+* controller exists
+* service exists
+* response structure valid
+* authentication valid
+* authorization valid
 
-TEST 3
+Remove:
 
-Task values empty
+* dead endpoints
+* unused services
 
-PASS
+Fix:
 
----
+* broken endpoints
+* invalid paths
+* invalid responses
 
-TEST 4
+========================================================
+PHASE 5
+DATA FLOW VALIDATION
+====================
 
-Week 1 untouched
+Validate complete flow:
 
-PASS
+Frontend
 
----
+↓
 
-TEST 5
+API
 
-Staff sees Week 2
+↓
 
-PASS
+Controller
 
----
+↓
 
-TEST 6
+Service
 
-No duplicate week creation
+↓
 
-PASS
+Repository
 
----
+↓
 
-TEST 7
+Database
 
-Week numbering automatic
+↓
 
-PASS
+Repository
 
-==================================================
-FINAL RESULT
+↓
+
+Service
+
+↓
+
+Controller
+
+↓
+
+Frontend
+
+Verify every CRUD operation.
+
+No broken flow allowed.
+
+========================================================
+PHASE 6
+SECURITY AUDIT
+==============
+
+Review:
+
+Authentication
+
+Authorization
+
+Sessions
+
+Permissions
+
+Input Validation
+
+Output Escaping
+
+File Uploads
+
+Database Queries
+
+Fix:
+
+* SQL Injection risks
+* XSS risks
+* CSRF risks
+* privilege escalation
+* insecure direct object references
+* token vulnerabilities
+* session vulnerabilities
+
+Apply production-level security.
+
+========================================================
+PHASE 7
+PERFORMANCE OPTIMIZATION
+========================
+
+Find:
+
+* N+1 queries
+* duplicate queries
+* duplicate API calls
+* redundant renders
+* unnecessary re-fetches
+* unused dependencies
+* dead code
+* memory leaks
+
+Optimize:
+
+* database queries
+* rendering performance
+* API performance
+* state management
+
+========================================================
+PHASE 8
+CODE CLEANUP
 ============
 
-CREATE MORE TABLE button must work like:
+Remove:
 
-Clone Week Structure
-+
-Keep Assignments
-+
-Keep Companies
-+
-Create New Week
-+
-Keep Task Fields Empty
-+
-Save In Database
-+
-Show On Admin
-+
-Show On Staff
+* unused files
+* unused components
+* unused services
+* unused utilities
+* unused hooks
+* duplicate logic
+* commented legacy code
 
-No manual recreation required.
+Keep codebase clean.
 
-Production-ready implementation only.
+========================================================
+PHASE 9
+ERROR HANDLING
+==============
+
+Ensure every operation has:
+
+Frontend:
+
+* loading state
+* empty state
+* success state
+* error state
+
+Backend:
+
+* try/catch
+* structured responses
+* logging
+
+Database:
+
+* transaction safety
+* rollback support
+
+========================================================
+PHASE 10
+PRODUCTION READINESS
+====================
+
+Validate:
+
+* build process
+* deployment process
+* environment variables
+* database connection
+* API configuration
+* startup sequence
+
+Application must:
+
+Build Successfully
+
+Run Successfully
+
+Deploy Successfully
+
+========================================================
+PHASE 11
+REGRESSION TESTING
+==================
+
+Retest:
+
+Admin Panel
+
+* Dashboard
+* Projects
+* Tasks
+* Publishing
+* Team Members
+* KPI
+* Leave Requests
+* Notifications
+* Overdue Tasks
+* Account Settings
+
+Staff Panel
+
+* Dashboard
+* Projects
+* Tasks
+* Publishing
+* Todo
+* Daily Report
+* Notifications
+* Leaves
+* Account Settings
+
+Verify:
+
+* CRUD works
+* notifications work
+* permissions work
+* assignments work
+* publishing reports work
+* overdue tasks work
+* pagination works
+* search works
+* filters work
+
+========================================================
+FINAL REPORT FORMAT
+===================
+
+For every issue provide:
+
+File:
+Function:
+Severity:
+
+Problem:
+Root Cause:
+Impact:
+Fix Applied:
+
+After completion generate:
+
+1. Critical Issues Fixed
+2. Major Issues Fixed
+3. Minor Issues Fixed
+4. Database Fixes
+5. API Fixes
+6. Security Fixes
+7. Performance Improvements
+8. Code Cleanup Summary
+9. Regression Test Results
+10. Production Readiness Result
+
+========================================================
+SUCCESS CRITERIA
+================
+
+The project must be:
+
+✓ Error Free
+
+✓ Warning Free
+
+✓ Bug Free
+
+✓ Database Synced
+
+✓ API Validated
+
+✓ Secure
+
+✓ Optimized
+
+✓ Clean
+
+✓ Maintainable
+
+✓ Production Ready
+
+No broken routes.
+
+No broken APIs.
+
+No broken CRUD.
+
+No broken permissions.
+
+No disappearing data.
+
+No database inconsistencies.
+
+No dead code.
+
+No unused schema.
+
+No unresolved issues remaining anywhere in the project.

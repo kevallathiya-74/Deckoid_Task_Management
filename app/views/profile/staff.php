@@ -117,6 +117,10 @@
                     <h5 class="fw-bold text-neutral-900 mb-4">Account Security</h5>
                     <form id="staffSecurityForm">
                         <div class="row g-4">
+                            <div class="col-md-12">
+                                <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Username</label>
+                                <input type="text" class="form-control py-2" name="username" value="<?= $user['username'] ?>">
+                            </div>
                             <div class="col-md-6">
                                 <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">New Password</label>
                                 <input type="password" class="form-control py-2" name="new_password" placeholder="At least 8 characters">

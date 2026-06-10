@@ -13,6 +13,19 @@ class AuthMiddleware
             self::redirect();
         }
 
+        // Verify CSRF token for POST requests
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
+            if (empty($token) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+                if (self::isApiRequest()) {
+                    http_response_code(403);
+                    echo json_encode(['success' => false, 'message' => 'CSRF token mismatch. Please refresh the page.']);
+                    exit;
+                }
+                die('CSRF token mismatch. Please go back and refresh the page.');
+            }
+        }
+
         // Verify session in database if token exists
         if (isset($_SESSION['session_token'])) {
             $sessionModel = new \App\Models\Session();

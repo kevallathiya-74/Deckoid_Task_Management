@@ -5,8 +5,12 @@
         <!-- Page Header -->
         <div class="pub-topbar">
             <div class="pub-topbar-title">
-                <h3 class="pub-page-title" id="report-title-display">Publishing Report</h3>
-                <p class="pub-page-subtitle">Track content production and publishing status</p>
+                <!-- CATEGORY FILTERS -->
+                <div class="pub-category-filters m-0" id="category-filters-container">
+                    <button class="pub-cat-pill active" data-cat="posts">Posts</button>
+                    <button class="pub-cat-pill" data-cat="reels">Reels</button>
+                    <button class="pub-cat-pill" data-cat="facebook_ads">Facebook Ads</button>
+                </div>
             </div>
             <div class="pub-topbar-actions">
                 <div class="pub-filters-group">
@@ -50,16 +54,9 @@
             </div>
         </div>
 
-        <!-- CATEGORY FILTERS -->
-        <div class="pub-category-filters" id="category-filters-container">
-            <button class="pub-cat-pill active" data-cat="posts">Posts</button>
-            <button class="pub-cat-pill" data-cat="reels">Reels</button>
-            <button class="pub-cat-pill" data-cat="facebook_ads">Facebook Ads</button>
-        </div>
-
         <!-- Report Content -->
         <div class="pub-report-shell">
-            <div class="pub-report-panel">
+            <div class="pub-report-panel p-0">
                 <div id="report-container">
                     <div class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
@@ -418,8 +415,15 @@
 
 .pub-company-input {
     min-height: 42px;
+    max-height: 220px;
     font-size: 0.95rem;
     font-weight: 700;
+    line-height: 1.45;
+    resize: vertical;
+    overflow: auto;
+    margin: 0;
+    background: transparent !important;
+    border: none !important;
 }
 
 .pub-task-textarea {
@@ -546,7 +550,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 12px 0 0;
+    padding: 12px;
     flex-wrap: wrap;
 }
 
@@ -855,7 +859,7 @@ $(document).ready(function() {
             html += `<h3>No Weekly Tables Yet</h3>`;
             html += `<p>Create your first weekly publishing report table for this category.</p>`;
             if (isAdmin) {
-                html += `<button class="pub-btn-create" id="btn-create-first-table"><i class="fas fa-plus"></i>+ Create Week 1 Table</button>`;
+                html += `<button class="pub-btn-create" id="btn-create-first-table"><i class="fas fa-plus"></i>Create Week 1 Table</button>`;
             }
             html += `</div>`;
             $container.html(html);
@@ -1030,17 +1034,26 @@ $(document).ready(function() {
 
         // 1. Company Name
         const $companyTd = $('<td>');
-        const $companyInput = $('<input>').addClass('pub-company-input')
-            .attr('type', 'text')
+        const $companyInput = $('<textarea>').addClass('pub-company-input')
             .attr('placeholder', 'Company name...')
-            .val(row.company_name || '');
+            .val(row.company_name || '')
+            .css('width', '100%')
+            .css('height', 'auto')
+            .css('border', 'none')
+            .css('background', 'transparent')
+            .css('padding', '8px 10px')
+            .css('margin', '0')
+            .css('resize', 'vertical')
+            .css('font-size', '0.95rem')
+            .css('font-weight', '700')
+            .css('line-height', '1.45');
 
         if (!isAdmin) {
             $companyInput.attr('disabled', true);
         }
 
-        $companyInput.on('input change', function() {
-            // Removed reactive binding to preserve last-known database state
+        $companyInput.on('input', function() {
+            autoResize(this);
         });
         $companyTd.append($companyInput);
         $tr.append($companyTd);
@@ -1203,7 +1216,7 @@ $(document).ready(function() {
     }
     
     function autoResizeTextareas() {
-        $('.pub-task-textarea').each(function() {
+        $('.pub-task-textarea, .pub-company-input').each(function() {
             autoResize(this);
         });
     }

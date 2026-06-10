@@ -26,6 +26,12 @@ class AuthController
         $username = $_POST['username'] ?? '';
         $password = $_POST['password'] ?? '';
 
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
+        if (empty($token) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+            echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch. Please refresh the page.']);
+            return;
+        }
+
         if (empty($username) || empty($password)) {
             echo json_encode(['status' => 'validation_error', 'message' => 'Username and password are required']);
             return;

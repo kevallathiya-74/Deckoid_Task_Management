@@ -14,7 +14,7 @@ class Project
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function listAll($filters = [])
+    public function listAll($filters = [], $search = '', $limit = null, $offset = null)
     {
         $sql = "
             SELECT p.*, 
@@ -33,15 +33,44 @@ class Project
             $sql .= " AND p.role_id = :role_id";
             $params['role_id'] = $filters['role_id'];
         }
-        if (!empty($filters['status'])) {
-            $sql .= " AND p.status = :status";
-            $params['status'] = $filters['status'];
+
+        if (!empty($search)) {
+            $sql .= " AND (p.project_name LIKE :search OR p.client_name LIKE :search)";
+            $params['search'] = "%$search%";
         }
 
         $sql .= " ORDER BY p.created_at DESC";
+
+        if ($limit !== null && $limit > 0) {
+            $sql .= " LIMIT " . (int)$limit;
+            if ($offset !== null && $offset >= 0) {
+                $sql .= " OFFSET " . (int)$offset;
+            }
+        }
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countAll($filters = [], $search = '')
+    {
+        $sql = "SELECT COUNT(*) FROM projects p WHERE p.deleted_at IS NULL";
+        $params = [];
+
+        if (!empty($filters['role_id'])) {
+            $sql .= " AND p.role_id = :role_id";
+            $params['role_id'] = $filters['role_id'];
+        }
+
+        if (!empty($search)) {
+            $sql .= " AND (p.project_name LIKE :search OR p.client_name LIKE :search)";
+            $params['search'] = "%$search%";
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
     }
 
     public function findByName($name)
@@ -62,8 +91,8 @@ class Project
     {
         $id = $this->generateUuid();
         $stmt = $this->db->prepare("
-            INSERT INTO projects (id, created_by, role_id, project_name, client_name, description, start_date, deadline, status) 
-            VALUES (:id, :created_by, :role_id, :name, :client, :description, :start, :deadline, :status)
+            INSERT INTO projects (id, created_by, role_id, project_name, client_name, description) 
+            VALUES (:id, :created_by, :role_id, :name, :client, :description)
         ");
         
         $role_id = !empty($data['role_ids']) ? $data['role_ids'][0] : '';
@@ -74,10 +103,7 @@ class Project
             'role_id' => $role_id,
             'name' => $data['project_name'],
             'client' => $data['client_name'],
-            'description' => $data['description'],
-            'start' => $data['start_date'],
-            'deadline' => $data['deadline'],
-            'status' => $data['status']
+            'description' => $data['description']
         ]);
 
         if ($success && !empty($data['role_ids'])) {
@@ -112,10 +138,7 @@ class Project
                 role_id = :role_id, 
                 project_name = :name, 
                 client_name = :client, 
-                description = :description, 
-                start_date = :start, 
-                deadline = :deadline, 
-                status = :status 
+                description = :description
             WHERE id = :id
         ");
         
@@ -126,10 +149,7 @@ class Project
             'role_id' => $role_id,
             'name' => $data['project_name'],
             'client' => $data['client_name'],
-            'description' => $data['description'],
-            'start' => $data['start_date'],
-            'deadline' => $data['deadline'],
-            'status' => $data['status']
+            'description' => $data['description']
         ]);
  
         if ($success) {
@@ -175,11 +195,7 @@ class Project
         return $stmt->execute(['id' => $id]);
     }
 
-    public function countAll()
-    {
-        $stmt = $this->db->query("SELECT COUNT(*) FROM projects WHERE deleted_at IS NULL");
-        return $stmt->fetchColumn();
-    }
+
 
     public function listActiveByStaff($userId)
     {

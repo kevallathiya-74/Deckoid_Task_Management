@@ -39,7 +39,7 @@
 
             <!-- Leave History -->
             <div class="col-12">
-                <div class="glass-card overflow-hidden">
+                <div class="glass-card overflow-hidden p-0">
                     <div class="p-4 border-bottom border-light">
                         <h5 class="fw-bold text-neutral-900 mb-0">My Leave History</h5>
                     </div>

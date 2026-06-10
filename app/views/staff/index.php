@@ -2,19 +2,10 @@
 
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
-        <!-- Page Header -->
-        <div class="d-flex justify-content-between align-items-center mb-5">
-            <div>
-                <h3 class="fw-bold text-neutral-900 mb-1">Team Directory</h3>
-                <p class="text-neutral-500 mb-0">Manage workforce, departments & system access levels</p>
-            </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
-                <i class="fas fa-plus me-2"></i> Add Member
-            </button>
-        </div>
+        <!-- Page Header Removed -->
 
         <!-- Filters Section -->
-        <div class="glass-card mb-5 p-4">
+        <!-- <div class="glass-card mb-5 p-4">
             <form id="filterForm" class="row g-4 align-items-end">
                 <div class="col-lg-4">
                     <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Department Filter</label>
@@ -49,10 +40,15 @@
                     </button>
                 </div>
             </form>
-        </div>
+        </div> -->
 
         <!-- Staff List Table -->
-        <div class="glass-card overflow-hidden">
+        <div class="glass-card overflow-hidden p-0 mt-4">
+            <div class="p-3 d-flex justify-content-end border-bottom border-light">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                    <i class="fas fa-plus me-2"></i> Add Member
+                </button>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" id="staffTable">
                     <thead>
@@ -193,6 +189,7 @@
 <script>
 $(document).ready(function() {
     const table = $('#staffTable').DataTable({
+        serverSide: true,
         ajax: {
             url: '<?= url('/api/staff') ?>',
             dataSrc: 'data',
@@ -265,7 +262,7 @@ $(document).ready(function() {
             }
         ],
         order: [[4, 'desc']],
-        dom: '<"d-flex justify-content-between align-items-center p-4"f<"d-flex gap-3"l>>t<"d-flex justify-content-between align-items-center p-4 border-top border-light"ip>',
+        dom: 't<"d-flex justify-content-between align-items-center p-4 border-top border-light"ip>',
         language: {
             search: "",
             searchPlaceholder: "Search team directory...",

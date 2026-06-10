@@ -3,81 +3,59 @@
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
         <!-- Dashboard Header -->
-        <div class="d-flex justify-content-between align-items-center mb-5">
+        <!-- <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h3 class="fw-bold text-neutral-900 mb-1">Project Dashboard</h3>
-                <p class="text-neutral-500 mb-0">Real-time overview of your workspace performance</p>
+                <h5 class="fw-bold text-neutral-900 mb-0">Project Dashboard</h5>
+                <p class="text-neutral-500 mb-0 text-xs">Real-time overview of your workspace performance</p>
             </div>
-        </div>
+        </div> -->
 
         <!-- Statistics Grid -->
-        <div class="row g-4 mb-5">
-            <div class="col-xl col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="icon-shape bg-primary-soft rounded-3">
-                            <i class="fas fa-layer-group text-primary"></i>
-                        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-xl col-md-4">
+                <div class="glass-card px-4 py-3 d-flex align-items-center gap-3">
+                    <div class="stat-icon-sm bg-primary-soft rounded-3 flex-shrink-0">
+                        <i class="fas fa-layer-group text-primary"></i>
                     </div>
-                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['total_projects'] ?></h2>
-                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Total Projects</p>
+                    <div class="flex-grow-1 min-w-0">
+                        <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Total Projects</p>
+                        <h4 class="fw-bold text-neutral-900 mb-0 lh-1 mt-1"><?= $stats['total_projects'] ?></h4>
+                    </div>
                 </div>
             </div>
-            <div class="col-xl col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="icon-shape bg-warning-soft rounded-3">
-                            <i class="fas fa-list-check text-warning"></i>
-                        </div>
+            <div class="col-xl col-md-4">
+                <div class="glass-card px-4 py-3 d-flex align-items-center gap-3">
+                    <div class="stat-icon-sm bg-warning-soft rounded-3 flex-shrink-0">
+                        <i class="fas fa-list-check text-warning"></i>
                     </div>
-                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['active_tasks'] ?></h2>
-                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Active Tasks</p>
+                    <div class="flex-grow-1 min-w-0">
+                        <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Active Tasks</p>
+                        <h4 class="fw-bold text-neutral-900 mb-0 lh-1 mt-1"><?= $stats['active_tasks'] ?></h4>
+                    </div>
                 </div>
             </div>
-            <div class="col-xl col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="icon-shape bg-danger-soft rounded-3">
-                            <i class="fas fa-clock text-danger"></i>
-                        </div>
+            <div class="col-xl col-md-4">
+                <div class="glass-card px-4 py-3 d-flex align-items-center gap-3">
+                    <div class="stat-icon-sm bg-danger-soft rounded-3 flex-shrink-0">
+                        <i class="fas fa-clock text-danger"></i>
                     </div>
-                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['pending_tasks'] ?></h2>
-                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Pending Tasks</p>
-                </div>
-            </div>
-            <div class="col-xl col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="icon-shape bg-success-soft rounded-3">
-                            <i class="fas fa-circle-check text-success"></i>
-                        </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Pending Tasks</p>
+                        <h4 class="fw-bold text-neutral-900 mb-0 lh-1 mt-1"><?= $stats['pending_tasks'] ?></h4>
                     </div>
-                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['completed_projects'] ?></h2>
-                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Finished Projects</p>
-                </div>
-            </div>
-            <div class="col-xl col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="icon-shape bg-info-soft rounded-3">
-                            <i class="fas fa-users text-info"></i>
-                        </div>
-                    </div>
-                    <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['total_staff'] ?></h2>
-                    <p class="text-neutral-500 text-xs fw-bold text-uppercase mb-0 ls-1">Team Strength</p>
                 </div>
             </div>
         </div>
 
-        <div class="row g-4 mb-5">
+        <div class="row g-3 mb-3">
             <!-- Task Priority -->
             <div class="col-xl-4">
                 <div class="glass-card h-100">
-                    <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center bg-neutral-50/30">
-                        <h6 class="fw-bold text-neutral-900 mb-0">Task Distribution</h6>
+                    <div class="p-3 border-bottom border-light d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold text-neutral-900 mb-0 text-sm">Task Distribution</h6>
                         <span class="text-xs text-neutral-400">By Priority</span>
                     </div>
-                    <div class="p-4">
+                    <div class="p-3">
                         <div class="priority-card mb-3 p-3 rounded-4 cursor-pointer transition-all border border-light bg-white" onclick="showPriorityTasks('high')">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center gap-3">
@@ -112,8 +90,8 @@
             <!-- Recent Tasks -->
             <div class="col-xl-8">
                 <div class="glass-card h-100 overflow-hidden">
-                    <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center bg-neutral-50/30">
-                        <h6 class="fw-bold text-neutral-900 mb-0">Recent Assignments</h6>
+                    <div class="p-3 border-bottom border-light d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold text-neutral-900 mb-0 text-sm">Recent Assignments</h6>
                         <a href="<?= url('admin/tasks') ?>" class="text-primary text-xs fw-bold text-decoration-none">View All Tasks <i class="fas fa-arrow-right ms-1"></i></a>
                     </div>
                     <div class="table-responsive">
@@ -399,6 +377,14 @@ function reassignTask(taskId, alertId) {
     align-items: center;
     justify-content: center;
     font-size: 1rem;
+}
+.stat-icon-sm {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
 }
 
 .dot { width: 10px; height: 10px; border-radius: 50%; }

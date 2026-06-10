@@ -2,12 +2,12 @@
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
         <!-- Page Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 mb-1 text-neutral-800">Todo List</h1>
                 <p class="text-neutral-500 text-sm mb-0">Manage lightweight daily assignments</p>
             </div>
-        </div>
+        </div> -->
 
         <!-- Quick Create Row (Admin Only) -->
         <?php if ($_SESSION['user_role'] === 'admin'): ?>

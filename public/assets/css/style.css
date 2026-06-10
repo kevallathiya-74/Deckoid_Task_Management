@@ -65,7 +65,7 @@ a:hover {
 .main-content {
     flex: 1;
     margin-left: var(--sidebar-width);
-    padding: calc(var(--topbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+    padding: calc(var(--topbar-height) + var(--space-4)) var(--space-4) var(--space-6);
     width: calc(100% - var(--sidebar-width));
     transition: margin-left var(--transition-speed) var(--transition-timing), width var(--transition-speed) var(--transition-timing);
     min-height: 100vh;
@@ -365,8 +365,8 @@ body.sidebar-collapsed .user-profile-card-combined {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    padding: var(--space-6);
-    margin-bottom: var(--space-6);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
     transition: var(--transition);
 }
 
@@ -549,7 +549,7 @@ textarea.form-control {
 }
 
 .table tbody td {
-    padding: var(--space-4);
+    padding: var(--space-3) var(--space-4);
     border-bottom: 1px solid var(--border);
     color: var(--text-secondary);
     vertical-align: middle;
@@ -740,5 +740,189 @@ textarea.form-control {
 @supports (-webkit-touch-callout: none) {
     input, select, textarea {
         font-size: 16px !important;
+}
+
+/* Custom DataTables Pagination Styling for Bootstrap 5 - PRD Specifications */
+.dataTables_wrapper .pagination {
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 8px !important;
+    justify-content: center !important;
+}
+.dataTables_wrapper .page-item .page-link {
+    padding: 0 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    border: 1px solid #DADCE0 !important;
+    background-color: #FFFFFF !important;
+    color: #374151 !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+.dataTables_wrapper .page-item:not(.active):not(.disabled) .page-link:hover {
+    background-color: #F5F3FF !important;
+    color: #7C3AED !important;
+    border-color: #8B5CF6 !important;
+}
+.dataTables_wrapper .page-item.active .page-link {
+    background-color: #8B5CF6 !important;
+    border-color: #8B5CF6 !important;
+    color: #FFFFFF !important;
+}
+.dataTables_wrapper .page-item.disabled .page-link {
+    opacity: 1 !important; /* using color below instead of opacity */
+    cursor: not-allowed !important;
+    background-color: #F9FAFB !important;
+    border-color: #DADCE0 !important;
+    color: #D1D5DB !important;
+}
+.dataTables_wrapper .dataTables_info {
+    padding-top: 0 !important;
+    font-size: 0.875rem !important;
+    color: var(--text-muted) !important;
+    display: flex;
+    align-items: center;
+}
+
+/* PAGINATION CONTAINER FIX */
+.dataTables_wrapper .row:last-child {
+    min-height: auto !important;
+    padding: 10px 20px !important;
+    margin-top: 10px !important;
+    height: 50px !important;
+    max-height: 60px !important;
+}
+
+/* EMPTY TABLE FIX */
+.dataTables_empty {
+    min-height: 120px !important;
+    vertical-align: middle !important;
+}
+
+/* --- UI/UX Pro Max Global Fixes --- */
+
+/* 1. Global Overflow Protection */
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+}
+.wrapper {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* 2. Responsive Main Content Spacing Standardization */
+.main-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Ensure no elements stretch beyond 100% */
+img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 3. Table Responsiveness Fixes */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+}
+
+.table {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* 4. Modal Overflow Fixes */
+.modal-dialog {
+    max-width: 95%;
+    margin: 1.75rem auto;
+}
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 500px;
     }
+}
+@media (min-width: 992px) {
+    .modal-dialog.modal-lg {
+        max-width: 800px;
+    }
+    .modal-dialog.modal-xl {
+        max-width: 1140px;
+    }
+}
+.modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* 5. Form & Input Overlap Prevention */
+.form-group {
+    position: relative;
+    width: 100%;
+}
+.form-control, .form-select {
+    width: 100% !important;
+    max-width: 100%;
+}
+label {
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* 6. Card & Container Overlap Prevention */
+.card, .glass-card {
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 7. Button Overlap Prevention */
+.btn {
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+    max-width: 100%;
+}
+@media (max-width: 576px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+/* 8. Notification Alignment Fixes */
+.topbar-actions .dropdown-menu {
+    max-width: 90vw; 
+    right: 0 !important;
+    left: auto !important;
+}
+.list-group-item .flex-grow-1 {
+    min-width: 0; /* Prevents flex children from causing overflow */
+}
+.list-group-item p {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* 9. Layout Consistency Audit */
+.h-100 {
+    height: 100% !important;
+}
+
+/* Sidebar fixes for overflow */
+.sidebar-content {
+    overflow-x: hidden;
 }

@@ -39,9 +39,9 @@ class TaskController
             require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
             require_once ROOT_PATH . '/app/views/tasks/index.php';
             require_once ROOT_PATH . '/app/views/layouts/footer.php';
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             http_response_code(500);
-            die("Error loading tasks page: " . $e->getMessage());
+            die("Error loading tasks page: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
         }
     }
 
@@ -50,17 +50,26 @@ class TaskController
         header('Content-Type: application/json');
         
         try {
+            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
             $filters = [
                 'project_id' => $_GET['project_id'] ?? null,
-                'assigned_to' => $_GET['assigned_to'] ?? null,
-                'status' => $_GET['status'] ?? null,
-                'role_id' => $_GET['role_id'] ?? null
+                'assigned_to' => $isAdminOrManager ? ($_GET['assigned_to'] ?? null) : $_SESSION['user_id'],
+                'status' => $_GET['status'] ?? null
             ];
 
-            $tasks = $this->taskModel->listAll($filters);
+            $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+            $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
+            $search = $_GET['search']['value'] ?? '';
+
+            $tasks = $this->taskModel->listAll($filters, $search, $length, $start);
+            $recordsFiltered = $this->taskModel->countAll($filters, $search);
+            $recordsTotal = $this->taskModel->countAll($filters, '');
             
             echo json_encode([
                 'status' => 'success',
+                'draw' => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
                 'data' => $tasks
             ]);
         } catch (\Exception $e) {
@@ -90,28 +99,31 @@ class TaskController
                     'project_id' => $rawTask['project_id'] ?? '',
                     'assigned_to' => $rawTask['assigned_to'] ?? '',
                     'assigned_users' => $rawTask['assigned_users'] ?? [],
-                    'role_ids' => $rawTask['role_ids'] ?? [],
                     'title' => trim($rawTask['title'] ?? ''),
                     'description' => trim($rawTask['description'] ?? ''),
                     'due_date' => (!empty($rawTask['due_date'])) ? $rawTask['due_date'] . ' ' . ($rawTask['due_time'] ?? '09:00') : date('Y-m-d H:i:s'),
                     'due_time' => $rawTask['due_time'] ?? '09:00',
                     'priority' => $rawTask['priority'] ?? 'medium',
-                    'status' => $rawTask['status'] ?? 'pending',
-                    'progress_percentage' => $rawTask['progress_percentage'] ?? 0,
-                    'status_notes' => trim($rawTask['status_notes'] ?? '')
+                    'status' => $rawTask['status'] ?? 'pending'
                 ];
 
-                if (empty($data['project_id']) || (empty($data['assigned_to']) && empty($data['assigned_users'])) || empty($data['title'])) {
-                    echo json_encode(['status' => 'validation_error', 'message' => "Task #" . ($index + 1) . ": Project, Assignee, and Title are required"]);
+                if (isset($data['project_id']) && $data['project_id'] === '') {
+                    $data['project_id'] = null;
+                }
+
+                if ((empty($data['assigned_to']) && empty($data['assigned_users'])) || empty($data['title'])) {
+                    echo json_encode(['status' => 'validation_error', 'message' => "Task #" . ($index + 1) . ": Assignee and Title are required"]);
                     $db->rollBack();
                     return;
                 }
 
-                // Verify existence
-                if (!$this->projectModel->findById($data['project_id'])) {
-                    echo json_encode(['status' => 'validation_error', 'message' => "Task #" . ($index + 1) . ": Invalid project selected"]);
-                    $db->rollBack();
-                    return;
+                // Verify existence if project_id is provided
+                if (!empty($data['project_id'])) {
+                    if (!$this->projectModel->findById($data['project_id'])) {
+                        echo json_encode(['status' => 'validation_error', 'message' => "Task #" . ($index + 1) . ": Invalid project selected"]);
+                        $db->rollBack();
+                        return;
+                    }
                 }
                 
                 $assignedUsers = $data['assigned_users'];
@@ -175,19 +187,21 @@ class TaskController
                 return;
             }
 
+            $projectId = $_POST['project_id'] ?? $task['project_id'];
+            if ($projectId === '') {
+                $projectId = null;
+            }
+
             $data = [
-                'project_id' => $_POST['project_id'] ?? $task['project_id'],
+                'project_id' => $projectId,
                 'assigned_to' => $_POST['assigned_to'] ?? $task['assigned_to'],
                 'assigned_users' => $_POST['assigned_users'] ?? $task['assigned_users'] ?? [],
-                'role_ids' => $_POST['role_ids'] ?? $task['role_ids'] ?? [],
                 'title' => trim($_POST['title'] ?? $task['title']),
                 'description' => trim($_POST['description'] ?? $task['description']),
                 'status' => $_POST['status'] ?? $task['status'],
                 'due_date' => (!empty($_POST['due_date']) && !empty($_POST['due_time'])) ? $_POST['due_date'] . ' ' . $_POST['due_time'] : $task['due_date'],
                 'due_time' => $_POST['due_time'] ?? $task['due_time'],
                 'priority' => $_POST['priority'] ?? $task['priority'],
-                'progress_percentage' => $_POST['progress_percentage'] ?? $task['progress_percentage'],
-                'status_notes' => trim($_POST['status_notes'] ?? $task['status_notes']),
                 'is_completed' => $task['is_completed'],
                 'is_incomplete' => $task['is_incomplete'],
                 'completed_at' => $task['completed_at'],
@@ -203,7 +217,6 @@ class TaskController
             if ($_SESSION['user_role'] !== 'admin') {
                 $data['project_id'] = $task['project_id'];
                 $data['assigned_to'] = $task['assigned_to'];
-                $data['role_id'] = $task['role_id'];
                 $data['title'] = $task['title'];
             }
 
@@ -232,6 +245,83 @@ class TaskController
             echo json_encode(['status' => 'success', 'message' => 'Task deleted successfully']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to delete task']);
+        }
+    }
+
+    public function completeStaff()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $id = $_POST['task_id'] ?? '';
+            $notes = $_POST['completion_notes'] ?? '';
+
+            if (empty($id)) {
+                echo json_encode(['status' => 'error', 'message' => 'Task ID is missing']);
+                return;
+            }
+
+            $task = $this->taskModel->getById($id);
+            if (!$task) {
+                echo json_encode(['status' => 'error', 'message' => 'Task not found']);
+                return;
+            }
+
+            $isAssigned = false;
+            if ($task['assigned_to'] === $_SESSION['user_id'] || (isset($task['assigned_users']) && in_array($_SESSION['user_id'], $task['assigned_users']))) {
+                $isAssigned = true;
+            }
+
+            if ($_SESSION['user_role'] !== 'admin' && !$isAssigned) {
+                echo json_encode(['status' => 'error', 'message' => 'You are not authorized to update this task']);
+                return;
+            }
+
+            $data = $task;
+            $data['status'] = 'completed';
+            $data['is_completed'] = 1;
+            $data['completed_at'] = date('Y-m-d H:i:s');
+            $data['completed_by'] = $_SESSION['user_id'];
+            $data['completion_notes'] = $notes;
+
+            if ($this->taskModel->update($id, $data)) {
+                echo json_encode(['status' => 'success', 'message' => 'Task completed successfully']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to complete task']);
+            }
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getOverdue()
+    {
+        header('Content-Type: application/json');
+        try {
+            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+            $userId = $isAdminOrManager ? null : $_SESSION['user_id'];
+            
+            if ($isAdminOrManager && !empty($_GET['user_id'])) {
+                $userId = $_GET['user_id'];
+            }
+
+            $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+            $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
+            $search = $_GET['search']['value'] ?? '';
+
+            $tasks = $this->taskModel->getOverdueTasks($userId, $search, $length, $start);
+            $recordsFiltered = $this->taskModel->countOverdueTasks($userId, $search);
+            $recordsTotal = $this->taskModel->countOverdueTasks($userId, '');
+
+            echo json_encode([
+                'status' => 'success',
+                'draw' => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $tasks
+            ]);
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
@@ -272,7 +362,6 @@ class TaskController
                 $data['is_incomplete'] = 0;
                 $data['status'] = 'completed';
                 $data['completed_at'] = date('Y-m-d H:i:s');
-                $data['progress_percentage'] = 100;
             } elseif ($type === 'incomplete') {
                 $data['is_incomplete'] = 1;
                 $data['is_completed'] = 0;
@@ -422,15 +511,12 @@ class TaskController
                 'project_id' => $parentTask['project_id'],
                 'assigned_to' => $parentTask['assigned_to'],
                 'assigned_users' => $assignedUsers,
-                'role_id' => $parentTask['role_id'],
                 'title' => $parentTask['title'],
                 'description' => $parentTask['description'],
                 'due_date' => $parentTask['next_repeat_date'],
                 'due_time' => $parentTask['due_time'],
                 'priority' => $parentTask['priority'],
                 'status' => 'pending',
-                'progress_percentage' => 0,
-                'status_notes' => '',
                 'is_completed' => 0,
                 'is_incomplete' => 0,
                 'admin_alert_sent' => 0,

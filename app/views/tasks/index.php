@@ -35,92 +35,57 @@
 
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
-        <!-- Page Header -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-5">
-            <div>
-                <h2 class="fw-bold text-neutral-900 mb-1 font-outfit">Task Management</h2>
-                <p class="text-neutral-500 mb-0 fw-medium">Track and manage project tasks and assignments</p>
+
+
+
+
+        <?php if ($_SESSION['user_role'] === 'staff'): ?>
+        <div id="staff-overdue-section" class="mb-5 d-none">
+            <h5 class="fw-bold text-danger mb-3 font-outfit d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-2"></i> Overdue Tasks
+                <span class="badge bg-danger ms-2 rounded-pill" id="overdue-count">0</span>
+            </h5>
+            <div class="row g-4" id="staff-overdue-list">
+                <!-- Overdue tasks will be injected here -->
             </div>
-            <div class="d-flex flex-wrap gap-2">
-                <button type="button" class="btn btn-primary-grad rounded-pill px-4 py-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 28px; height: 28px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                            <i class="fas fa-plus text-white" style="font-size: 0.85rem;"></i>
+        </div>
+        <h5 class="fw-bold text-neutral-900 mb-3 font-outfit">Active Tasks</h5>
+        <?php endif; ?>
+
+        <div class="glass-card overflow-hidden p-0">
+            <!-- Toolbar: Filter + Create Button -->
+            <div class="p-3 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <form id="filterForm" class="m-0">
+                    <select class="form-select text-sm fw-bold border-0 bg-light rounded-pill px-3" style="height: 36px; min-width: 150px; font-size: 0.82rem;" name="status" id="filter_status">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </form>
+                <div class="d-flex gap-2 align-items-center">
+                    <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                    <button type="button" class="btn btn-primary-grad rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal" style="height: 36px; padding-top: 0; padding-bottom: 0;">
+                        <div class="d-flex align-items-center h-100">
+                            <i class="fas fa-plus me-2 text-white" style="font-size: 0.8rem;"></i>
+                            <span class="fw-bold text-white text-xs">Create Task</span>
                         </div>
-                        <span class="fw-bold text-white">Create Task</span>
-                    </div>
-                </button>
-
-            </div>
-        </div>
-
-        <!-- Dynamic Filters -->
-        <div class="glass-card mb-5 p-4 border-0">
-            <form id="filterForm" class="row g-4 align-items-end">
-                <div class="col-xl-3 col-md-6">
-                    <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Active Project</label>
-                    <div class="input-group bg-neutral-50 rounded-pill">
-                        <span class="input-group-text ps-3">
-                            <i class="fas fa-layer-group text-neutral-400"></i>
-                        </span>
-                        <select class="form-select text-sm fw-bold h-100" name="project_id" id="filter_project">
-                            <option value="">All Active Projects</option>
-                            <?php foreach ($projects as $p): ?>
-                                <option value="<?= $p['id'] ?>" <?= (isset($project_id) && $project_id == $p['id']) ? 'selected' : '' ?>>
-                                    <?= $p['project_name'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Assigned To</label>
-                    <div class="input-group bg-neutral-50 rounded-pill">
-                        <span class="input-group-text ps-3">
-                            <i class="fas fa-user-check text-neutral-400"></i>
-                        </span>
-                        <select class="form-select text-sm fw-bold h-100" name="assigned_to" id="filter_assignee">
-                            <option value="">All Team Members</option>
-                            <?php foreach ($staff as $s): ?>
-                                <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <label class="form-label text-xs fw-bold text-uppercase text-neutral-400 mb-3 ms-1">Status</label>
-                    <div class="input-group bg-neutral-50 rounded-pill">
-                        <span class="input-group-text ps-3">
-                            <i class="fas fa-check-circle text-neutral-400"></i>
-                        </span>
-                        <select class="form-select text-sm fw-bold h-100" name="status" id="filter_status">
-                            <option value="">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="review">Review</option>
-                            
-                            <option value="completed">Completed</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <button type="button" id="resetFilters" class="btn btn-secondary-soft w-100 rounded-pill h-100 text-xs fw-bold">
-                        <i class="fas fa-sync-alt me-2"></i> Reset Filters
                     </button>
+                    <?php endif; ?>
                 </div>
-            </form>
-        </div>
-
-        <div class="glass-card overflow-hidden">
+            </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tasksTable" style="min-width: 1100px;">
+                <table class="table table-hover align-middle mb-0" id="tasksTable">
                 <thead>
                     <tr>
                         <th class="ps-4 text-xs fw-bold text-uppercase text-neutral-400">Task Details</th>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Status</th>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Deadline</th>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Priority</th>
+                        <?php if ($_SESSION['user_role'] === 'admin'): ?>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Assignee To</th>
+                        <?php endif; ?>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Project</th>
                         <th class="text-end pe-4 text-xs fw-bold text-uppercase text-neutral-400">Actions</th>
                     </tr>
@@ -134,7 +99,7 @@
 <!-- Add Task Modal -->
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content glass-card border-0 p-4">
+        <div class="modal-content glass-card border-0 p-2">
             <div class="modal-header border-0 pb-3">
                 <h4 class="fw-bold text-neutral-900 mb-0">Create New Task</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -143,7 +108,7 @@
                 <div class="modal-body py-0">
                     <div id="task-blocks-container">
                         <!-- Initial Task Block -->
-                        <div class="task-block-card mb-5 p-4 border rounded-5 bg-white bg-opacity-10 position-relative animate-fade-in">
+                        <div class="task-block-card p-2 border rounded-5 bg-white bg-opacity-10 position-relative animate-fade-in">
                             <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-neutral-100">
                                 <h5 class="fw-bold text-neutral-900 mb-0 d-flex align-items-center">
                                     <span class="bg-primary-grad text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 28px; height: 28px; font-size: 0.75rem;">1</span>
@@ -166,8 +131,8 @@
                             <div class="row g-4 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Select Project</label>
-                                    <select class="form-select glass-input text-sm" name="tasks[0][project_id]" required>
-                                        <option value="" selected disabled>Select Project...</option>
+                                    <select class="form-select glass-input text-sm" name="tasks[0][project_id]">
+                                        <option value="" selected>No Project / Select Project...</option>
                                         <?php foreach ($projects as $p): ?>
                                             <option value="<?= $p['id'] ?>" <?= (isset($project_id) && $project_id == $p['id']) ? 'selected' : '' ?>>
                                                 <?= $p['project_name'] ?>
@@ -186,15 +151,7 @@
                             </div>
 
                             <div class="row g-4 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Department</label>
-                                    <select class="form-select glass-input text-sm select2-multi" name="tasks[0][role_ids][]" multiple required data-placeholder="Select Departments...">
-                                        <?php foreach ($roles as $r): ?>
-                                            <option value="<?= $r['id'] ?>"><?= $r['name'] ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Priority</label>
                                     <select class="form-select glass-input text-sm" name="tasks[0][priority]">
                                         <option value="low">Low</option>
@@ -205,7 +162,7 @@
                             </div>
 
                             <div class="row g-4 mb-4">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Status</label>
                                     <select class="form-select glass-input text-sm" name="tasks[0][status]">
                                         <option value="pending" selected>Pending</option>
@@ -213,14 +170,6 @@
                                         <option value="review">Review</option>
                                         <option value="completed">Completed</option>
                                     </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Initial Progress (%)</label>
-                                    <div class="premium-slider-wrap">
-                                        <input type="range" class="form-range premium-slider add-progress-range" min="0" max="100" step="5" value="0">
-                                        <span class="badge rounded-pill bg-primary-soft text-primary ms-3 add-progress-val">0%</span>
-                                        <input type="hidden" name="tasks[0][progress_percentage]" class="add-progress-input" value="0">
-                                    </div>
                                 </div>
                             </div>
 
@@ -235,21 +184,18 @@
                                 </div>
                             </div>
 
-                            <div class="mb-0">
-                                <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Status Notes / Remarks</label>
-                                <input type="text" class="form-control glass-input" name="tasks[0][status_notes]" placeholder="[ Any initial notes or remarks... ]">
-                            </div>
+
                         </div>
                     </div>
 
                     <!-- Add More Button Section -->
-                    <div class="text-center mb-4">
+                    <div class="text-center mb-2">
                         <button type="button" id="add-more-tasks" class="btn btn-primary-soft rounded-pill px-4 py-2 text-sm fw-bold">
                             <i class="fas fa-plus-circle me-2"></i> Add Another Task
                         </button>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-5 d-flex justify-content-between">
+                <div class="modal-footer border-0 p-1 d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary-soft rounded-pill px-5 py-3" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary-grad rounded-pill px-5 py-3">Create All Tasks</button>
                 </div>
@@ -273,7 +219,8 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-12">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Project</label>
-                            <select class="form-select glass-input text-sm" name="project_id" id="edit_project_id" required>
+                            <select class="form-select glass-input text-sm" name="project_id" id="edit_project_id">
+                                <option value="">No Project</option>
                                 <?php foreach ($projects as $p): ?>
                                     <option value="<?= $p['id'] ?>"><?= $p['project_name'] ?></option>
                                 <?php endforeach; ?>
@@ -293,19 +240,11 @@
 
                     <!-- Attribution & Priority Row -->
                     <div class="row g-4 mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Assigned To</label>
                             <select class="form-select glass-input text-sm select2-multi" name="assigned_users[]" id="edit_assigned_users" multiple required data-placeholder="Select Members...">
                                 <?php foreach ($staff as $s): ?>
                                     <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Department</label>
-                            <select class="form-select glass-input text-sm select2-multi" name="role_ids[]" id="edit_role_ids" multiple required data-placeholder="Select Departments...">
-                                <?php foreach ($roles as $r): ?>
-                                    <option value="<?= $r['id'] ?>"><?= $r['name'] ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -334,15 +273,7 @@
 
                     <!-- Progress & Date Row -->
                     <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Progress (%)</label>
-                            <div class="premium-slider-wrap">
-                                <input type="range" class="form-range premium-slider" id="edit_progress_range" min="0" max="100" step="5">
-                                <span class="badge rounded-pill bg-primary-soft text-primary ms-3" id="progress_val">0%</span>
-                                <input type="hidden" name="progress_percentage" id="edit_progress">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Expected Delivery</label>
                             <div class="row g-2">
                                 <div class="col-7"><input type="date" class="form-control glass-input" name="due_date" id="edit_due_date" required></div>
@@ -351,10 +282,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-2">
-                        <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Progress Notes</label>
-                        <input type="text" class="form-control glass-input" name="status_notes" id="edit_notes" placeholder="[ Detailed update on current blockages or progress... ]">
-                    </div>
+
                 </div>
                 <div class="modal-footer border-0 pt-5 d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary-soft rounded-pill px-5 py-3" data-bs-dismiss="modal">Cancel</button>
@@ -384,9 +312,71 @@
     </div>
 </div>
 
+<!-- Complete Task Modal -->
+<div class="modal fade" id="completeTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0 p-4">
+            <div class="modal-header border-0 pb-3">
+                <h4 class="fw-bold text-neutral-900 mb-0">Complete Task</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="completeTaskForm">
+                <div class="modal-body py-0">
+                    <input type="hidden" name="task_id" id="complete_task_id">
+                    <div class="mb-4 mt-3">
+                        <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase ms-1 mb-2">Description / Remarks (Optional)</label>
+                        <textarea class="form-control glass-input py-3" name="completion_notes" rows="4" placeholder="Enter any notes about the task completion..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 mt-2">
+                    <button type="button" class="btn bg-neutral-100 text-neutral-600 fw-bold rounded-pill px-4 py-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-grad rounded-pill px-4 py-2 fw-bold">Submit Completion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
+    <?php if ($_SESSION['user_role'] === 'staff'): ?>
+    loadOverdueTasks();
+    function loadOverdueTasks() {
+        $.get('<?= url('/api/tasks/overdue') ?>', function(res) {
+            if (res.status === 'success' && res.data.length > 0) {
+                $('#staff-overdue-section').removeClass('d-none');
+                $('#overdue-count').text(res.data.length);
+                let html = '';
+                res.data.forEach(task => {
+                    const days = task.days_overdue;
+                    html += `
+                    <div class="col-md-6 col-xl-4">
+                        <div class="glass-card p-4 border border-danger border-opacity-25 bg-danger bg-opacity-10 h-100 position-relative">
+                            <div class="position-absolute top-0 end-0 mt-3 me-3">
+                                <span class="badge bg-danger-soft text-danger fw-bold px-2 py-1"><i class="fas fa-clock me-1"></i>${days} Days Overdue</span>
+                            </div>
+                            <h6 class="fw-bold text-neutral-900 mb-1 pe-5">${task.title}</h6>
+                            <p class="text-xs text-neutral-500 mb-3 font-medium">${task.project_name}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-danger border-opacity-10">
+                                <span class="text-xs fw-bold text-neutral-600"><i class="far fa-calendar-times me-1 text-danger"></i>${moment(task.due_date).format('DD MMM YYYY')}</span>
+                                <button type="button" class="btn btn-sm btn-danger rounded-pill fw-bold px-3 complete-task-btn" data-id="${task.id}">
+                                    Complete Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                $('#staff-overdue-list').html(html);
+            } else {
+                $('#staff-overdue-section').addClass('d-none');
+            }
+        });
+    }
+    <?php endif; ?>
+
     $('.select2-multi').each(function() {
         $(this).select2({
             placeholder: $(this).data('placeholder') || 'Select...',
@@ -397,6 +387,7 @@ $(document).ready(function() {
     });
 
     const table = $('#tasksTable').DataTable({
+        serverSide: true,
         ajax: {
             url: '<?= url('/api/tasks') ?>',
             dataSrc: 'data',
@@ -406,7 +397,7 @@ $(document).ready(function() {
                 d.status = $('#filter_status').val();
             }
         },
-        scrollX: true,
+        scrollX: false,
         autoWidth: false,
         columns: [
             { 
@@ -431,21 +422,14 @@ $(document).ready(function() {
             { 
                 data: 'status',
                 render: function(data, type, row) {
-                    const progress = row.progress_percentage || 0;
                     let cls = 'bg-primary-soft text-primary';
                     if (data === 'in_progress') cls = 'bg-warning-soft text-warning';
                     if (data === 'review') cls = 'bg-info-soft text-info';
                     if (data === 'completed') cls = 'bg-success-soft text-success';
                     
                     return `
-                        <div style="width: 150px;" class="py-1">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge ${cls} rounded-pill py-1 px-3 text-capitalize border-0" style="font-size: 0.6rem; font-weight: 800;">${data.replace('_', ' ')}</span>
-                                <span class="text-xs fw-bold text-neutral-900 font-outfit" style="font-size: 0.65rem;">${progress}%</span>
-                            </div>
-                            <div class="progress rounded-pill bg-light" style="height: 6px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
-                                <div class="progress-bar rounded-pill shadow-sm" role="progressbar" style="width: ${progress}%; background: linear-gradient(90deg, #8b5cf6, #6366f1);"></div>
-                            </div>
+                        <div class="py-1">
+                            <span class="badge ${cls} rounded-pill py-1 px-3 text-capitalize border-0" style="font-size: 0.6rem; font-weight: 800;">${data.replace('_', ' ')}</span>
                         </div>
                     `;
                 }
@@ -484,6 +468,7 @@ $(document).ready(function() {
                     return `<span class="badge ${cls} rounded-pill px-3 py-2 font-outfit fw-bold border-0 shadow-sm" style="font-size: 0.7rem; min-width: 90px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas ${icon} me-2" style="font-size: 0.8rem;"></i>${data}</span>`;
                 }
             },
+            <?php if ($_SESSION['user_role'] === 'admin'): ?>
             { 
                 data: 'assigned_to_names',
                 render: function(data, type, row) {
@@ -516,6 +501,7 @@ $(document).ready(function() {
                     `;
                 }
             },
+            <?php endif; ?>
             { 
                 data: 'project_name',
                 render: function(data, type, row) {
@@ -550,26 +536,36 @@ $(document).ready(function() {
                             ${row.is_recurring == 1 ? `<li><a class="dropdown-item py-2 text-sm fw-medium disable-recurring text-danger" href="javascript:void(0)" data-id="${row.id}"><i class="fas fa-stop-circle me-2"></i>Disable Repeat</a></li>` : ''}
                             <li><a class="dropdown-item py-2 text-sm fw-medium view-recurring-logs" href="javascript:void(0)" data-id="${row.id}"><i class="fas fa-history me-2 text-neutral-500"></i>View History</a></li>
                         `;
-                    }
 
-                    return `
-                        <div class="dropdown">
-                            <button class="btn action-btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end glass-card border-0 shadow-lg py-2 animate-fade-in" style="min-width: 200px;">
-                                <li><h6 class="dropdown-header text-xs text-uppercase fw-bold text-neutral-400">Manage</h6></li>
-                                <li><a class="dropdown-item py-2 text-sm fw-medium edit-task" href="javascript:void(0)"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                ${isAdmin ? `<li><a class="dropdown-item py-2 text-sm fw-medium delete-task text-danger" href="javascript:void(0)" data-id="${row.id}"><i class="fas fa-trash-alt me-2"></i>Delete</a></li>` : ''}
-                                ${recurringActions}
-                            </ul>
-                        </div>
-                    `;
+                        return `
+                            <div class="dropdown">
+                                <button class="btn action-btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end glass-card border-0 shadow-lg py-2 animate-fade-in" style="min-width: 200px;">
+                                    <li><h6 class="dropdown-header text-xs text-uppercase fw-bold text-neutral-400">Manage</h6></li>
+                                    <li><a class="dropdown-item py-2 text-sm fw-medium edit-task" href="javascript:void(0)"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
+                                    <li><a class="dropdown-item py-2 text-sm fw-medium delete-task text-danger" href="javascript:void(0)" data-id="${row.id}"><i class="fas fa-trash-alt me-2"></i>Delete</a></li>
+                                    ${recurringActions}
+                                </ul>
+                            </div>
+                        `;
+                    } else {
+                        if (row.status !== 'completed') {
+                            return `
+                                <button type="button" class="btn btn-primary-grad rounded-pill px-3 py-2 text-xs fw-bold complete-task-btn" data-id="${row.id}">
+                                    <i class="fas fa-check me-1"></i> Complete Task
+                                </button>
+                            `;
+                        } else {
+                            return '<span class="text-success text-xs fw-bold"><i class="fas fa-check-circle me-1"></i>Completed</span>';
+                        }
+                    }
                 }
             }
         ],
         order: [[5, 'asc']],
-        dom: '<"d-flex justify-content-between align-items-center p-4"f<"d-flex gap-3"l>>t<"d-flex justify-content-between align-items-center p-4 border-top border-light"ip>',
+        dom: 't<"d-flex justify-content-between align-items-center px-3 py-2 border-top border-light"ip>',
         language: {
             search: "",
             searchPlaceholder: "Search task specifying keywords...",
@@ -581,35 +577,9 @@ $(document).ready(function() {
         }
     });
 
-    $('.dataTables_filter input').addClass('form-control border-0 bg-neutral-50 rounded-pill px-4').attr('placeholder', 'Search tasks...').css({'height': '45px'});
-
-    $('#edit_progress_range').on('input', function() {
-        const val = $(this).val();
-        $('#progress_val').text(val + '%');
-        $('#edit_progress').val(val);
-    });
-
-    $('.add-progress-range').on('input', function() {
-        const val = $(this).val();
-        $('.add-progress-val').text(val + '%');
-        $('.add-progress-input').val(val);
-    });
 
     $('#filter_project, #filter_assignee, #filter_status').on('change', () => table.ajax.reload());
     $('#resetFilters').on('click', () => { $('#filterForm')[0].reset(); table.ajax.reload(); });
-
-    // Range Slider UI Synchronization
-    $(document).on('input', '.add-progress-range', function() {
-        const val = $(this).val();
-        $(this).closest('.task-block-card').find('.add-progress-val').text(val + '%');
-        $(this).closest('.task-block-card').find('.add-progress-input').val(val);
-    });
-
-    $(document).on('input', '#edit_progress_range', function() {
-        const val = $(this).val();
-        $('#progress_val').text(val + '%');
-        $('#edit_progress').val(val);
-    });
 
     // Dynamic Task Blocks Logic - IMPROVED for proper Select2 handling
     let taskCount = 1;
@@ -660,14 +630,9 @@ $(document).ready(function() {
                 $el.val('');
             } else if ($el.is('select')) {
                 $el.val([]).change();
-            } else if ($el.hasClass('add-progress-input')) {
-                $el.val(0);
             }
         });
 
-        // Reset progress slider UI
-        newBlock.find('.add-progress-range').val(0).change();
-        newBlock.find('.add-progress-val').text('0%');
         
         // Reset date/time to defaults
         newBlock.find('input[type="date"]').val(new Date().toISOString().split('T')[0]);
@@ -684,13 +649,6 @@ $(document).ready(function() {
             // Re-initialize Select2 AFTER DOM insertion
             $(this).find('.select2-multi').each(function() {
                 initializeSelect2($(this));
-            });
-            
-            // Re-attach event handlers for progress slider
-            $(this).find('.add-progress-range').off('input').on('input', function() {
-                const val = $(this).val();
-                $(this).closest('.task-block-card').find('.add-progress-val').text(val + '%');
-                $(this).closest('.task-block-card').find('.add-progress-input').val(val);
             });
         });
         taskCount++;
@@ -762,8 +720,6 @@ $(document).ready(function() {
         $('#edit_description').val(data.description);
         const assignedIds = data.assigned_to_ids ? data.assigned_to_ids.split(', ') : [];
         $('#edit_assigned_users').val(assignedIds).trigger('change');
-        const roleIds = data.role_ids_csv ? data.role_ids_csv.split(',') : [];
-        $('#edit_role_ids').val(roleIds).trigger('change');
         $('#edit_priority').val(data.priority);
         $('#edit_status').val(data.status);
         if (data.due_date) {
@@ -771,11 +727,6 @@ $(document).ready(function() {
             $('#edit_due_date').val(dt[0]);
             $('#edit_due_time').val(data.due_time ? data.due_time.substring(0, 5) : '09:00');
         }
-        const prog = data.progress_percentage || 0;
-        $('#edit_progress').val(prog);
-        $('#edit_progress_range').val(prog);
-        $('#progress_val').text(prog + '%');
-        $('#edit_notes').val(data.status_notes);
         
         const modal = bootstrap.Modal.getOrCreateInstance('#editTaskModal');
         modal.show(trigger);
@@ -869,14 +820,14 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '.view-recurring-logs', function() {
-        const id = $(this).data('id');
+        const taskId = $(this).data('id');
         const container = $('#recurring-logs-container');
-        container.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>');
         
+        container.html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>');
         $('#recurringHistoryModal').modal('show');
-
-        $.get('<?= url('/api/tasks/recurring/logs') ?>', { id: id }, (res) => {
-            if ((res.status === 'success' || res.success) && res.data && res.data.length > 0) {
+        
+        $.get('<?= url("/api/tasks/recurring-logs/") ?>' + taskId, function(res) {
+            if (res.status === 'success' && res.data.length > 0) {
                 let html = '<div class="list-group list-group-flush">';
                 res.data.forEach(log => {
                     html += `
@@ -905,6 +856,44 @@ $(document).ready(function() {
             }
         }).fail((xhr) => {
             container.html('<div class="text-center py-4 text-danger">Failed to load history</div>');
+        });
+    });
+
+    $(document).on('click', '.complete-task-btn', function() {
+        const taskId = $(this).data('id');
+        $('#complete_task_id').val(taskId);
+        $('#completeTaskForm')[0].reset();
+        $('#completeTaskModal').modal('show');
+    });
+
+    $('#completeTaskForm').on('submit', function(e) {
+        e.preventDefault();
+        const btn = $(this).find('button[type="submit"]');
+        const originalText = btn.html();
+        btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Submitting...').prop('disabled', true);
+
+        $.ajax({
+            url: '<?= url("/api/tasks/complete-staff") ?>',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(res) {
+                if (res.status === 'success' || res.success) {
+                    $('#completeTaskModal').modal('hide');
+                    toastr.success('Task marked as completed!');
+                    table.ajax.reload(null, false);
+                    <?php if ($_SESSION['user_role'] === 'staff'): ?>
+                    loadOverdueTasks();
+                    <?php endif; ?>
+                } else {
+                    toastr.error(res.message || 'Error completing task');
+                }
+            },
+            error: function(xhr) {
+                toastr.error(xhr.responseJSON?.message || 'Error connecting to server');
+            },
+            complete: function() {
+                btn.html(originalText).prop('disabled', false);
+            }
         });
     });
 });

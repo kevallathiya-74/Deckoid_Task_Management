@@ -3,8 +3,11 @@
  */
 
 $(document).ready(function() {
-    // Global AJAX Setup for Session Timeout
+    // Global AJAX Setup for Session Timeout and CSRF
     $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
         statusCode: {
             401: function() {
                 toastr.error('Session expired. Redirecting to login...');
@@ -91,12 +94,35 @@ $(document).ready(function() {
 
     // DataTables Default Configuration
     if ($.fn.dataTable) {
+        // Custom paging type to show exactly 2 page numbers
+        $.fn.dataTable.ext.pager.two_numbers = function (page, pages) {
+            let buttons = [];
+            if (pages <= 2) {
+                for (let i = 0; i < pages; i++) {
+                    buttons.push(i);
+                }
+            } else {
+                let start = page;
+                if (page === pages - 1) {
+                    start = pages - 2;
+                }
+                buttons.push(start);
+                buttons.push(start + 1);
+            }
+            return [ 'previous', buttons, 'next' ];
+        };
+
         $.extend(true, $.fn.dataTable.defaults, {
             language: {
                 search: "",
                 searchPlaceholder: "Search...",
                 lengthMenu: "_MENU_ per page",
+                paginate: {
+                    previous: "< Previous",
+                    next: "Next >"
+                }
             },
+            pagingType: "two_numbers",
             pageLength: 10,
             responsive: true,
             dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-4"f l>rt<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mt-4"i p>',
@@ -131,10 +157,17 @@ $(document).ready(function() {
     let $activePortalMenu = null;
     let $activePortalParent = null;
 
-    $('body').on('show.bs.dropdown', '.table-responsive', function (e) {
-        let $dropdownBtn = $(e.target);
-        let $menu = $dropdownBtn.next('.dropdown-menu');
+    $('body').on('show.bs.dropdown', '.table-responsive, .table-container, .table', function (e) {
+        // e.relatedTarget is the actual button that triggered the dropdown
+        let $dropdownBtn = $(e.relatedTarget);
+        if (!$dropdownBtn.length) {
+            $dropdownBtn = $(e.target).find('[data-bs-toggle="dropdown"]');
+        }
+        if (!$dropdownBtn.length) {
+            $dropdownBtn = $(e.target);
+        }
         
+        let $menu = $dropdownBtn.next('.dropdown-menu');
         if (!$menu.length) {
             $menu = $dropdownBtn.parent().find('.dropdown-menu');
         }
@@ -164,14 +197,15 @@ $(document).ready(function() {
             let topPos = btnOffset.top + btnHeight + 4;
             let leftPos = btnOffset.left - menuWidth + btnWidth;
             
-            // Smart positioning: flip upwards if out of bounds (not enough bottom space)
-            if ((btnOffset.top - scrollTop + btnHeight + menuHeight + 10) > windowHeight) {
-                topPos = btnOffset.top - menuHeight - 4;
+            // Prevent going off right screen edge
+            let windowWidth = $(window).width();
+            if (leftPos + menuWidth > windowWidth - 10) {
+                leftPos = windowWidth - menuWidth - 10;
             }
             
             // Prevent going off left screen edge
-            if (leftPos < 0) {
-                leftPos = btnOffset.left;
+            if (leftPos < 10) {
+                leftPos = 10;
             }
             
             $menu.css({
@@ -187,7 +221,7 @@ $(document).ready(function() {
         }
     });
 
-    $('body').on('hide.bs.dropdown', '.table-responsive', function (e) {
+    $('body').on('hide.bs.dropdown', '.table-responsive, .table-container, .table', function (e) {
         if ($activePortalMenu && $activePortalParent) {
             $activePortalMenu.css({
                 position: '',

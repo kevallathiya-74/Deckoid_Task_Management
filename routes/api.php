@@ -22,6 +22,8 @@ $router->get('/api/tasks', 'TaskController@list');
 $router->post('/api/tasks', 'TaskController@create');
 $router->post('/api/tasks/update', 'TaskController@update');
 $router->post('/api/tasks/update-status', 'TaskController@updateStatus');
+$router->post('/api/tasks/complete-staff', 'TaskController@completeStaff');
+$router->get('/api/tasks/overdue', 'TaskController@getOverdue');
 $router->post('/api/tasks/delete', 'TaskController@delete');
 
 // Recurring Task Management
@@ -42,6 +44,7 @@ $router->get('/api/dashboard/charts', 'DashboardController@getChartData');
 $router->get('/api/dashboard/priority-tasks', 'DashboardController@getPriorityTasks');
 $router->get('/api/dashboard/alerts', 'DashboardController@getAlerts');
 $router->post('/api/dashboard/alerts/read', 'DashboardController@markAlertRead');
+$router->get('/api/dashboard/notifications', 'DashboardController@getNotifications');
 
 // Profile & Settings
 $router->post('/api/profile/update', 'ProfileController@update');

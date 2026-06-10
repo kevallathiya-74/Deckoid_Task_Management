@@ -52,24 +52,53 @@ class DashboardController
     {
         header('Content-Type: application/json');
         
-        // Project status distribution
-        $stmt = $this->db->query("SELECT status, COUNT(*) as count FROM projects WHERE deleted_at IS NULL GROUP BY status");
-        $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Project status distribution (removed since status was dropped)
+        $projects = [];
 
-        // Task priority distribution - ONLY ACTIVE TASKS
-        $stmt = $this->db->query("SELECT priority, COUNT(*) as count FROM tasks WHERE status != 'completed' AND deleted_at IS NULL GROUP BY priority");
-        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $userId = $_SESSION['user_id'];
 
-        // Growth Analysis (Last 7 Days)
-        $stmt = $this->db->query("
-            SELECT DATE(created_at) as date, COUNT(*) as count 
-            FROM tasks 
-            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
-            AND deleted_at IS NULL 
-            GROUP BY DATE(created_at)
-            ORDER BY date ASC
-        ");
-        $growth_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$isAdminOrManager) {
+            // Task priority distribution - ONLY ACTIVE TASKS FOR THIS USER
+            $stmt = $this->db->prepare("
+                SELECT priority, COUNT(*) as count 
+                FROM tasks 
+                WHERE status != 'completed' 
+                AND deleted_at IS NULL 
+                AND (assigned_to = :uid OR id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
+                GROUP BY priority
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
+            $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Growth Analysis (Last 7 Days)
+            $stmt = $this->db->prepare("
+                SELECT DATE(created_at) as date, COUNT(*) as count 
+                FROM tasks 
+                WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
+                AND deleted_at IS NULL 
+                AND (assigned_to = :uid OR id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
+                GROUP BY DATE(created_at)
+                ORDER BY date ASC
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
+            $growth_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            // Task priority distribution - ONLY ACTIVE TASKS
+            $stmt = $this->db->query("SELECT priority, COUNT(*) as count FROM tasks WHERE status != 'completed' AND deleted_at IS NULL GROUP BY priority");
+            $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Growth Analysis (Last 7 Days)
+            $stmt = $this->db->query("
+                SELECT DATE(created_at) as date, COUNT(*) as count 
+                FROM tasks 
+                WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
+                AND deleted_at IS NULL 
+                GROUP BY DATE(created_at)
+                ORDER BY date ASC
+            ");
+            $growth_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
         
         // Map to ensure all 7 days are present
         $growth = [];
@@ -106,17 +135,35 @@ class DashboardController
             return;
         }
 
-        $stmt = $this->db->prepare("
-            SELECT t.*, p.project_name, u.full_name as staff_name 
-            FROM tasks t
-            JOIN projects p ON t.project_id = p.id
-            JOIN users u ON t.assigned_to = u.id
-            WHERE t.priority = :priority 
-            AND t.status != 'completed' 
-            AND t.deleted_at IS NULL
-            ORDER BY t.created_at DESC
-        ");
-        $stmt->execute(['priority' => $priority]);
+        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $userId = $_SESSION['user_id'];
+
+        if (!$isAdminOrManager) {
+            $stmt = $this->db->prepare("
+                SELECT t.*, p.project_name, u.full_name as staff_name 
+                FROM tasks t
+                LEFT JOIN projects p ON t.project_id = p.id
+                JOIN users u ON t.assigned_to = u.id
+                WHERE t.priority = :priority 
+                AND t.status != 'completed' 
+                AND t.deleted_at IS NULL
+                AND (t.assigned_to = :uid OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
+                ORDER BY t.created_at DESC
+            ");
+            $stmt->execute(['priority' => $priority, 'uid' => $userId, 'uid2' => $userId]);
+        } else {
+            $stmt = $this->db->prepare("
+                SELECT t.*, p.project_name, u.full_name as staff_name 
+                FROM tasks t
+                LEFT JOIN projects p ON t.project_id = p.id
+                JOIN users u ON t.assigned_to = u.id
+                WHERE t.priority = :priority 
+                AND t.status != 'completed' 
+                AND t.deleted_at IS NULL
+                ORDER BY t.created_at DESC
+            ");
+            $stmt->execute(['priority' => $priority]);
+        }
         $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode([
@@ -128,14 +175,30 @@ class DashboardController
     public function getAlerts()
     {
         header('Content-Type: application/json');
-        $stmt = $this->db->query("
-            SELECT a.*, t.title as task_title, u.full_name as staff_name 
-            FROM task_alerts a
-            JOIN tasks t ON a.task_id = t.id
-            JOIN users u ON t.assigned_to = u.id
-            WHERE a.is_read = 0
-            ORDER BY a.created_at DESC
-        ");
+        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $userId = $_SESSION['user_id'];
+
+        if (!$isAdminOrManager) {
+            $stmt = $this->db->prepare("
+                SELECT a.*, t.title as task_title, u.full_name as staff_name 
+                FROM task_alerts a
+                JOIN tasks t ON a.task_id = t.id
+                JOIN users u ON t.assigned_to = u.id
+                WHERE a.is_read = 0
+                AND (t.assigned_to = :uid OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
+                ORDER BY a.created_at DESC
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
+        } else {
+            $stmt = $this->db->query("
+                SELECT a.*, t.title as task_title, u.full_name as staff_name 
+                FROM task_alerts a
+                JOIN tasks t ON a.task_id = t.id
+                JOIN users u ON t.assigned_to = u.id
+                WHERE a.is_read = 0
+                ORDER BY a.created_at DESC
+            ");
+        }
         $alerts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode([
@@ -160,48 +223,145 @@ class DashboardController
         echo json_encode(['success' => true]);
     }
 
+    public function getNotifications()
+    {
+        header('Content-Type: application/json');
+        try {
+            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+            $userId = $isAdminOrManager ? null : $_SESSION['user_id'];
+            
+            $taskModel = new \App\Models\Task();
+            $overdue = $taskModel->getOverdueTasks($userId);
+            
+            $items = [];
+            foreach ($overdue as $task) {
+                $items[] = [
+                    'type' => 'danger',
+                    'icon' => 'fa-exclamation-triangle',
+                    'title' => 'Overdue Task',
+                    'message' => $task['title'] . ' (' . $task['days_overdue'] . ' days overdue)',
+                    'time' => date('M d', strtotime($task['due_date'])),
+                    'link' => url('/' . ($isAdminOrManager ? 'admin' : 'staff') . '/overdue')
+                ];
+            }
+
+            $todaySql = "SELECT title, due_time FROM tasks WHERE due_date = CURRENT_DATE() AND status != 'completed' AND deleted_at IS NULL";
+            $params = [];
+            if ($userId) {
+                $todaySql .= " AND (assigned_to = :uid OR id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))";
+                $params = ['uid' => $userId, 'uid2' => $userId];
+            }
+            $stmt = $this->db->prepare($todaySql);
+            $stmt->execute($params);
+            $todayTasks = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($todayTasks as $task) {
+                $items[] = [
+                    'type' => 'warning',
+                    'icon' => 'fa-clock',
+                    'title' => 'Due Today',
+                    'message' => $task['title'],
+                    'time' => $task['due_time'] ? date('h:i A', strtotime($task['due_time'])) : 'Today',
+                    'link' => url('/' . ($isAdminOrManager ? 'admin' : 'staff') . '/tasks')
+                ];
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'count' => count($items),
+                    'items' => array_slice($items, 0, 10)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
     private function getStats()
     {
-        // Combine projects counts
-        $projectStats = $this->db->query("
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
-                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
-            FROM projects 
-            WHERE deleted_at IS NULL
-        ")->fetch(PDO::FETCH_ASSOC);
+        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $userId = $_SESSION['user_id'];
 
-        // Combine tasks counts
-        $taskStats = $this->db->query("
-            SELECT 
-                SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
-                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
-            FROM tasks 
-            WHERE deleted_at IS NULL
-        ")->fetch(PDO::FETCH_ASSOC);
+        if (!$isAdminOrManager) {
+            // Projects where user is assigned to a task in that project
+            $stmt = $this->db->prepare("
+                SELECT COUNT(DISTINCT p.id) as total
+                FROM projects p
+                JOIN tasks t ON t.project_id = p.id
+                WHERE p.deleted_at IS NULL AND t.deleted_at IS NULL
+                AND (t.assigned_to = :uid OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
+            $projectStats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Combine tasks counts
+            $stmt = $this->db->prepare("
+                SELECT 
+                    SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
+                FROM tasks 
+                WHERE deleted_at IS NULL
+                AND (assigned_to = :uid OR id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
+            $taskStats = $stmt->fetch(PDO::FETCH_ASSOC);
+        } else {
+            // Combine projects counts
+            $projectStats = $this->db->query("
+                SELECT COUNT(*) as total
+                FROM projects 
+                WHERE deleted_at IS NULL
+            ")->fetch(PDO::FETCH_ASSOC);
+
+            // Combine tasks counts
+            $taskStats = $this->db->query("
+                SELECT 
+                    SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
+                FROM tasks 
+                WHERE deleted_at IS NULL
+            ")->fetch(PDO::FETCH_ASSOC);
+        }
 
         return [
             'total_projects' => (int)$projectStats['total'],
-            'active_projects' => (int)$projectStats['active'],
+            'active_projects' => 0, // Obsolete
             'active_tasks' => (int)$taskStats['in_progress'],
             'pending_tasks' => (int)$taskStats['pending'],
-            'total_staff' => $this->db->query("SELECT COUNT(*) FROM users WHERE deleted_at IS NULL")->fetchColumn(),
-            'completed_projects' => (int)$projectStats['completed']
+            'completed_projects' => 0 // Obsolete
         ];
     }
 
     private function getRecentTasks()
     {
-        $stmt = $this->db->query("
-            SELECT t.*, p.project_name, u.full_name as assigned_to_name 
-            FROM tasks t
-            JOIN projects p ON t.project_id = p.id
-            JOIN users u ON t.assigned_to = u.id
-            WHERE t.deleted_at IS NULL
-            ORDER BY t.created_at DESC
-            LIMIT 5
-        ");
+        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $userId = $_SESSION['user_id'];
+
+        if (!$isAdminOrManager) {
+            $stmt = $this->db->prepare("
+                SELECT t.*, p.project_name, u.full_name as assigned_to_name 
+                FROM tasks t
+                LEFT JOIN projects p ON t.project_id = p.id
+                JOIN users u ON t.assigned_to = u.id
+                WHERE t.deleted_at IS NULL
+                AND (t.assigned_to = :uid OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
+                ORDER BY t.created_at DESC
+                LIMIT 5
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
+        } else {
+            $stmt = $this->db->prepare("
+                SELECT t.*, p.project_name, u.full_name as assigned_to_name 
+                FROM tasks t
+                LEFT JOIN projects p ON t.project_id = p.id
+                JOIN users u ON t.assigned_to = u.id
+                WHERE t.deleted_at IS NULL
+                ORDER BY t.created_at DESC
+                LIMIT 5
+            ");
+            $stmt->execute();
+        }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

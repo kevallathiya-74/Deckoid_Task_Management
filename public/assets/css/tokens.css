@@ -65,7 +65,7 @@
     --max-width: 1400px;
     --sidebar-width: 260px;
     --sidebar-collapsed-width: 68px;
-    --topbar-height: 64px;
+    --topbar-height: 56px;
 
     /* Transitions - Unified SaaS scale */
     --transition-speed: 0.3s;

@@ -52,7 +52,7 @@ class User
         return $stmt->fetch();
     }
 
-    public function listAll($filters = [])
+    public function listAll($filters = [], $search = '', $limit = null, $offset = null)
     {
         $sql = "
             SELECT u.*, r.name as role_name 
@@ -72,10 +72,64 @@ class User
             $params['status'] = $filters['status'];
         }
 
+        if (!empty($search)) {
+            $sql .= " AND (u.full_name LIKE :search OR u.email LIKE :search OR u.username LIKE :search)";
+            $params['search'] = "%$search%";
+        }
+
         $sql .= " ORDER BY u.created_at DESC";
+
+        if ($limit !== null && $limit > 0) {
+            $sql .= " LIMIT " . (int)$limit;
+            if ($offset !== null && $offset >= 0) {
+                $sql .= " OFFSET " . (int)$offset;
+            }
+        }
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countAll($filters = [], $search = '')
+    {
+        $sql = "
+            SELECT COUNT(*) 
+            FROM users u 
+            JOIN roles r ON u.role_id = r.id 
+            WHERE u.deleted_at IS NULL
+        ";
+        $params = [];
+
+        if (!empty($filters['role_id'])) {
+            $sql .= " AND u.role_id = :role_id";
+            $params['role_id'] = $filters['role_id'];
+        }
+        
+        if (!empty($filters['status'])) {
+            $sql .= " AND u.status = :status";
+            $params['status'] = $filters['status'];
+        }
+
+        if (!empty($search)) {
+            $sql .= " AND (u.full_name LIKE :search OR u.email LIKE :search OR u.username LIKE :search)";
+            $params['search'] = "%$search%";
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
+    public function getAllStaff()
+    {
+        $stmt = $this->db->query("
+            SELECT u.*, r.slug as role_slug, r.name as role_name 
+            FROM users u 
+            JOIN roles r ON u.role_id = r.id 
+            WHERE u.deleted_at IS NULL AND r.slug != 'admin'
+            ORDER BY u.full_name ASC
+        ");
         return $stmt->fetchAll();
     }
 
@@ -83,14 +137,13 @@ class User
     {
         $id = $this->generateUuid();
         $stmt = $this->db->prepare("
-            INSERT INTO users (id, role_id, role, full_name, username, email, password_hash, status) 
-            VALUES (:id, :role_id, :role, :full_name, :username, :email, :password_hash, :status)
+            INSERT INTO users (id, role_id, full_name, username, email, password_hash, status) 
+            VALUES (:id, :role_id, :full_name, :username, :email, :password_hash, :status)
         ");
         
         $result = $stmt->execute([
             'id' => $id,
             'role_id' => $data['role_id'],
-            'role' => $data['role'] ?? null,
             'full_name' => $data['full_name'],
             'username' => $data['username'],
             'email' => $data['email'],
@@ -105,7 +158,6 @@ class User
     {
         $fields = [
             'role_id = :role_id',
-            'role = :role',
             'full_name = :full_name',
             'username = :username',
             'email = :email',
@@ -115,7 +167,6 @@ class User
         $params = [
             'id' => $id,
             'role_id' => $data['role_id'],
-            'role' => $data['role'] ?? null,
             'full_name' => $data['full_name'],
             'username' => $data['username'],
             'email' => $data['email'],

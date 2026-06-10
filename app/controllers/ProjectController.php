@@ -48,11 +48,20 @@ class ProjectController
                 'role_id' => $_GET['role_id'] ?? null,
                 'status' => $_GET['status'] ?? null
             ];
+            
+            $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+            $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
+            $search = $_GET['search']['value'] ?? '';
 
-            $projects = $this->projectModel->listAll($filters);
+            $projects = $this->projectModel->listAll($filters, $search, $length, $start);
+            $recordsFiltered = $this->projectModel->countAll($filters, $search);
+            $recordsTotal = $this->projectModel->countAll($filters, '');
             
             echo json_encode([
                 'status' => 'success',
+                'draw' => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
                 'data' => $projects
             ]);
         } catch (\Exception $e) {
@@ -71,9 +80,6 @@ class ProjectController
                 'client_name' => trim($_POST['client_name'] ?? ''),
                 'description' => trim($_POST['description'] ?? ''),
                 'role_ids' => $_POST['role_ids'] ?? [],
-                'start_date' => !empty($_POST['start_date']) ? $_POST['start_date'] : date('Y-m-d'),
-                'deadline' => !empty($_POST['deadline']) ? $_POST['deadline'] : date('Y-m-d', strtotime('+7 days')),
-                'status' => $_POST['status'] ?? 'pending',
                 'assigned_users' => $_POST['assigned_users'] ?? []
             ];
 
@@ -83,10 +89,6 @@ class ProjectController
                 return;
             }
 
-            if (strtotime($data['deadline']) < strtotime($data['start_date'])) {
-                echo json_encode(['status' => 'validation_error', 'message' => 'Deadline cannot be before the start date']);
-                return;
-            }
 
             foreach ($data['role_ids'] as $roleId) {
                 if (!$this->roleModel->findById($roleId)) {
@@ -129,9 +131,6 @@ class ProjectController
                 'client_name' => trim($_POST['client_name'] ?? ''),
                 'description' => trim($_POST['description'] ?? ''),
                 'role_ids' => $_POST['role_ids'] ?? [],
-                'start_date' => !empty($_POST['start_date']) ? $_POST['start_date'] : date('Y-m-d'),
-                'deadline' => !empty($_POST['deadline']) ? $_POST['deadline'] : date('Y-m-d'),
-                'status' => $_POST['status'] ?? 'pending',
                 'assigned_users' => $_POST['assigned_users'] ?? []
             ];
 
@@ -140,10 +139,6 @@ class ProjectController
                 return;
             }
 
-            if (strtotime($data['deadline']) < strtotime($data['start_date'])) {
-                echo json_encode(['status' => 'error', 'message' => 'Deadline cannot be before the start date']);
-                return;
-            }
 
             foreach ($data['role_ids'] as $roleId) {
                 if (!$this->roleModel->findById($roleId)) {

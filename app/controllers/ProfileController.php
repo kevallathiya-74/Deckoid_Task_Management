@@ -68,31 +68,45 @@ class ProfileController
         $userId = $_SESSION['user_id'];
         $newPassword = $_POST['new_password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
-
-        if (empty($newPassword)) {
-            echo json_encode(['status' => 'error', 'message' => 'New password cannot be empty']);
-            return;
-        }
-
-        if ($newPassword !== $confirmPassword) {
-            echo json_encode(['status' => 'error', 'message' => 'Passwords do not match']);
-            return;
-        }
+        $username = trim($_POST['username'] ?? '');
 
         // Fetch current user to preserve other data
         $user = $this->userModel->findById($userId);
         
+        if (empty($username)) {
+            $username = $user['username'];
+        }
+
+        if (!empty($username) && $username !== $user['username']) {
+            $existingUser = $this->userModel->findByUsername($username);
+            if ($existingUser && $existingUser['id'] !== $userId) {
+                echo json_encode(['status' => 'error', 'message' => 'Username is already taken']);
+                return;
+            }
+        }
+
+        if (!empty($newPassword) || !empty($confirmPassword)) {
+            if ($newPassword !== $confirmPassword) {
+                echo json_encode(['status' => 'error', 'message' => 'Passwords do not match']);
+                return;
+            }
+        }
+
         $updateData = [
             'role_id' => $user['role_id'],
             'role' => $user['role'],
             'full_name' => $user['full_name'],
-            'username' => $user['username'],
+            'username' => $username,
             'email' => $user['email'],
-            'status' => $user['status'],
-            'password' => $newPassword
+            'status' => $user['status']
         ];
+        
+        if (!empty($newPassword)) {
+            $updateData['password'] = $newPassword;
+        }
 
         if ($this->userModel->update($userId, $updateData)) {
+            $_SESSION['username'] = $username;
             echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to update profile']);

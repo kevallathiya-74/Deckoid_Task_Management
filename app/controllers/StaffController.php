@@ -39,10 +39,19 @@ class StaffController
             'status' => $_GET['status'] ?? null
         ];
 
-        $staff = $this->userModel->listAll($filters);
+        $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+        $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
+        $search = $_GET['search']['value'] ?? '';
+
+        $staff = $this->userModel->listAll($filters, $search, $length, $start);
+        $recordsFiltered = $this->userModel->countAll($filters, $search);
+        $recordsTotal = $this->userModel->countAll($filters, '');
         
         echo json_encode([
             'status' => 'success',
+            'draw' => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
             'data' => $staff
         ]);
     }

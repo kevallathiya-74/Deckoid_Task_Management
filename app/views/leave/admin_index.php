@@ -63,7 +63,7 @@
         </div>
 
         <!-- Requests List -->
-        <div class="glass-card overflow-hidden">
+        <div class="glass-card overflow-hidden p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-neutral-50">
