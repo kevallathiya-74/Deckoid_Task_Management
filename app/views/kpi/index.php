@@ -3,17 +3,17 @@
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
         <!-- KPI Header -->
-        <div class="d-flex justify-content-between align-items-center mb-5">
+        <!-- <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
                 <h3 class="fw-bold text-neutral-900 mb-1">KPI Management</h3>
                 <p class="text-neutral-500 mb-0">Daily performance tracking and team analytic</p>
             </div>
-        </div>
+        </div> -->
 
         <!-- Analytics Overview -->
         <div class="row g-4 mb-5">
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden border-start border-primary border-4">
+                <div class="glass-card p-3 h-80 position-relative overflow-hidden border-start border-primary border-4">
                     <div class="d-flex align-items-center">
                         <div class="icon-shape bg-primary-soft rounded-4 me-3">
                             <i class="fas fa-chart-line text-primary"></i>
@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden border-start border-success border-4">
+                <div class="glass-card p-3 h-80 position-relative overflow-hidden border-start border-success border-4">
                     <div class="d-flex align-items-center">
                         <div class="icon-shape bg-success-soft rounded-4 me-3">
                             <i class="fas fa-award text-success"></i>
@@ -39,7 +39,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden border-start border-danger border-4">
+                <div class="glass-card p-3 h-80 position-relative overflow-hidden border-start border-danger border-4">
                     <div class="d-flex align-items-center">
                         <div class="icon-shape bg-danger-soft rounded-4 me-3">
                             <i class="fas fa-triangle-exclamation text-danger"></i>
@@ -52,7 +52,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="glass-card p-4 h-100 position-relative overflow-hidden border-start border-info border-4">
+                <div class="glass-card p-3 h-80 position-relative overflow-hidden border-start border-info border-4">
                     <div class="d-flex align-items-center">
                         <div class="icon-shape bg-info-soft rounded-4 me-3">
                             <i class="fas fa-microchip text-info"></i>
@@ -172,7 +172,7 @@
             <!-- STAFF PERFORMANCE RANKING -->
             <div class="col-xl-7">
                 <div class="glass-card h-100 overflow-hidden">
-                    <div class="p-5 border-bottom border-light d-flex justify-content-between align-items-center bg-neutral-50/30">
+                    <div class="p-2 border-bottom border-light d-flex justify-content-between align-items-center bg-neutral-50/30">
                         <div>
                             <h5 class="fw-bold text-neutral-900 mb-1">Merit Rankings</h5>
                         </div>

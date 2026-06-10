@@ -3,12 +3,12 @@
 <main class="main-content">
     <div class="container-fluid animate-fade-up" style="padding-top: 16px;">
         <div class="daily-report-card" style="max-width:1240px;margin:0 auto;">
-            <div class="daily-report-header d-flex justify-content-between align-items-center" style="padding:20px 24px;border-bottom:1px solid #eef2ff;">
+            <!-- <div class="daily-report-header d-flex justify-content-between align-items-center" style="padding:20px 24px;border-bottom:1px solid #eef2ff;">
                 <div>
                     <h4 class="fw-bold mb-1">Daily Report Summary</h4>
                     <p class="text-muted mb-0">View staff daily reports by user and date.</p>
                 </div>
-            </div>
+            </div> -->
 
             <div class="daily-report-body" style="padding:18px;">
                 <div class="admin-filter-panel" style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:18px;align-items:flex-end;padding:18px 16px;border:1px solid #eef2ff;border-radius:18px;background:#fff;">

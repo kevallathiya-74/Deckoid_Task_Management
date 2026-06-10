@@ -1,11 +1,11 @@
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold text-neutral-900 mb-1">Leave Requests</h3>
                 <p class="text-neutral-400 mb-0">Manage and approve employee leave applications</p>
             </div>
-        </div>
+        </div> -->
 
         <!-- Stats Overview -->
         <div class="row g-4 mb-4">
