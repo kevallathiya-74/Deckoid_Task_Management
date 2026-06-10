@@ -1,550 +1,157 @@
-PROJECT: DECKOID TASK MANAGEMENT SYSTEM
+Master Prompt: Fix Todo List Staff Filtering + Improve UI Layout
 
-MISSION:
-Perform COMPLETE END-TO-END TESTING of the entire application including Frontend, Backend, APIs, Database, Authentication, Authorization, Notifications, Publishing Module, Task Module, Overdue Module, Daily Reports, and all Admin/Staff workflows.
+I need to fix the Todo List page in my Task Management System.
 
-Use Agency-Agents architecture and execute as a Senior QA Engineer, Senior Backend Engineer, Senior Full-Stack Engineer, Senior Database Engineer, and Senior DevOps Engineer.
+Issue 1: Staff Filtering (Main Fix)
 
-========================================================
-PHASE 1 — COMPLETE APPLICATION DISCOVERY
-========================================
+Currently, when Admin selects a staff member from the "Assign Staff" dropdown, the system still shows todos of all staff members together.
 
-First scan the entire project and automatically discover:
+Required Behavior:
 
-* All pages
-* All routes
-* All APIs
-* All controllers
-* All services
-* All database tables
-* All middleware
-* All roles
-* All permissions
-* All CRUD operations
-* All forms
-* All modals
-* All notifications
-* All scheduled jobs
+When Admin selects a specific staff member:
+Show ONLY that selected staff member's todos.
+Hide todos assigned to other staff members.
+Filtering must work for:
+Pinned Tasks section.
+Normal Tasks section.
+Any other task lists on the page.
+When no staff is selected:
+Show all tasks.
+Filtering should happen instantly without page reload (AJAX/Live filtering preferred).
+After creating a new todo:
+Refresh the filtered list correctly.
+If a staff member is selected, continue showing only that staff member's tasks.
+Reset button should:
+Clear selected staff filter.
+Show all tasks again.
+Example
 
-Generate a dependency map showing:
+If Admin selects:
 
-Frontend
-↓
-API
-↓
-Controller
-↓
-Service
-↓
-Database
+Darsh
 
-for every feature.
+Then show:
 
-========================================================
-PHASE 2 — FRONTEND TESTING
-==========================
+✅ Todo 1 (Darsh)
+✅ Todo 2 (Darsh)
 
-Test every page.
+Do NOT show:
 
-Admin:
-
-* Dashboard
-* Projects
-* Tasks
-* Publishing Report
-* Overdue Tasks
-* Team Members
-* KPI Management
-* Leave Requests
-* Daily Report Summary
-* Notifications
-* Account Settings
-
-Staff:
-
-* Dashboard
-* Projects
-* Tasks
-* Publishing Report
-* Todo List
-* Daily Report
-* Notifications
-* Leaves
-* Account Settings
-
-Verify:
-
-✓ Page loads successfully
-
-✓ No console errors
-
-✓ No JavaScript errors
-
-✓ No blank pages
-
-✓ No broken routes
-
-✓ No missing components
-
-✓ No layout crashes
-
-✓ No disappearing data
-
-✓ No pagination bugs
-
-✓ No filter bugs
-
-✓ No table rendering bugs
-
-✓ No modal issues
-
-✓ No notification issues
-
-========================================================
-PHASE 3 — API TESTING
-=====================
-
-Automatically discover every API endpoint.
-
-For each endpoint test:
-
-GET
-POST
-PUT
-PATCH
-DELETE
-
-Verify:
-
-✓ Correct route
-
-✓ Correct method
-
-✓ Correct authentication
-
-✓ Correct authorization
-
-✓ Valid request payload
-
-✓ Valid response payload
-
-✓ Error handling
-
-✓ Validation handling
-
-✓ Database persistence
-
-✓ Edge cases
-
-Test:
-
-Valid Requests
-
-Invalid Requests
-
-Empty Payloads
-
-Large Payloads
-
-Missing Parameters
-
-Unauthorized Access
-
-Expired Sessions
-
-Role Violations
-
-No API should fail unexpectedly.
-
-========================================================
-PHASE 4 — DATABASE TESTING
-==========================
-
-Audit schema.sql completely.
-
-Verify:
-
-✓ All tables exist
-
-✓ All relations valid
-
-✓ Foreign keys valid
-
-✓ Indexes valid
-
-✓ Constraints valid
-
-✓ No orphan records
-
-✓ No duplicate records
-
-✓ No broken references
-
-✓ No unused tables
-
-✓ No unused columns
-
-Test every:
-
-INSERT
-
-UPDATE
-
-DELETE
-
-SELECT
-
-Transaction
-
-Rollback
-
-Cascade Rule
-
-========================================================
-PHASE 5 — AUTHENTICATION TESTING
-================================
-
-Test:
-
-Admin Login
-
-Staff Login
-
-Logout
-
-Session Handling
-
-Remember Me
-
-Password Change
-
-Username Change
-
-Authorization
-
-Verify:
-
-✓ Admin access protected
-
-✓ Staff access protected
-
-✓ Role restrictions enforced
-
-✓ Unauthorized access blocked
-
-✓ Session expiration handled
-
-========================================================
-PHASE 6 — TASK MANAGEMENT TESTING
-=================================
-
-Test complete workflow:
-
-Admin Creates Task
-
-↓
-
-Assign Staff
-
-↓
-
-Staff Receives Task
-
-↓
-
-Staff Updates Task
-
-↓
-
-Staff Completes Task
-
-↓
-
-Admin Sees Update
-
-Verify:
-
-✓ Real database updates
-
-✓ No sync issues
-
-✓ No missing records
-
-✓ No stale data
-
-✓ No disappearing data
-
-========================================================
-PHASE 7 — PUBLISHING REPORT TESTING
-===================================
-
-Test:
-
-Admin creates Week 1
-
-Admin adds rows
-
-Admin assigns users
-
-Admin enters task data
-
-Admin changes colors
-
-Admin saves table
-
-Verify:
-
-✓ Database updated
-
-✓ Staff receives correct rows
-
-✓ Assigned users only see assigned rows
-
-✓ Color sync works both directions
-
-✓ Week cloning works
-
-✓ Notifications work
-
-✓ No data loss
-
-✓ No duplicate rows
-
-✓ No disappearing content
-
-========================================================
-PHASE 8 — OVERDUE TASK TESTING
-==============================
-
-Create test overdue tasks.
-
-Verify:
-
-✓ Automatic overdue detection
-
-✓ Overdue calculations
-
-✓ Sidebar red indicator
-
-✓ Notification generation
-
-✓ Reminder popup
-
-✓ Admin overdue dashboard
-
-✓ Staff overdue section
-
-✓ User filtering works
-
-========================================================
-PHASE 9 — DAILY REPORT TESTING
-==============================
-
-Test:
-
-Create Report
-
-Update Report
-
-Delete Row
-
-Load Previous Report
-
-Save Report
-
-Verify:
-
-✓ Data saved correctly
-
-✓ Totals calculated correctly
-
-✓ No decimal bugs
-
-✓ No duplicate records
-
-✓ No broken calculations
-
-========================================================
-PHASE 10 — CRUD TESTING
-=======================
-
-For every entity:
-
-Projects
-
-Tasks
-
-Users
-
-Reports
-
-Publishing Tables
-
-Notifications
-
-Leaves
-
-KPIs
-
-Verify:
-
-CREATE
-
-READ
-
-UPDATE
-
-DELETE
-
-works successfully.
-
-========================================================
-PHASE 11 — SECURITY TESTING
-===========================
-
-Test:
-
-SQL Injection
-
-XSS
-
-CSRF
-
-Broken Access Control
-
-Privilege Escalation
-
-Session Hijacking
-
-Input Validation
-
-Verify:
-
-✓ Application secure
-
-✓ Sensitive data protected
-
-✓ Role permissions enforced
-
-========================================================
-PHASE 12 — PERFORMANCE TESTING
-==============================
-
-Check:
-
-✓ Slow Queries
-
-✓ Duplicate Queries
-
-✓ N+1 Problems
-
-✓ Memory Leaks
-
-✓ API Latency
-
-✓ Large Table Handling
-
-✓ Pagination Performance
-
-✓ Notification Performance
-
-========================================================
-PHASE 13 — REGRESSION TESTING
-=============================
-
-After every fix:
-
-Retest entire application.
-
-Ensure:
-
-✓ No old feature breaks
-
-✓ No side effects
-
-✓ No UI regression
-
-✓ No database regression
-
-✓ No API regression
-
-========================================================
-FINAL REPORT FORMAT
-===================
-
-For every issue provide:
-
-Severity:
-(Critical / Major / Minor)
-
-Module:
-
-File:
-
-Problem:
-
-Root Cause:
-
-Steps To Reproduce:
-
-Impact:
-
-Permanent Fix:
-
-Verification Result:
-
-========================================================
-FINAL SUCCESS CRITERIA
-======================
-
-Application must be:
-
-✓ Frontend Tested
-
-✓ Backend Tested
-
-✓ API Tested
-
-✓ Database Tested
-
-✓ Authentication Tested
-
-✓ Authorization Tested
-
-✓ CRUD Tested
-
-✓ Notifications Tested
-
-✓ Publishing Tested
-
-✓ Daily Reports Tested
-
-✓ Overdue Tasks Tested
-
-✓ Security Tested
-
-✓ Performance Tested
-
-✓ Regression Tested
-
-Final result:
-
-ZERO Console Errors
-
-ZERO API Errors
-
-ZERO Database Errors
-
-ZERO Broken Routes
-
-ZERO Broken CRUD Operations
-
-ZERO Sync Issues
-
-ZERO Data Loss Issues
-
-ZERO Permission Issues
-
-ZERO Production Blockers
-
-Generate a final Production Readiness Score (0–100%) and do not finish until the application reaches production-ready status.
+❌ Todo 3 (Rahul)
+❌ Todo 4 (Jay)
+
+If Admin selects:
+
+Rahul
+
+Then show only Rahul's tasks.
+
+Issue 2: UI Size Too Large
+
+The Todo page looks oversized and wastes space.
+
+Please make the UI more compact and professional.
+
+Reduce Sizes
+Task Input
+Height: 40px–44px
+Smaller padding
+Smaller font size
+Staff Dropdown
+Height: 40px–44px
+Width slightly reduced
+Compact select styling
+Task Type Dropdown
+Height: 40px–44px
+Compact appearance
+Add Todo Button
+Height: 40px–44px
+Reduce horizontal padding
+Smaller icon and text
+Keep responsive
+Task Cards
+
+Reduce:
+
+Card padding
+Margins
+Font sizes
+Section spacing
+
+Current cards feel too tall.
+
+Make them cleaner and dashboard-like.
+
+Issue 3: Better Alignment
+
+Align all controls in a single row:
+
+Task Input
+Staff Select
+Task Type
+Add Todo Button
+
+Requirements:
+
+Perfect vertical alignment
+Same height for all controls
+Consistent spacing
+Responsive layout
+
+Desktop layout:
+
+[ Task Input ] [ Staff Select ] [ Task Type ] [ Add Todo ]
+
+Mobile layout:
+
+Task Input
+Staff Select
+Task Type
+Add Todo
+Issue 4: Task Card Improvements
+
+For each task card:
+
+Reduce card height.
+Show:
+Task Name
+Assigned Staff
+Date/Time
+Keep Delete icon aligned right.
+Use flexbox alignment.
+Improve visual hierarchy.
+
+Example:
+
+Task Name                    10/06/2026 12:05 PM
+Assigned: Darsh                    [Delete]
+Issue 5: Admin & Staff Experience
+Admin
+Can view all tasks.
+Can filter by selected staff.
+Can create tasks for any staff.
+Staff User
+Should automatically see only their own tasks.
+Must never see other staff members' tasks.
+No staff filter dropdown required for staff users.
+Technical Requirements
+Laravel/PHP backend filtering.
+Proper query:
+if ($staffId) {
+    $todos = Todo::where('assigned_to', $staffId)->get();
+} else {
+    $todos = Todo::all();
+}
+Use AJAX for filter updates.
+Maintain pagination if available.
+No duplicate tasks.
+No N+1 queries.
+Responsive Bootstrap/Tailwind layout.
+Clean and professional UI similar to modern admin dashboards.
+Expected Result
+Admin selects a staff member → only that staff member's todos appear.
+Reset shows all tasks.
+Staff users see only their own tasks.
+Compact professional UI.
+Better alignment and spacing.
+Faster and cleaner Todo page.

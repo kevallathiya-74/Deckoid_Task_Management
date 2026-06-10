@@ -55,7 +55,15 @@
         <div class="glass-card overflow-hidden p-0">
             <!-- Toolbar: Filter + Create Button -->
             <div class="p-3 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <form id="filterForm" class="m-0">
+                <form id="filterForm" class="m-0 d-flex gap-2">
+                    <?php if ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager'): ?>
+                    <select class="form-select text-sm fw-bold border-0 bg-light rounded-pill px-3" style="height: 36px; min-width: 150px; font-size: 0.82rem;" name="assigned_to" id="filter_assignee">
+                        <option value="">All Staff</option>
+                        <?php foreach ($staff as $s): ?>
+                            <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <?php endif; ?>
                     <select class="form-select text-sm fw-bold border-0 bg-light rounded-pill px-3" style="height: 36px; min-width: 150px; font-size: 0.82rem;" name="status" id="filter_status">
                         <option value="">All Status</option>
                         <option value="pending">Pending</option>

@@ -4,6 +4,9 @@
             <img src="<?= asset('image/logo.png') ?>" alt="Logo" width="28" height="28" class="logo-img">
             <i class="fas fa-columns sidebar-hover-icon"></i>
         </div>
+        <div class="brand-name-container ms-2 font-outfit" style="white-space: nowrap; font-size: 1.2rem;">
+            <span class="text-neutral-900 fw-bold">Deckoid</span> <span class="text-primary fw-bold">Task</span>
+        </div>
         <button class="btn btn-sm btn-light d-md-none border-0" id="sidebarClose">
             <i class="fas fa-times"></i>
         </button>

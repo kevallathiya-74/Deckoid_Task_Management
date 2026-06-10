@@ -11,36 +11,44 @@
 
         <!-- Quick Create Row (Admin Only) -->
         <?php if ($_SESSION['user_role'] === 'admin'): ?>
-        <div class="card glass-card mb-4 border-0">
+        <div class="card glass-card mb-3 border-0">
             <div class="card-body p-2">
-                <form id="createTodoForm" class="row g-3 align-items-end">
-                    <div class="col-md-5">
-                        <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Task</label>
-                        <input type="text" class="form-control glass-input text-sm" name="title" placeholder="Enter todo task..." required>
+                <form id="createTodoForm" class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control glass-input" name="title" placeholder="Enter todo task..." required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Assign Staff</label>
-                        <select class="form-select glass-input text-sm" name="assigned_to" required>
-                            <option value="" selected disabled>Select Staff...</option>
+                        <select class="form-select glass-input" name="assigned_to" required>
+                            <option value="" selected disabled>Assign Staff...</option>
                             <?php foreach ($staff as $s): ?>
                                 <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Task Type</label>
-                        <select class="form-select glass-input text-sm" name="is_pinned">
+                    <div class="col-md-3">
+                        <select class="form-select glass-input" name="is_pinned">
                             <option value="0" selected>Normal Task</option>
                             <option value="1">Pin Task</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100 btn-glow">
-                            <i class="fas fa-plus me-2"></i>Add Todo
+                            <i class="fas fa-plus me-1"></i>Add
                         </button>
                     </div>
                 </form>
             </div>
+        </div>
+
+        <!-- Filter Row -->
+        <div class="mb-3 d-flex align-items-center gap-2">
+            <label class="text-xs fw-bold text-neutral-500 text-uppercase mb-0">Filter by Staff:</label>
+            <select id="staffFilter" class="form-select form-select-sm glass-input" style="width: 200px;">
+                <option value="">All Staff</option>
+                <?php foreach ($staff as $s): ?>
+                    <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <?php endif; ?>
 
@@ -157,9 +165,10 @@
 $(document).ready(function() {
     loadTodos();
 
-    function loadTodos() {
+    function loadTodos(staffId = '') {
+        const fetchUrl = staffId ? '<?= url('/api/todos') ?>?assigned_to=' + staffId : '<?= url('/api/todos') ?>';
         $.ajax({
-            url: '<?= url('/api/todos') ?>',
+            url: fetchUrl,
             type: 'GET',
             success: function(response) {
                 if (response.status === 'success') {
@@ -185,7 +194,7 @@ $(document).ready(function() {
                             let assignedToHtml = '';
                             <?php if ($_SESSION['user_role'] === 'admin'): ?>
                                 assignedToHtml = `
-                                    <div class="text-xs text-neutral-500">Assigned to: ${todo.assigned_to_name}</div>
+                                    <div class="text-xs text-neutral-500 mt-1">Assigned: ${todo.assigned_to_name}</div>
                                     ${todo.notes ? `<div class="text-xs text-neutral-600 mt-1 bg-neutral-50 p-1 px-2 rounded d-inline-block"><i class="fas fa-comment-dots me-1 text-primary"></i>${todo.notes}</div>` : ''}
                                 `;
                             <?php endif; ?>
@@ -193,24 +202,26 @@ $(document).ready(function() {
                             let checkboxHtml = '';
                             <?php if ($_SESSION['user_role'] !== 'admin'): ?>
                                 checkboxHtml = `
-                                    <textarea class="form-control form-control-sm text-xs todo-remark me-3" data-id="${todo.id}" placeholder="Add remark..." rows="1" style="width: 180px; resize: none; background: rgba(255,255,255,0.7);">${todo.notes || ''}</textarea>
-                                    <div class="form-check">
-                                        <input class="form-check-input toggle-status" type="checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer; border: 2px solid #000 !important;" data-id="${todo.id}" ${todo.status === 'completed' ? 'checked' : ''}>
+                                    <input type="text" class="form-control form-control-sm text-xs todo-remark me-3" data-id="${todo.id}" placeholder="Add remark..." value="${todo.notes || ''}" style="width: 180px; background: rgba(255,255,255,0.7);">
+                                    <div class="form-check m-0 d-flex align-items-center">
+                                        <input class="form-check-input toggle-status m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer; border: 2px solid #000 !important;" data-id="${todo.id}" ${todo.status === 'completed' ? 'checked' : ''}>
                                     </div>
                                 `;
                             <?php endif; ?>
 
                             itemsHtml += `
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3" style="background: transparent; border-color: rgba(0,0,0,0.05);">
-                                    <div>
-                                        <div class="fw-bold text-neutral-800 ${todo.status === 'completed' ? 'text-decoration-line-through text-neutral-400' : ''}">${todo.title}</div>
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-2" style="background: transparent; border-color: rgba(0,0,0,0.05);">
+                                    <div class="d-flex flex-column">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="fw-bold text-neutral-800 ${todo.status === 'completed' ? 'text-decoration-line-through text-neutral-400' : ''}" style="font-size: 0.9rem;">${todo.title}</span>
+                                            <span class="text-xs text-neutral-500"><i class="far fa-clock me-1"></i>${formattedDate}</span>
+                                        </div>
                                         ${assignedToHtml}
                                     </div>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="text-xs text-neutral-500 fw-bold">${formattedDate}</div>
+                                    <div class="d-flex align-items-center gap-2">
                                         ${checkboxHtml}
                                         <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                                            <button class="btn btn-sm btn-icon btn-danger-subtle delete-todo ms-2" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-icon btn-danger-subtle delete-todo m-0" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
                                         <?php endif; ?>
                                     </div>
                                 </li>
@@ -283,7 +294,7 @@ $(document).ready(function() {
                                         </td>
                                     <?php else: ?>
                                         <td class="text-start align-middle">
-                                            <textarea class="form-control form-control-sm text-xs todo-remark" data-id="${todo.id}" placeholder="Enter remark..." rows="1" style="width: 220px; max-width:100%; resize: none;">${todo.notes || ''}</textarea>
+                                            <input type="text" class="form-control form-control-sm text-xs todo-remark" data-id="${todo.id}" placeholder="Enter remark..." value="${todo.notes || ''}" style="width: 220px; max-width:100%;">
                                         </td>
                                     <?php endif; ?>
                                     <td>${statusBadge}</td>
@@ -299,6 +310,15 @@ $(document).ready(function() {
         });
     }
 
+    // Staff Filter Binding
+    $('#staffFilter').on('change', function() {
+        loadTodos($(this).val());
+    });
+
+    function reloadCurrentTasks() {
+        loadTodos($('#staffFilter').length ? $('#staffFilter').val() : '');
+    }
+
     // Create Todo
     $('#createTodoForm').on('submit', function(e) {
         e.preventDefault();
@@ -310,7 +330,7 @@ $(document).ready(function() {
                 if (response.status === 'success') {
                     toastr.success(response.message);
                     $('#createTodoForm')[0].reset();
-                    loadTodos();
+                    reloadCurrentTasks();
                 } else {
                     toastr.error(response.message);
                 }
@@ -345,7 +365,7 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.status === 'success') {
                     toastr.success('Todo status updated');
-                    loadTodos();
+                    reloadCurrentTasks();
                 } else {
                     toastr.error(response.message);
                     this.checked = !this.checked;
@@ -386,7 +406,7 @@ $(document).ready(function() {
                 success: function(response) {
                     if (response.status === 'success') {
                         toastr.success(response.message);
-                        loadTodos();
+                        reloadCurrentTasks();
                     } else {
                         toastr.error(response.message);
                     }
@@ -406,7 +426,7 @@ $(document).ready(function() {
                 success: function(response) {
                     if (response.status === 'success') {
                         toastr.success(response.message);
-                        loadTodos();
+                        reloadCurrentTasks();
                     } else {
                         toastr.error(response.message);
                     }
@@ -443,7 +463,7 @@ $(document).ready(function() {
                 if (response.status === 'success') {
                     toastr.success(response.message);
                     $('#editTodoModal').modal('hide');
-                    loadTodos();
+                    reloadCurrentTasks();
                 } else {
                     toastr.error(response.message);
                 }

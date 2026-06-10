@@ -169,11 +169,11 @@
 </head>
 <body>
 
-<div class="login-wrap reveal">
-    <div class="login-card">
-        <div class="brand-section">
+<div class="login-wrap reveal p-3">
+    <div class="login-card p-3">
+        <div class="brand-section p-1">
             <img src="<?= url('assets/image/logo.png') ?>" alt="Logo" class="brand-logo-img">
-            <div class="brand-text"><b>Deckoid</b><span>Tasks</span></div>
+            <div class="brand-text"><b>Deckoid</b> <span style="color: var(--primary);">Task</span></div>
         </div>
         
         <form id="loginForm" action="<?= url('/api/auth/login') ?>" method="POST" data-no-toast="true">
