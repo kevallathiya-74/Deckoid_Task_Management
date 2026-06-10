@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Role Access</label>
-                                    <input type="text" class="form-control bg-neutral-50 border-0 py-2" value="Super Administrator" readonly>
+                                    <input type="text" class="form-control bg-neutral-50 border-0 py-2" value="Administrator" readonly>
                                 </div>
                                 <div class="col-12">
                                     <hr class="opacity-10">

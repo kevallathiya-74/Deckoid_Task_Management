@@ -113,6 +113,8 @@ $(document).ready(function() {
                     list.html('<div class="text-center py-4 text-neutral-400 text-xs fw-medium">No new notifications</div>');
                 }
             }
+        }).fail(function() {
+            $('#notificationList').html('<div class="text-center py-4 text-danger text-xs fw-medium">Failed to load notifications</div>');
         });
     }
 

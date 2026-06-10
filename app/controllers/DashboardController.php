@@ -40,7 +40,10 @@ class DashboardController
         // Fetch Recent Activities
         $recent_tasks = $this->getRecentTasks();
 
-
+        $projectModel = new Project();
+        $userModel = new User();
+        $projects = $projectModel->listAll();
+        $staff = $userModel->listAll();
 
         require_once ROOT_PATH . '/app/views/layouts/header.php';
         require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
@@ -295,13 +298,13 @@ class DashboardController
             $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
             $projectStats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Combine tasks counts
+            // Fetch Due Today and Overdue Tasks counts
             $stmt = $this->db->prepare("
                 SELECT 
-                    SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
-                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
+                    SUM(CASE WHEN DATE(due_date) = CURDATE() THEN 1 ELSE 0 END) as due_today,
+                    SUM(CASE WHEN DATE(due_date) < CURDATE() THEN 1 ELSE 0 END) as overdue_tasks
                 FROM tasks 
-                WHERE deleted_at IS NULL
+                WHERE deleted_at IS NULL AND status != 'completed'
                 AND (assigned_to = :uid OR id IN (SELECT task_id FROM task_assignments WHERE user_id = :uid2))
             ");
             $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
@@ -314,22 +317,20 @@ class DashboardController
                 WHERE deleted_at IS NULL
             ")->fetch(PDO::FETCH_ASSOC);
 
-            // Combine tasks counts
+            // Fetch Due Today and Overdue Tasks counts
             $taskStats = $this->db->query("
                 SELECT 
-                    SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
-                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
+                    SUM(CASE WHEN DATE(due_date) = CURDATE() THEN 1 ELSE 0 END) as due_today,
+                    SUM(CASE WHEN DATE(due_date) < CURDATE() THEN 1 ELSE 0 END) as overdue_tasks
                 FROM tasks 
-                WHERE deleted_at IS NULL
+                WHERE deleted_at IS NULL AND status != 'completed'
             ")->fetch(PDO::FETCH_ASSOC);
         }
 
         return [
             'total_projects' => (int)$projectStats['total'],
-            'active_projects' => 0, // Obsolete
-            'active_tasks' => (int)$taskStats['in_progress'],
-            'pending_tasks' => (int)$taskStats['pending'],
-            'completed_projects' => 0 // Obsolete
+            'due_today' => (int)$taskStats['due_today'],
+            'overdue_tasks' => (int)$taskStats['overdue_tasks']
         ];
     }
 
