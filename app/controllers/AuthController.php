@@ -68,7 +68,9 @@ class AuthController
                 'redirect' => url("/$prefix/dashboard")
             ]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid username or password']);
+            $userFound = $user ? 'yes' : 'no';
+            $hashMatch = ($user && password_verify($password, $user['password_hash'])) ? 'yes' : 'no';
+            echo json_encode(['status' => 'error', 'message' => "Invalid username or password. Debug: User found: $userFound, Hash match: $hashMatch"]);
         }
     }
 

@@ -1,424 +1,72 @@
 PROJECT: DECKOID TASK MANAGEMENT SYSTEM
 
-FRAMEWORK:
-Agency-Agents Multi-Agent Execution
+MISSION:
+Perform COMPLETE END-TO-END TESTING of the entire application including Frontend, Backend, APIs, Database, Authentication, Authorization, Notifications, Publishing Module, Task Module, Overdue Module, Daily Reports, and all Admin/Staff workflows.
 
-REPOSITORY CONTEXT:
-Analyze the entire codebase from entry point to deployment configuration.
-
-========================================================
-MISSION
-=======
-
-Perform a COMPLETE PROJECT AUDIT.
-
-Act as:
-
-* Principal Software Architect
-* Senior Full Stack Engineer
-* Senior Backend Engineer
-* Senior Frontend Engineer
-* Senior Database Architect
-* Senior Security Engineer
-* Senior DevOps Engineer
-* Senior QA Engineer
-
-Goal:
-
-Transform the project into a production-ready SaaS application.
-
-Do not perform superficial fixes.
-
-Find root causes.
-
-Apply permanent fixes.
-
-No temporary patches.
-
-No workaround solutions.
+Use Agency-Agents architecture and execute as a Senior QA Engineer, Senior Backend Engineer, Senior Full-Stack Engineer, Senior Database Engineer, and Senior DevOps Engineer.
 
 ========================================================
-AGENT STRUCTURE
-===============
+PHASE 1 — COMPLETE APPLICATION DISCOVERY
+========================================
 
-Agent 1:
-Architecture Auditor
+First scan the entire project and automatically discover:
 
-Agent 2:
-Frontend Auditor
+* All pages
+* All routes
+* All APIs
+* All controllers
+* All services
+* All database tables
+* All middleware
+* All roles
+* All permissions
+* All CRUD operations
+* All forms
+* All modals
+* All notifications
+* All scheduled jobs
 
-Agent 3:
-Backend Auditor
-
-Agent 4:
-Database Auditor
-
-Agent 5:
-Security Auditor
-
-Agent 6:
-Performance Auditor
-
-Agent 7:
-QA & Regression Auditor
-
-========================================================
-PHASE 1
-COMPLETE PROJECT SCAN
-=====================
-
-Scan EVERYTHING.
-
-Frontend:
-
-* Pages
-* Components
-* Layouts
-* Tables
-* Forms
-* Modals
-* Pagination
-* Notifications
-* Hooks
-* Utilities
-* API Services
-* State Management
-* Responsive Logic
-
-Backend:
-
-* Controllers
-* Services
-* Models
-* Repositories
-* Middleware
-* Helpers
-* Validation
-* Authentication
-* Authorization
-* API Routes
-
-Database:
-
-* schema.sql
-* migrations
-* foreign keys
-* indexes
-* constraints
-* relations
-* triggers
-
-Infrastructure:
-
-* .env usage
-* configuration files
-* startup process
-* deployment configuration
-
-========================================================
-PHASE 2
-BUG DETECTION
-=============
-
-Identify ALL:
-
-🔴 Critical Bugs
-
-🟠 Major Bugs
-
-🟡 Minor Bugs
-
-Examples:
-
-* data disappearing
-* data not syncing
-* stale cache
-* broken pagination
-* broken filters
-* broken CRUD
-* broken notifications
-* race conditions
-* duplicate saves
-* state overwrite bugs
-* memory leaks
-* API failures
-* database inconsistencies
-* null reference errors
-* role permission bugs
-* assignment bugs
-* publishing report bugs
-* overdue task bugs
-
-Trace every issue to root cause.
-
-Do not patch symptoms.
-
-========================================================
-PHASE 3
-DATABASE AUDIT
-==============
-
-Audit schema.sql completely.
-
-Verify:
-
-* every table
-* every column
-* every relation
-
-Remove:
-
-* unused columns
-* unused tables
-* duplicate fields
-* obsolete schema
-
-Fix:
-
-* foreign keys
-* indexes
-* constraints
-* cascading rules
-
-Verify:
-
-Database schema matches actual application usage.
-
-No dead database structure allowed.
-
-========================================================
-PHASE 4
-API AUDIT
-=========
-
-Verify every endpoint.
-
-Check:
-
-GET
-POST
-PUT
-PATCH
-DELETE
-
-Validate:
-
-* route exists
-* controller exists
-* service exists
-* response structure valid
-* authentication valid
-* authorization valid
-
-Remove:
-
-* dead endpoints
-* unused services
-
-Fix:
-
-* broken endpoints
-* invalid paths
-* invalid responses
-
-========================================================
-PHASE 5
-DATA FLOW VALIDATION
-====================
-
-Validate complete flow:
+Generate a dependency map showing:
 
 Frontend
-
 ↓
-
 API
-
 ↓
-
 Controller
-
 ↓
-
 Service
-
 ↓
-
-Repository
-
-↓
-
 Database
 
-↓
-
-Repository
-
-↓
-
-Service
-
-↓
-
-Controller
-
-↓
-
-Frontend
-
-Verify every CRUD operation.
-
-No broken flow allowed.
+for every feature.
 
 ========================================================
-PHASE 6
-SECURITY AUDIT
-==============
+PHASE 2 — FRONTEND TESTING
+==========================
 
-Review:
+Test every page.
 
-Authentication
-
-Authorization
-
-Sessions
-
-Permissions
-
-Input Validation
-
-Output Escaping
-
-File Uploads
-
-Database Queries
-
-Fix:
-
-* SQL Injection risks
-* XSS risks
-* CSRF risks
-* privilege escalation
-* insecure direct object references
-* token vulnerabilities
-* session vulnerabilities
-
-Apply production-level security.
-
-========================================================
-PHASE 7
-PERFORMANCE OPTIMIZATION
-========================
-
-Find:
-
-* N+1 queries
-* duplicate queries
-* duplicate API calls
-* redundant renders
-* unnecessary re-fetches
-* unused dependencies
-* dead code
-* memory leaks
-
-Optimize:
-
-* database queries
-* rendering performance
-* API performance
-* state management
-
-========================================================
-PHASE 8
-CODE CLEANUP
-============
-
-Remove:
-
-* unused files
-* unused components
-* unused services
-* unused utilities
-* unused hooks
-* duplicate logic
-* commented legacy code
-
-Keep codebase clean.
-
-========================================================
-PHASE 9
-ERROR HANDLING
-==============
-
-Ensure every operation has:
-
-Frontend:
-
-* loading state
-* empty state
-* success state
-* error state
-
-Backend:
-
-* try/catch
-* structured responses
-* logging
-
-Database:
-
-* transaction safety
-* rollback support
-
-========================================================
-PHASE 10
-PRODUCTION READINESS
-====================
-
-Validate:
-
-* build process
-* deployment process
-* environment variables
-* database connection
-* API configuration
-* startup sequence
-
-Application must:
-
-Build Successfully
-
-Run Successfully
-
-Deploy Successfully
-
-========================================================
-PHASE 11
-REGRESSION TESTING
-==================
-
-Retest:
-
-Admin Panel
+Admin:
 
 * Dashboard
 * Projects
 * Tasks
-* Publishing
-* Team Members
-* KPI
-* Leave Requests
-* Notifications
+* Publishing Report
 * Overdue Tasks
+* Team Members
+* KPI Management
+* Leave Requests
+* Daily Report Summary
+* Notifications
 * Account Settings
 
-Staff Panel
+Staff:
 
 * Dashboard
 * Projects
 * Tasks
-* Publishing
-* Todo
+* Publishing Report
+* Todo List
 * Daily Report
 * Notifications
 * Leaves
@@ -426,15 +74,399 @@ Staff Panel
 
 Verify:
 
-* CRUD works
-* notifications work
-* permissions work
-* assignments work
-* publishing reports work
-* overdue tasks work
-* pagination works
-* search works
-* filters work
+✓ Page loads successfully
+
+✓ No console errors
+
+✓ No JavaScript errors
+
+✓ No blank pages
+
+✓ No broken routes
+
+✓ No missing components
+
+✓ No layout crashes
+
+✓ No disappearing data
+
+✓ No pagination bugs
+
+✓ No filter bugs
+
+✓ No table rendering bugs
+
+✓ No modal issues
+
+✓ No notification issues
+
+========================================================
+PHASE 3 — API TESTING
+=====================
+
+Automatically discover every API endpoint.
+
+For each endpoint test:
+
+GET
+POST
+PUT
+PATCH
+DELETE
+
+Verify:
+
+✓ Correct route
+
+✓ Correct method
+
+✓ Correct authentication
+
+✓ Correct authorization
+
+✓ Valid request payload
+
+✓ Valid response payload
+
+✓ Error handling
+
+✓ Validation handling
+
+✓ Database persistence
+
+✓ Edge cases
+
+Test:
+
+Valid Requests
+
+Invalid Requests
+
+Empty Payloads
+
+Large Payloads
+
+Missing Parameters
+
+Unauthorized Access
+
+Expired Sessions
+
+Role Violations
+
+No API should fail unexpectedly.
+
+========================================================
+PHASE 4 — DATABASE TESTING
+==========================
+
+Audit schema.sql completely.
+
+Verify:
+
+✓ All tables exist
+
+✓ All relations valid
+
+✓ Foreign keys valid
+
+✓ Indexes valid
+
+✓ Constraints valid
+
+✓ No orphan records
+
+✓ No duplicate records
+
+✓ No broken references
+
+✓ No unused tables
+
+✓ No unused columns
+
+Test every:
+
+INSERT
+
+UPDATE
+
+DELETE
+
+SELECT
+
+Transaction
+
+Rollback
+
+Cascade Rule
+
+========================================================
+PHASE 5 — AUTHENTICATION TESTING
+================================
+
+Test:
+
+Admin Login
+
+Staff Login
+
+Logout
+
+Session Handling
+
+Remember Me
+
+Password Change
+
+Username Change
+
+Authorization
+
+Verify:
+
+✓ Admin access protected
+
+✓ Staff access protected
+
+✓ Role restrictions enforced
+
+✓ Unauthorized access blocked
+
+✓ Session expiration handled
+
+========================================================
+PHASE 6 — TASK MANAGEMENT TESTING
+=================================
+
+Test complete workflow:
+
+Admin Creates Task
+
+↓
+
+Assign Staff
+
+↓
+
+Staff Receives Task
+
+↓
+
+Staff Updates Task
+
+↓
+
+Staff Completes Task
+
+↓
+
+Admin Sees Update
+
+Verify:
+
+✓ Real database updates
+
+✓ No sync issues
+
+✓ No missing records
+
+✓ No stale data
+
+✓ No disappearing data
+
+========================================================
+PHASE 7 — PUBLISHING REPORT TESTING
+===================================
+
+Test:
+
+Admin creates Week 1
+
+Admin adds rows
+
+Admin assigns users
+
+Admin enters task data
+
+Admin changes colors
+
+Admin saves table
+
+Verify:
+
+✓ Database updated
+
+✓ Staff receives correct rows
+
+✓ Assigned users only see assigned rows
+
+✓ Color sync works both directions
+
+✓ Week cloning works
+
+✓ Notifications work
+
+✓ No data loss
+
+✓ No duplicate rows
+
+✓ No disappearing content
+
+========================================================
+PHASE 8 — OVERDUE TASK TESTING
+==============================
+
+Create test overdue tasks.
+
+Verify:
+
+✓ Automatic overdue detection
+
+✓ Overdue calculations
+
+✓ Sidebar red indicator
+
+✓ Notification generation
+
+✓ Reminder popup
+
+✓ Admin overdue dashboard
+
+✓ Staff overdue section
+
+✓ User filtering works
+
+========================================================
+PHASE 9 — DAILY REPORT TESTING
+==============================
+
+Test:
+
+Create Report
+
+Update Report
+
+Delete Row
+
+Load Previous Report
+
+Save Report
+
+Verify:
+
+✓ Data saved correctly
+
+✓ Totals calculated correctly
+
+✓ No decimal bugs
+
+✓ No duplicate records
+
+✓ No broken calculations
+
+========================================================
+PHASE 10 — CRUD TESTING
+=======================
+
+For every entity:
+
+Projects
+
+Tasks
+
+Users
+
+Reports
+
+Publishing Tables
+
+Notifications
+
+Leaves
+
+KPIs
+
+Verify:
+
+CREATE
+
+READ
+
+UPDATE
+
+DELETE
+
+works successfully.
+
+========================================================
+PHASE 11 — SECURITY TESTING
+===========================
+
+Test:
+
+SQL Injection
+
+XSS
+
+CSRF
+
+Broken Access Control
+
+Privilege Escalation
+
+Session Hijacking
+
+Input Validation
+
+Verify:
+
+✓ Application secure
+
+✓ Sensitive data protected
+
+✓ Role permissions enforced
+
+========================================================
+PHASE 12 — PERFORMANCE TESTING
+==============================
+
+Check:
+
+✓ Slow Queries
+
+✓ Duplicate Queries
+
+✓ N+1 Problems
+
+✓ Memory Leaks
+
+✓ API Latency
+
+✓ Large Table Handling
+
+✓ Pagination Performance
+
+✓ Notification Performance
+
+========================================================
+PHASE 13 — REGRESSION TESTING
+=============================
+
+After every fix:
+
+Retest entire application.
+
+Ensure:
+
+✓ No old feature breaks
+
+✓ No side effects
+
+✓ No UI regression
+
+✓ No database regression
+
+✓ No API regression
 
 ========================================================
 FINAL REPORT FORMAT
@@ -442,68 +474,77 @@ FINAL REPORT FORMAT
 
 For every issue provide:
 
-File:
-Function:
 Severity:
+(Critical / Major / Minor)
+
+Module:
+
+File:
 
 Problem:
+
 Root Cause:
+
+Steps To Reproduce:
+
 Impact:
-Fix Applied:
 
-After completion generate:
+Permanent Fix:
 
-1. Critical Issues Fixed
-2. Major Issues Fixed
-3. Minor Issues Fixed
-4. Database Fixes
-5. API Fixes
-6. Security Fixes
-7. Performance Improvements
-8. Code Cleanup Summary
-9. Regression Test Results
-10. Production Readiness Result
+Verification Result:
 
 ========================================================
-SUCCESS CRITERIA
-================
+FINAL SUCCESS CRITERIA
+======================
 
-The project must be:
+Application must be:
 
-✓ Error Free
+✓ Frontend Tested
 
-✓ Warning Free
+✓ Backend Tested
 
-✓ Bug Free
+✓ API Tested
 
-✓ Database Synced
+✓ Database Tested
 
-✓ API Validated
+✓ Authentication Tested
 
-✓ Secure
+✓ Authorization Tested
 
-✓ Optimized
+✓ CRUD Tested
 
-✓ Clean
+✓ Notifications Tested
 
-✓ Maintainable
+✓ Publishing Tested
 
-✓ Production Ready
+✓ Daily Reports Tested
 
-No broken routes.
+✓ Overdue Tasks Tested
 
-No broken APIs.
+✓ Security Tested
 
-No broken CRUD.
+✓ Performance Tested
 
-No broken permissions.
+✓ Regression Tested
 
-No disappearing data.
+Final result:
 
-No database inconsistencies.
+ZERO Console Errors
 
-No dead code.
+ZERO API Errors
 
-No unused schema.
+ZERO Database Errors
 
-No unresolved issues remaining anywhere in the project.
+ZERO Broken Routes
+
+ZERO Broken CRUD Operations
+
+ZERO Sync Issues
+
+ZERO Data Loss Issues
+
+ZERO Permission Issues
+
+ZERO Production Blockers
+
+Generate a final Production Readiness Score (0–100%) and do not finish until the application reaches production-ready status.

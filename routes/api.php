@@ -2,7 +2,8 @@
 
 /** @var App\Core\Router $router */
 
-$router->post('/api/auth/login', 'AuthController@login');
+// Auth Routes
+$router->post('/api/auth/login', [App\Controllers\AuthController::class, 'login']);
 $router->post('/api/auth/logout', 'AuthController@logout');
 
 // Staff Management
