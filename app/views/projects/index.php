@@ -114,9 +114,17 @@
                         <div class="col-md-4">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department Role</label>
                             <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold select2-multi" name="role_ids[]" multiple required data-placeholder="Select Departments...">
-                                <?php foreach ($roles as $role): ?>
-                                    <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
-                                <?php endforeach; ?>
+                                <option value="6f9e836b-67a4-4770-96f1-67e39a5f4581">Admin</option>
+                                <option value="4b1d3e2f-5e6a-4b7c-8d9e-0f1a2b3c4d5e">AI Products</option>
+                                <option value="3b4c5d6e-7f8a-4b9c-bd0e-1f2a3b4c5d6e">AI Video Making</option>
+                                <option value="20e3f4a5-6b7c-8d9e-a0b1-c2d3e4f5a6b7">Client Management</option>
+                                <option value="b5c3e6d2-7f1a-4d9e-8c3b-5a6f9e7d2c1b">Facebook Ads</option>
+                                <option value="c6d4f7e3-8f2b-5e0f-9d4c-6b7a0f8e3d2c">Google Ads</option>
+                                <option value="a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d">Graphics Design</option>
+                                <option value="ce41eb64-5059-11f1-8ccd-309c2374f21d">Marketing Manager</option>
+                                <option value="f5e4d3c2-b1a0-4f9e-8d7c-6b5a4f3e2d1c">Search Engine Optimization</option>
+                                <option value="9d0e1f2a-3b4c-4d5e-8f6a-7b8c9d0e1f2a">Social Media Management</option>
+                                <option value="d4f2a1b7-e9c3-4a8d-b7f1-2c6e9a3d4f5b">Website Design & Development</option>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -169,9 +177,17 @@
                         <div class="col-md-4">
                             <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase ms-1 mb-2">Department</label>
                             <select class="form-select border-0 bg-neutral-50 rounded-4 text-sm fw-bold select2-multi" name="role_ids[]" id="edit_role_ids" multiple required data-placeholder="Select Departments...">
-                                <?php foreach ($roles as $role): ?>
-                                    <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
-                                <?php endforeach; ?>
+                                <option value="6f9e836b-67a4-4770-96f1-67e39a5f4581">Admin</option>
+                                <option value="4b1d3e2f-5e6a-4b7c-8d9e-0f1a2b3c4d5e">AI Products</option>
+                                <option value="3b4c5d6e-7f8a-4b9c-bd0e-1f2a3b4c5d6e">AI Video Making</option>
+                                <option value="20e3f4a5-6b7c-8d9e-a0b1-c2d3e4f5a6b7">Client Management</option>
+                                <option value="b5c3e6d2-7f1a-4d9e-8c3b-5a6f9e7d2c1b">Facebook Ads</option>
+                                <option value="c6d4f7e3-8f2b-5e0f-9d4c-6b7a0f8e3d2c">Google Ads</option>
+                                <option value="a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d">Graphics Design</option>
+                                <option value="ce41eb64-5059-11f1-8ccd-309c2374f21d">Marketing Manager</option>
+                                <option value="f5e4d3c2-b1a0-4f9e-8d7c-6b5a4f3e2d1c">Search Engine Optimization</option>
+                                <option value="9d0e1f2a-3b4c-4d5e-8f6a-7b8c9d0e1f2a">Social Media Management</option>
+                                <option value="d4f2a1b7-e9c3-4a8d-b7f1-2c6e9a3d4f5b">Website Design & Development</option>
                             </select>
                         </div>
                         <div class="col-md-4">
