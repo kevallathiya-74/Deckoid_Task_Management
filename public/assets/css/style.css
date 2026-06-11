@@ -740,20 +740,27 @@ textarea.form-control {
 @supports (-webkit-touch-callout: none) {
     input, select, textarea {
         font-size: 16px !important;
+    }
 }
 
 /* Custom DataTables Pagination Styling for Bootstrap 5 - PRD Specifications */
 .dataTables_wrapper .pagination {
     margin: 0 !important;
     padding: 0 !important;
-    gap: 8px !important;
-    justify-content: center !important;
+    gap: 6px !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+}
+@media (max-width: 768px) {
+    .dataTables_wrapper .pagination {
+        justify-content: center !important;
+    }
 }
 .dataTables_wrapper .page-item .page-link {
     padding: 0 !important;
     font-size: 14px !important;
     font-weight: 600 !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
     border: 1px solid #DADCE0 !important;
     background-color: #FFFFFF !important;
     color: #374151 !important;
@@ -794,16 +801,46 @@ textarea.form-control {
 /* PAGINATION CONTAINER FIX */
 .dataTables_wrapper .row:last-child {
     min-height: auto !important;
-    padding: 10px 20px !important;
-    margin-top: 10px !important;
-    height: 50px !important;
-    max-height: 60px !important;
+    padding: 15px 20px !important;
+    margin-top: 0 !important;
 }
 
 /* EMPTY TABLE FIX */
 .dataTables_empty {
     min-height: 120px !important;
     vertical-align: middle !important;
+}
+
+/* DASHBOARD CARDS FIX */
+.dashboard-card {
+    height: 110px;
+    padding: 0 1.5rem !important;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.dashboard-card-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0;
+    line-height: 1.2;
+}
+.dashboard-card-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0;
+    line-height: 1;
+}
+@media (max-width: 992px) { 
+    .dashboard-card { height: 100px; padding: 0 1.25rem !important; } 
+}
+@media (max-width: 768px) { 
+    .dashboard-card { height: 90px; padding: 0 1rem !important; } 
+    .dashboard-card-title { font-size: 20px; } 
+    .dashboard-card-number { font-size: 28px; } 
 }
 
 /* --- UI/UX Pro Max Global Fixes --- */

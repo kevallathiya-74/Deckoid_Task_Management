@@ -1,157 +1,407 @@
-Master Prompt: Fix Todo List Staff Filtering + Improve UI Layout
+@agency-ui-ux-pro
+@agency-frontend-engineer
+@agency-fullstack-engineer
+@agency-qa-engineer
 
-I need to fix the Todo List page in my Task Management System.
+CRITICAL DASHBOARD FIX REQUIRED
 
-Issue 1: Staff Filtering (Main Fix)
+Review the attached dashboard screenshots and implement the following changes on BOTH:
 
-Currently, when Admin selects a staff member from the "Assign Staff" dropdown, the system still shows todos of all staff members together.
+1. Admin Dashboard
+2. Staff Dashboard
 
-Required Behavior:
+====================================================
+PART 1 - SUMMARY CARDS REDESIGN
+====================================================
 
-When Admin selects a specific staff member:
-Show ONLY that selected staff member's todos.
-Hide todos assigned to other staff members.
-Filtering must work for:
-Pinned Tasks section.
-Normal Tasks section.
-Any other task lists on the page.
-When no staff is selected:
-Show all tasks.
-Filtering should happen instantly without page reload (AJAX/Live filtering preferred).
-After creating a new todo:
-Refresh the filtered list correctly.
-If a staff member is selected, continue showing only that staff member's tasks.
-Reset button should:
-Clear selected staff filter.
-Show all tasks again.
-Example
+CURRENT ISSUE
 
-If Admin selects:
+The 3 summary cards are broken.
+
+Problems:
+
+- Text is small
+- Text is not vertically aligned
+- Numbers are too small
+- Content appears stuck in the top-left corner
+- Cards do not look professional
+- Typography hierarchy is missing
+- Icons are not properly positioned
+- Layout is visually unbalanced
+
+COMPLETELY REDESIGN THE CARD LAYOUT.
+
+====================================================
+
+CARDS
+
+1. Total Projects
+2. Due Today
+3. Overdue Tasks
+
+====================================================
+
+COLORS
+
+Total Projects
+Background: #2563EB
+Text: White
+
+Due Today
+Background: #EAB308
+Text: White
+
+Overdue Tasks
+Background: #DC2626
+Text: White
+
+====================================================
+
+CARD DESIGN
+
+Desktop Height:
+140px
+
+Tablet:
+130px
+
+Mobile:
+120px
+
+Border Radius:
+16px
+
+Padding:
+24px
+
+Display:
+flex
+
+Align:
+center vertically
+
+Use:
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+====================================================
+
+LEFT SIDE
+
+Display:
+
+Icon
+
+Title
+
+Count
+
+====================================================
+
+TITLE
+
+Font Size:
+20px
+
+Font Weight:
+700
+
+Color:
+White
+
+Text Transform:
+Uppercase
+
+====================================================
+
+COUNT
+
+Font Size:
+36px
+
+Font Weight:
+800
+
+Color:
+White
+
+====================================================
+
+ICON
+
+Size:
+48px
+
+Background:
+rgba(255,255,255,0.15)
+
+Width:
+56px
+
+Height:
+56px
+
+Border Radius:
+12px
+
+Icon Color:
+White
+
+====================================================
+
+GRID LAYOUT
+
+Desktop:
+3 columns
+
+Tablet:
+2 columns
+
+Mobile:
+1 column
+
+All cards must be equal height.
+
+====================================================
+
+REMOVE
+
+Broken spacing
+
+Extra margins
+
+Nested wrappers
+
+Absolute positioning
+
+Any CSS causing top-left alignment
+
+====================================================
+
+PART 2 - ALL TASKS SECTION
+====================================================
+
+CURRENT ISSUE
+
+Dashboard task section still does not match required layout.
+
+====================================================
+
+HEADER
+
+LEFT SIDE
+
+Show:
+
+ALL TASKS
+
+Font Size:
+32px
+
+Font Weight:
+800
+
+Color:
+Current Theme
+
+====================================================
+
+RIGHT SIDE
+
+Move filters to the right.
+
+Order:
+
+All Staff Filter
+
+Task Status Filter
+
+No other filters.
+
+====================================================
+
+REMOVE
+
+Create Task Button
+
+from Dashboard.
+
+Dashboard is for viewing only.
+
+Task creation belongs only to Task Management page.
+
+====================================================
+
+PART 3 - TASK TABLE
+====================================================
+
+Keep current functionality.
+
+Do NOT change data.
+
+Do NOT change API.
+
+Only improve layout.
+
+====================================================
+
+TABLE REQUIREMENTS
+
+Show only:
+
+Task Name
+
+Description
+
+Status
+
+Deadline
+
+Priority
+
+Assigned User
+
+Project
+
+Actions
+
+====================================================
+
+ASSIGNED USER
+
+IMPORTANT
+
+Currently role names are displayed.
+
+This is WRONG.
+
+Display:
+
+Real User Name
+
+Examples:
+
+Keval
 
 Darsh
 
-Then show:
-
-✅ Todo 1 (Darsh)
-✅ Todo 2 (Darsh)
-
-Do NOT show:
-
-❌ Todo 3 (Rahul)
-❌ Todo 4 (Jay)
-
-If Admin selects:
-
 Rahul
 
-Then show only Rahul's tasks.
+etc.
 
-Issue 2: UI Size Too Large
+Never show:
 
-The Todo page looks oversized and wastes space.
+AI VIDEO MAKING
 
-Please make the UI more compact and professional.
+AI PRODUCTS
 
-Reduce Sizes
-Task Input
-Height: 40px–44px
-Smaller padding
-Smaller font size
-Staff Dropdown
-Height: 40px–44px
-Width slightly reduced
-Compact select styling
-Task Type Dropdown
-Height: 40px–44px
-Compact appearance
-Add Todo Button
-Height: 40px–44px
-Reduce horizontal padding
-Smaller icon and text
-Keep responsive
-Task Cards
+GRAPHICS DESIGN
 
-Reduce:
+GOOGLE ADS
 
-Card padding
-Margins
-Font sizes
-Section spacing
+or any role name.
 
-Current cards feel too tall.
+Show only assigned user's actual username.
 
-Make them cleaner and dashboard-like.
+====================================================
 
-Issue 3: Better Alignment
+USER CELL
 
-Align all controls in a single row:
+Avatar Circle
 
-Task Input
-Staff Select
-Task Type
-Add Todo Button
+User Name
 
-Requirements:
+Horizontal Alignment
 
-Perfect vertical alignment
-Same height for all controls
-Consistent spacing
-Responsive layout
+Perfect vertical centering
 
-Desktop layout:
+====================================================
 
-[ Task Input ] [ Staff Select ] [ Task Type ] [ Add Todo ]
+PART 4 - PAGINATION
+====================================================
 
-Mobile layout:
+Dashboard Task List
 
-Task Input
-Staff Select
-Task Type
-Add Todo
-Issue 4: Task Card Improvements
+Show maximum:
 
-For each task card:
+10 tasks per page
 
-Reduce card height.
-Show:
-Task Name
-Assigned Staff
-Date/Time
-Keep Delete icon aligned right.
-Use flexbox alignment.
-Improve visual hierarchy.
+Add pagination below table.
 
-Example:
+Use project-wide pagination design.
 
-Task Name                    10/06/2026 12:05 PM
-Assigned: Darsh                    [Delete]
-Issue 5: Admin & Staff Experience
-Admin
-Can view all tasks.
-Can filter by selected staff.
-Can create tasks for any staff.
-Staff User
-Should automatically see only their own tasks.
-Must never see other staff members' tasks.
-No staff filter dropdown required for staff users.
-Technical Requirements
-Laravel/PHP backend filtering.
-Proper query:
-if ($staffId) {
-    $todos = Todo::where('assigned_to', $staffId)->get();
-} else {
-    $todos = Todo::all();
-}
-Use AJAX for filter updates.
-Maintain pagination if available.
-No duplicate tasks.
-No N+1 queries.
-Responsive Bootstrap/Tailwind layout.
-Clean and professional UI similar to modern admin dashboards.
-Expected Result
-Admin selects a staff member → only that staff member's todos appear.
-Reset shows all tasks.
-Staff users see only their own tasks.
-Compact professional UI.
-Better alignment and spacing.
-Faster and cleaner Todo page.
+Small compact pagination.
+
+====================================================
+
+PART 5 - RESPONSIVENESS
+====================================================
+
+Check:
+
+Desktop
+
+Laptop
+
+Tablet
+
+Mobile
+
+====================================================
+
+VERIFY
+
+No overflow
+
+No overlapping
+
+No horizontal scrolling
+
+No broken cards
+
+No clipped text
+
+No layout shifts
+
+====================================================
+
+DO NOT MODIFY
+
+Business Logic
+
+Database
+
+APIs
+
+Task CRUD
+
+Filters Logic
+
+Permissions
+
+Notifications
+
+Only redesign Dashboard Summary Cards and Dashboard All Tasks UI.
+
+====================================================
+
+FINAL QA
+
+Before completion verify:
+
+✓ Cards visually centered
+✓ Large typography
+✓ White text
+✓ Correct card colors
+✓ Professional spacing
+✓ All Tasks title on left
+✓ Filters on right
+✓ Create Task removed
+✓ Real usernames shown
+✓ 10 records per page
+✓ Pagination working
+✓ Admin dashboard fixed
+✓ Staff dashboard fixed
+✓ Fully responsi
