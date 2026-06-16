@@ -61,11 +61,22 @@
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 
-    /* Layout */
+    /* Layout & Breakpoints */
     --max-width: 1400px;
     --sidebar-width: 260px;
     --sidebar-collapsed-width: 68px;
     --topbar-height: 56px;
+
+    --bp-xs: 320px;
+    --bp-sm: 375px;
+    --bp-md: 480px;
+    --bp-tb: 768px;
+    --bp-lg: 1024px;
+    --bp-xl: 1280px;
+    --bp-xxl: 1366px;
+    --bp-3xl: 1440px;
+    --bp-4xl: 1600px;
+    --bp-5xl: 1920px;
 
     /* Transitions - Unified SaaS scale */
     --transition-speed: 0.3s;

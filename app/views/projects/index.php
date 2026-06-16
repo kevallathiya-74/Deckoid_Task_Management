@@ -72,10 +72,10 @@
                 <table class="table table-hover align-middle mb-0" id="projectsTable" style="table-layout: fixed; width: 100%;">
                 <thead>
                     <tr>
-                        <th class="ps-4" style="width: 20%;">Project Name</th>
-                        <th style="width: 20%;">Client Name</th>
-                        <th style="width: 45%;">Description</th>
-                        <th class="text-end pe-4" style="width: 15%;">Actions</th>
+                        <th class="ps-4 text-xs fw-bold text-uppercase text-neutral-400" style="width: 20%;">Project Name</th>
+                        <th class="text-xs fw-bold text-uppercase text-neutral-400" style="width: 20%;">Client Name</th>
+                        <th class="text-xs fw-bold text-uppercase text-neutral-400" style="width: 45%;">Description</th>
+                        <th class="text-end pe-4 text-xs fw-bold text-uppercase text-neutral-400" style="width: 15%;">Actions</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -329,7 +329,7 @@ $(document).ready(function() {
     handleFormSubmit('#addProjectForm', () => { $('#addProjectModal').modal('hide'); $('#addProjectForm')[0].reset(); table.ajax.reload(); });
     handleFormSubmit('#editProjectForm', () => { $('#editProjectModal').modal('hide'); table.ajax.reload(); });
 
-    $(document).on('click', '.edit-project', function() {
+    $(document).off('click', '.edit-project').on('click', '.edit-project', function() {
         let $tr = $(this).closest('tr');
         if ($tr.hasClass('child')) {
             $tr = $tr.prev('.parent');
@@ -350,7 +350,7 @@ $(document).ready(function() {
         $('#editProjectModal').modal('show');
     });
 
-    $(document).on('click', '.view-project', function() {
+    $(document).off('click', '.view-project').on('click', '.view-project', function() {
         const $tr = $(this).closest('tr');
         const data = table.row($tr).data();
         $('#view_project_name').text(data.project_name);
@@ -363,7 +363,7 @@ $(document).ready(function() {
         $('#viewProjectModal').modal('show');
     });
 
-    $(document).on('click', '.delete-project', function() {
+    $(document).off('click', '.delete-project').on('click', '.delete-project', function() {
         const id = $(this).data('id');
         Swal.fire({
             title: 'Terminate Project?',
@@ -415,19 +415,6 @@ $(document).ready(function() {
     transition: all 0.3s ease;
 }
 .action-btn-sm:hover { background: var(--neutral-100); color: var(--primary-600); }
-
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    border-radius: 10px !important;
-    padding: 0.5rem 0.9rem !important;
-    border: none !important;
-    font-weight: 700 !important;
-    font-size: 0.75rem !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: var(--grad-primary) !important;
-    color: white !important;
-}
 
 .font-outfit { font-family: 'Outfit', sans-serif; }
 </style>

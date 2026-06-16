@@ -18,8 +18,9 @@ class AuthMiddleware
             $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
             if (empty($token) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
                 if (self::isApiRequest()) {
+                    header('Content-Type: application/json');
                     http_response_code(403);
-                    echo json_encode(['success' => false, 'message' => 'CSRF token mismatch. Please refresh the page.']);
+                    echo json_encode(['success' => false, 'error' => 'CSRF token mismatch. Please refresh the page.']);
                     exit;
                 }
                 die('CSRF token mismatch. Please go back and refresh the page.');
@@ -44,8 +45,9 @@ class AuthMiddleware
         
         if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
             if (self::isApiRequest()) {
+                header('Content-Type: application/json');
                 http_response_code(403);
-                echo json_encode(['success' => false, 'message' => 'Forbidden: Admin access only']);
+                echo json_encode(['success' => false, 'error' => 'Forbidden: Admin access only']);
                 exit;
             }
             header('Location: ' . url('/dashboard?error=forbidden'));
@@ -56,8 +58,9 @@ class AuthMiddleware
     private static function redirect()
     {
         if (self::isApiRequest()) {
+            header('Content-Type: application/json');
             http_response_code(401);
-            echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+            echo json_encode(['success' => false, 'error' => 'Unauthorized access. Session expired.']);
             exit;
         }
         header('Location: ' . url('/login'));

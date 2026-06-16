@@ -34,26 +34,30 @@ class StaffController
     {
         header('Content-Type: application/json');
         
-        $filters = [
-            'role_id' => $_GET['role_id'] ?? null,
-            'status' => $_GET['status'] ?? null
-        ];
+        try {
+            $filters = [
+                'role_id' => $_GET['role_id'] ?? null,
+                'status' => $_GET['status'] ?? null
+            ];
 
-        $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-        $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
-        $search = $_GET['search']['value'] ?? '';
+            $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+            $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
+            $search = $_GET['search']['value'] ?? '';
 
-        $staff = $this->userModel->listAll($filters, $search, $length, $start);
-        $recordsFiltered = $this->userModel->countAll($filters, $search);
-        $recordsTotal = $this->userModel->countAll($filters, '');
-        
-        echo json_encode([
-            'status' => 'success',
-            'draw' => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
-            'recordsTotal' => $recordsTotal,
-            'recordsFiltered' => $recordsFiltered,
-            'data' => $staff
-        ]);
+            $staff = $this->userModel->listAll($filters, $search, $length, $start);
+            $recordsFiltered = $this->userModel->countAll($filters, $search);
+            $recordsTotal = $this->userModel->countAll($filters, '');
+            
+            echo json_encode([
+                'status' => 'success',
+                'draw' => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $staff
+            ]);
+        } catch (\Exception $e) {
+            echo json_encode(['error' => 'Database Error: ' . $e->getMessage()]);
+        }
     }
 
     public function create()

@@ -13,21 +13,42 @@
         <!-- Statistics Grid -->
         <div class="row g-3 mb-4">
             <div class="col-xl col-md-4">
-                <div class="dashboard-card bg-primary glass-card p-0">
-                    <p class="dashboard-card-title">Total Projects</p>
-                    <h4 class="dashboard-card-number"><?= $stats['total_projects'] ?></h4>
+                <div class="dashboard-card bg-primary text-white glass-card">
+                    <div class="d-flex align-items-center w-100 justify-content-between">
+                        <div>
+                            <p class="mb-1 fw-bold" style="font-size: 18px;">Total Projects</p>
+                            <h4 class="mb-0 fw-bold     fw-bold text-white text-xs" style="font-size: 32px; "><?= $stats['total_projects'] ?></h4>
+                        </div>
+                        <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-project-diagram fs-4"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-xl col-md-4">
-                <div class="dashboard-card bg-warning glass-card p-0">
-                    <p class="dashboard-card-title">Due Today</p>
-                    <h4 class="dashboard-card-number"><?= $stats['due_today'] ?></h4>
+                <div class="dashboard-card bg-warning text-white glass-card">
+                    <div class="d-flex align-items-center w-100 justify-content-between">
+                        <div>
+                            <p class="mb-1 fw-bold" style="font-size: 18px;">Due Today</p>
+                            <h4 class="mb-0 fw-bold fw-bold text-white text-xs" style="font-size: 32px;"><?= $stats['due_today'] ?></h4>
+                        </div>
+                        <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-calendar-day fs-4"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-xl col-md-4">
-                <div class="dashboard-card bg-danger glass-card p-0">
-                    <p class="dashboard-card-title">Overdue Tasks</p>
-                    <h4 class="dashboard-card-number"><?= $stats['overdue_tasks'] ?></h4>
+                <div class="dashboard-card bg-danger text-white glass-card">
+                    <div class="d-flex align-items-center w-100 justify-content-between">
+                        <div>
+                            <p class="mb-1 fw-bold" style="font-size: 18px;">Overdue Tasks</p>
+                            <h4 class="mb-0 fw-bold fw-bold text-white text-xs" style="font-size: 32px;"><?= $stats['overdue_tasks'] ?></h4>
+                        </div>
+                        <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-exclamation-circle fs-4"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

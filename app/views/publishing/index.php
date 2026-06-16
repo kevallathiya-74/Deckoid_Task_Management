@@ -2,20 +2,21 @@
 
 <main class="main-content">
     <div class="container-fluid animate-fade-up" style="padding-top: 10px;">
-        <!-- Page Header -->
+        <!-- Page Header (Optimized) -->
         <div class="pub-topbar">
-            <div class="pub-topbar-title">
+            <!-- Left: Tabs + Filters -->
+            <div class="pub-header-controls">
                 <!-- CATEGORY FILTERS -->
                 <div class="pub-category-filters m-0" id="category-filters-container">
                     <button class="pub-cat-pill active" data-cat="posts">Posts</button>
                     <button class="pub-cat-pill" data-cat="reels">Reels</button>
                     <button class="pub-cat-pill" data-cat="facebook_ads">Facebook Ads</button>
                 </div>
-            </div>
-            <div class="pub-topbar-actions">
+
+                <!-- MONTH/YEAR FILTER -->
                 <div class="pub-filters-group">
                     <div class="pub-filter-pill">
-                        <label for="select-month" class="pub-filter-label">Select month</label>
+                        <label for="select-month" class="pub-filter-label">Month</label>
                         <div class="pub-filter-control">
                             <select id="select-month" class="form-select form-select-sm pub-filter-select">
                         <?php
@@ -34,7 +35,7 @@
                     </div>
 
                     <div class="pub-filter-pill">
-                        <label for="select-year" class="pub-filter-label">Select year</label>
+                        <label for="select-year" class="pub-filter-label">Year</label>
                         <div class="pub-filter-control">
                             <select id="select-year" class="form-select form-select-sm pub-filter-select">
                         <?php
@@ -47,7 +48,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <!-- Right: Actions -->
+            <div class="pub-topbar-actions">
                 <button type="button" class="pub-button-filter" id="btn-load-report" aria-label="Load report">
                     <i class="fas fa-sync"></i>
                 </button>
@@ -80,11 +84,14 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 16px;
-    margin-bottom: 22px;
+    margin-bottom: 12px;
 }
 
-.pub-topbar-title {
-    min-width: 240px;
+.pub-header-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .pub-page-title {
@@ -190,7 +197,7 @@
     .pub-topbar {
         align-items: flex-start;
     }
-    .pub-topbar-title {
+    .pub-header-controls {
         width: 100%;
     }
     .pub-topbar-actions {
@@ -215,7 +222,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 22px;
+    margin-bottom: 0;
 }
 
 .pub-cat-pill {
@@ -247,10 +254,12 @@
 .pub-report-shell {
     display: flex;
     justify-content: center;
+    min-width: 0;
 }
 
 .pub-report-panel {
     width: 100%;
+    min-width: 0;
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 28px;
@@ -327,11 +336,11 @@
 
 .pub-week-header-bar {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     flex-wrap: wrap;
     gap: 14px;
-    padding: 24px 24px 18px;
+    padding: 18px 24px 14px;
     border-bottom: 1px solid #f3f4f6;
 }
 
@@ -359,7 +368,7 @@
 
 .pub-table {
     width: 100%;
-    min-width: 960px;
+    min-width: 1000px;
     border-collapse: separate;
     border-spacing: 0;
     table-layout: fixed;
@@ -604,17 +613,11 @@
     margin-bottom: 8px;
 }
 
-@media (max-width: 992px) {
-    .pub-table { min-width: 820px; }
-}
-
 @media (max-width: 820px) {
-    .pub-table { min-width: 680px; }
     .pub-week-header-bar { padding: 20px 18px 14px; }
 }
 
 @media (max-width: 720px) {
-    .pub-table { min-width: 560px; }
     .pub-filter-select { min-width: 120px; }
     .pub-category-filters { gap: 8px; }
     .pub-btn-add, .pub-btn-save { width: 100%; }
@@ -628,6 +631,79 @@
     .pub-topbar { align-items: flex-start; }
 }
 
+/* ========================================
+   WEEK NAVIGATION TABS
+   ======================================== */
+.pub-week-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 1px;
+    padding: 10px;
+}
+
+.pub-week-tab {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #475569;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.02);
+}
+
+.pub-week-tab:hover {
+    background: #f8f5ff;
+    color: #5b21b6;
+    border-color: #ddd6fe;
+}
+
+.pub-week-tab.active {
+    background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2);
+}
+
+/* ========================================
+   STICKY FOOTER
+   ======================================== */
+.pub-sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #e5e7eb;
+    padding: 16px 24px;
+    margin: 24px -22px -22px; /* Pull out of padding of panel */
+    border-radius: 0 0 28px 28px;
+    box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.pub-sticky-footer-inner {
+    min-height: 48px;
+}
+
+.pub-btn-create-more {
+    background: #f8f5ff;
+    color: #7c3aed;
+    border: 1px solid #ddd6fe;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.pub-btn-create-more:hover {
+    background: #f3e8ff;
+    transform: translateY(-1px);
+}
+
 /* Small UX & responsiveness improvements */
 .pub-table thead th {
     position: sticky;
@@ -635,10 +711,27 @@
     z-index: 3;
 }
 
-.pub-col-company { width: 260px; min-width: 180px; }
-.pub-col-task { width: auto; min-width: 110px; }
-.pub-col-assignment { width: 220px; min-width: 160px; }
-.pub-col-actions { width: 90px; min-width: 70px; }
+/* Responsive Column Sizing */
+.pub-col-company { width: 16%; }
+.pub-col-task { width: 8.28%; } /* 7 days * 8.28% = 58% */
+.pub-col-assignment { width: 16%; }
+.pub-col-actions { width: 10%; }
+
+/* Clean borders for all cells */
+.pub-table thead th,
+.pub-table tbody td {
+    background: #ffffff;
+}
+.pub-table thead th {
+    background: #f8f5ff;
+}
+
+.pub-table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100%;
+}
 
 .pub-table-wrapper {
     -webkit-overflow-scrolling: touch;
@@ -646,7 +739,13 @@
 }
 
 .pub-assignment-wrapper { justify-content: flex-start; }
-.pub-assignment-chips { justify-content: flex-start; }
+.pub-assignment-chips { 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+    max-width: 100%;
+}
 
 .pub-company-input, .pub-task-textarea { word-break: break-word; }
 
@@ -665,7 +764,7 @@
     padding: 8px 10px;
     display: flex;
     align-items: stretch;
-    min-height: 42px;
+    min-height: 72px;
 }
 
 .pub-task-cell:hover {
@@ -749,6 +848,22 @@
     font-weight: 600;
     color: #475569;
     white-space: nowrap;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.pub-legend-item:hover {
+    background: #f1f5f9;
+}
+
+/* Selected Task Cell */
+.pub-task-cell.selected-box {
+    box-shadow: inset 0 0 0 3px #7c3aed, 0 4px 12px rgba(124, 58, 237, 0.25) !important;
+    transform: scale(1.02);
+    z-index: 2;
+    position: relative;
 }
 
 .pub-legend-dot {
@@ -802,16 +917,38 @@ $(document).ready(function() {
     };
     
     let currentCategory = 'posts';
+    let currentWeekId = null; // The currently active week tab
     let isSaving = false;
     let autoSyncInterval = null;
     const AUTO_SYNC_INTERVAL = 2000; // Sync every 2 seconds (per prompt requirement)
     let lastSyncTime = null;
 
+    // Save pending text inputs from DOM into state before unmounting
+    function syncDOMToState() {
+        $('.pub-report-container').each(function() {
+            $(this).find('tbody tr').each(function() {
+                const rowId = $(this).attr('data-row-id');
+                const localRow = reportState.rows.find(r => r.id === rowId);
+                if (localRow) {
+                    const companyVal = $(this).find('.pub-company-input').val();
+                    if (companyVal !== undefined) localRow.company_name = companyVal;
+                    
+                    for (let i = 1; i <= 7; i++) {
+                        const taskVal = $(this).find(`.pub-task-cell[data-task-index="${i}"] .pub-task-textarea`).val();
+                        if (taskVal !== undefined) localRow[`task_box_${i}`] = taskVal;
+                    }
+                }
+            });
+        });
+    }
+
     // Tab Filters
     $('.pub-cat-pill').on('click', function() {
+        syncDOMToState();
         $('.pub-cat-pill').removeClass('active');
         $(this).addClass('active');
         currentCategory = $(this).data('cat');
+        currentWeekId = null; // Reset tab when category changes
         renderReport();
     });
 
@@ -870,98 +1007,109 @@ $(document).ready(function() {
             return;
         }
 
-        // Render each table (which represents a week)
+        // Ensure currentWeekId is valid
+        if (!currentWeekId || !catTables.find(t => t.id === currentWeekId)) {
+            currentWeekId = catTables[0].id;
+        }
+
+        // 1. Build Week Tabs Navigation
+        const $tabsNav = $('<div>').addClass('pub-week-tabs');
         catTables.forEach(table => {
+            const $tab = $('<button>').addClass('pub-week-tab')
+                .toggleClass('active', table.id === currentWeekId)
+                .text(`Week ${table.week_number}`)
+                .on('click', function() {
+                    syncDOMToState();
+                    currentWeekId = table.id;
+                    renderReport();
+                });
+            $tabsNav.append($tab);
+        });
+        $container.append($tabsNav);
+
+        // 2. Render only the active table
+        const activeTable = catTables.find(t => t.id === currentWeekId);
+        if (activeTable) {
+            const table = activeTable;
             const tableRows = reportState.rows.filter(r => r.table_id === table.id);
 
             const $reportContainer = $('<div>').addClass('pub-report-container').attr('data-table-id', table.id);
 
-            // Week Header & Controls
+            // Week Header & Controls (Legend & Admin Actions)
             const $headerBar = $('<div>').addClass('pub-week-header-bar');
-            
-            const $weekBox = $('<div>').addClass('pub-week-box');
-            $weekBox.html(`<span>Week ${table.week_number}</span>`);
-            $headerBar.append($weekBox);
 
             // Add Status Legend
             const $legend = $('<div>').addClass('pub-status-legend');
-            $legend.append(
-                $('<div>').addClass('pub-legend-item').html(
-                    '<span class="pub-legend-dot production"></span> Production'
-                )
-            );
-            $legend.append(
-                $('<div>').addClass('pub-legend-item').html(
-                    '<span class="pub-legend-dot approval"></span> Approval'
-                )
-            );
-            $legend.append(
-                $('<div>').addClass('pub-legend-item').html(
-                    '<span class="pub-legend-dot publishing"></span> Publishing'
-                )
-            );
+            
+            const createLegendBtn = (status, label) => {
+                return $('<div>').addClass('pub-legend-item')
+                    .html(`<span class="pub-legend-dot ${status}"></span> ${label}`)
+                    .on('click', function() {
+                        const $selected = $('.pub-task-cell.selected-box');
+                        if ($selected.length > 0) {
+                            $selected.each(function() {
+                                const $cell = $(this);
+                                const rowId = $cell.attr('data-row-id');
+                                const taskIndex = $cell.attr('data-task-index');
+                                const statusField = 'task_status_' + taskIndex;
+                                
+                                $cell.attr('data-status', status);
+                                
+                                const row = reportState.rows.find(r => r.id === rowId);
+                                if (row) {
+                                    row[statusField] = status;
+                                    saveTaskStatusChange(rowId, statusField, status);
+                                }
+                                
+                                $cell.removeClass('selected-box');
+                            });
+                        }
+                    });
+            };
+
+            $legend.append(createLegendBtn('production', 'Production'));
+            $legend.append(createLegendBtn('approval', 'Approval'));
+            $legend.append(createLegendBtn('publishing', 'Publishing'));
             $headerBar.append($legend);
 
             // Admin Actions on Table
             if (isAdmin) {
                 const $tblDeleteBtn = $('<button>').addClass('btn btn-sm btn-outline-danger rounded-pill px-3')
                     .html('<i class="fas fa-trash-alt me-2"></i>Delete Table')
-                    .on('click', function() {
-                        deleteTable(table.id);
-                    });
+                    .on('click', function() { deleteTable(table.id); });
                 $headerBar.append($tblDeleteBtn);
             }
 
             $reportContainer.append($headerBar);
 
-            // Table Wrapper
-            const $tableWrapper = $('<div>').addClass('pub-table-wrapper');
-            const $table = $('<table>').addClass('pub-table');
+            // Table Wrapper (Responsive Container)
+            const $tableResponsive = $('<div>').addClass('table-responsive pub-table-responsive');
+            const $table = $('<table>').addClass('pub-table').addClass(isAdmin ? 'pub-table-admin' : 'pub-table-staff');
 
             // Colgroup
             const $colgroup = $('<colgroup>');
             $colgroup.append('<col class="pub-col-company">');
-            for (let i = 0; i < 7; i++) {
-                $colgroup.append('<col class="pub-col-task">');
-            }
-            if (isAdmin) {
-                $colgroup.append('<col class="pub-col-assignment">');
-            }
-            if (isAdmin) {
-                $colgroup.append('<col class="pub-col-actions">');
-            }
+            for (let i = 0; i < 7; i++) { $colgroup.append('<col class="pub-col-task">'); }
+            if (isAdmin) { $colgroup.append('<col class="pub-col-assignment">'); }
+            if (isAdmin) { $colgroup.append('<col class="pub-col-actions">'); }
             $table.append($colgroup);
 
             // Thead
             const $thead = $('<thead>');
             const $headerRow = $('<tr>');
             $headerRow.append('<th class="pub-col-company">COMPANY NAME</th>');
-            for (let i = 1; i <= 7; i++) {
-                $headerRow.append(`<th class="pub-col-task">DAY ${i}</th>`);
-            }
-            if (isAdmin) {
-                $headerRow.append('<th class="pub-col-assignment">ASSIGNMENT</th>');
-            }
-            if (isAdmin) {
-                $headerRow.append('<th class="pub-col-actions">ACTIONS</th>');
-            }
+            for (let i = 1; i <= 7; i++) { $headerRow.append(`<th class="pub-col-task">DAY ${i}</th>`); }
+            if (isAdmin) { $headerRow.append('<th class="pub-col-assignment">ASSIGNMENT</th>'); }
+            if (isAdmin) { $headerRow.append('<th class="pub-col-actions">ACTIONS</th>'); }
             $thead.append($headerRow);
             $table.append($thead);
 
             // Tbody
             const $tbody = $('<tbody>');
             if (tableRows.length === 0) {
-                // If somehow no rows exist, add an empty placeholder or add empty rows
                 for (let r = 0; r < 5; r++) {
                     const tempId = 'temp-' + Math.random().toString(36).substr(2, 9);
-                    const newRow = {
-                        id: tempId,
-                        table_id: table.id,
-                        company_name: '',
-                        task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '',
-                        task_status_1: null, task_status_2: null, task_status_3: null, task_status_4: null, task_status_5: null, task_status_6: null, task_status_7: null,
-                        row_order: r
-                    };
+                    const newRow = { id: tempId, table_id: table.id, company_name: '', task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '', task_status_1: null, task_status_2: null, task_status_3: null, task_status_4: null, task_status_5: null, task_status_6: null, task_status_7: null, row_order: r };
                     reportState.rows.push(newRow);
                     tableRows.push(newRow);
                 }
@@ -972,54 +1120,51 @@ $(document).ready(function() {
             });
 
             $table.append($tbody);
-            $tableWrapper.append($table);
-            $reportContainer.append($tableWrapper);
+            $tableResponsive.append($table);
+            $reportContainer.append($tableResponsive);
 
-            // Bottom Buttons inside each table
+            // Inline Table Footer (Add Row only)
             const $tableFooter = $('<div>').addClass('pub-table-footer');
-            
             if (isAdmin) {
-                const $saveBtn = $('<button>').addClass('pub-btn-save').text('SAVE TABLE');
-                $saveBtn.on('click', function() {
-                    saveReport($(this));
-                });
-                $tableFooter.append($saveBtn);
-
-                const $addRowBtn = $('<button>').addClass('pub-btn-add').html('<i class="fas fa-plus me-2"></i>Add Row');
+                const $addRowBtn = $('<button>').addClass('pub-btn-add w-auto').html('<i class="fas fa-plus me-2"></i>Add Row');
                 $addRowBtn.on('click', function() {
                     const tempId = 'temp-' + Math.random().toString(36).substr(2, 9);
-                    const newRow = {
-                        id: tempId,
-                        table_id: table.id,
-                        company_name: '',
-                        task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '',
-                        task_status_1: null, task_status_2: null, task_status_3: null, task_status_4: null, task_status_5: null, task_status_6: null, task_status_7: null,
-                        row_order: tableRows.length
-                    };
+                    const newRow = { id: tempId, table_id: table.id, company_name: '', task_box_1: '', task_box_2: '', task_box_3: '', task_box_4: '', task_box_5: '', task_box_6: '', task_box_7: '', task_status_1: null, task_status_2: null, task_status_3: null, task_status_4: null, task_status_5: null, task_status_6: null, task_status_7: null, row_order: tableRows.length };
                     reportState.rows.push(newRow);
-                    tableRows.push(newRow); // update local tableRows scope
-                    const $tbody = $reportContainer.find('tbody');
-                    $tbody.append(buildTableRow(newRow, table.id));
-                    initSelect2Dropdowns(); // Re-initialize select2 for new row
+                    tableRows.push(newRow); 
+                    $reportContainer.find('tbody').append(buildTableRow(newRow, table.id));
+                    initSelect2Dropdowns(); 
                 });
                 $tableFooter.append($addRowBtn);
             }
-
             $reportContainer.append($tableFooter);
             $container.append($reportContainer);
-        });
+        }
 
-        // Add Category-level "CREATE MORE TABLE +" at the very bottom
-        if (isAdmin) {
+        // 3. Sticky Bottom Footer for Save and Create Next Week
+        if (isAdmin && catTables.length > 0) {
             const nextWeekNum = catTables.length + 1;
-            const $genFooter = $('<div>').addClass('pub-generate-footer');
-            const $createTblBtn = $('<button>').addClass('pub-btn-add').css('background', '#f5f3ff').css('border-color', '#7e22ce').css('color', '#7e22ce')
-                .html(`<i class="fas fa-folder-plus me-2"></i>CREATE MORE TABLE (WEEK ${nextWeekNum})`);
-            $createTblBtn.on('click', function() {
-                createTable(nextWeekNum);
-            });
-            $genFooter.append($createTblBtn);
-            $container.append($genFooter);
+            const $stickyFooter = $('<div>').addClass('pub-sticky-footer');
+            const $footerInner = $('<div>').addClass('pub-sticky-footer-inner position-relative d-flex align-items-center w-100');
+
+            const $saveBtn = $('<button>').addClass('pub-btn-save m-0').html('<i class="fas fa-save me-2"></i>SAVE TABLE');
+            $saveBtn.on('click', function() { saveReport($(this)); });
+            
+            const $createTblBtn = $('<button>').addClass('pub-btn-create-more m-0')
+                .html(`<i class="fas fa-folder-plus me-2"></i>CREATE WEEK ${nextWeekNum}`);
+            $createTblBtn.on('click', function() { createTable(nextWeekNum); });
+
+            const $leftWrap = $('<div>').addClass('d-flex flex-grow-1 justify-content-start');
+            const $centerWrap = $('<div>').addClass('position-absolute start-50 translate-middle-x');
+            
+            $leftWrap.append($saveBtn);
+            $centerWrap.append($createTblBtn);
+
+            $footerInner.append($leftWrap);
+            $footerInner.append($centerWrap);
+            $stickyFooter.append($footerInner);
+            
+            $container.append($stickyFooter);
         }
 
         // Initialize Select2 dropdowns
@@ -1033,7 +1178,7 @@ $(document).ready(function() {
         const $tr = $('<tr>').attr('data-row-id', row.id);
 
         // 1. Company Name
-        const $companyTd = $('<td>');
+        const $companyTd = $('<td>').addClass('pub-td-company');
         const $companyInput = $('<textarea>').addClass('pub-company-input')
             .attr('placeholder', 'Company name...')
             .val(row.company_name || '')
@@ -1074,7 +1219,7 @@ $(document).ready(function() {
             const $textarea = $('<textarea>')
                 .addClass('pub-task-textarea')
                 .val(row[field] || '')
-                .attr('placeholder', 'Task...')
+                .attr('placeholder', 'Task')
                 .css('width', '100%')
                 .css('height', 'auto')
                 .css('border', 'none')
@@ -1094,6 +1239,11 @@ $(document).ready(function() {
                 // Removed reactive binding to preserve last-known database state
             });
 
+            // Add single-click handler for multi-selection
+            $cellWrapper.on('click', function(e) {
+                $cellWrapper.toggleClass('selected-box');
+            });
+
             // Add double-click handler for status cycling
             $cellWrapper.on('dblclick', function(e) {
                 e.preventDefault();
@@ -1107,7 +1257,7 @@ $(document).ready(function() {
 
         // 3. Assignment
         if (isAdmin) {
-            const $assignTd = $('<td>');
+            const $assignTd = $('<td>').addClass('pub-td-assignment');
             const $assignWrapper = $('<div>').addClass('pub-assignment-wrapper');
             const $select = $('<select>').addClass('form-select form-select-sm pub-select-users')
                 .attr('multiple', 'multiple')
@@ -1168,7 +1318,7 @@ $(document).ready(function() {
         }
 
         if (isAdmin) {
-            const $actionsTd = $('<td>');
+            const $actionsTd = $('<td>').addClass('pub-td-actions');
             const $actionsWrapper = $('<div>').addClass('pub-actions-wrapper');
 
             const $deleteRowBtn = $('<button>').addClass('pub-btn-action pub-btn-delete')
@@ -1548,24 +1698,8 @@ $(document).ready(function() {
         const originalText = $btn.text();
         $btn.prop('disabled', true).text('Saving...');
         
-        // Before saving, we MUST pull the latest values from the DOM into reportState.
-        // We removed reactive bindings earlier to prevent polling from breaking active drafts,
-        // so the DOM is now the only source of truth for the Admin's typed input.
-        $('.pub-report-container').each(function() {
-            $(this).find('tbody tr').each(function() {
-                const rowId = $(this).attr('data-row-id');
-                const localRow = reportState.rows.find(r => r.id === rowId);
-                if (localRow) {
-                    const companyVal = $(this).find('.pub-company-input').val();
-                    if (companyVal !== undefined) localRow.company_name = companyVal;
-                    
-                    for (let i = 1; i <= 7; i++) {
-                        const taskVal = $(this).find(`.pub-task-cell[data-task-index="${i}"] .pub-task-textarea`).val();
-                        if (taskVal !== undefined) localRow[`task_box_${i}`] = taskVal;
-                    }
-                }
-            });
-        });
+        // Before saving, syncDOMToState handles extracting inputs from DOM to reportState
+        syncDOMToState();
         
         const dataToSend = JSON.parse(JSON.stringify(reportState));
         

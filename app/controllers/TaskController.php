@@ -73,7 +73,7 @@ class TaskController
                 'data' => $tasks
             ]);
         } catch (\Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()]);
+            echo json_encode(['error' => 'Database Error: ' . $e->getMessage()]);
         }
     }
 

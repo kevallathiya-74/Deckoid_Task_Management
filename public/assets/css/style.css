@@ -934,10 +934,25 @@ label {
     max-width: 100%;
 }
 @media (max-width: 576px) {
-    .btn {
-        width: 100%;
-        margin-bottom: 8px;
-    }
+    /* Fix: Do not force all buttons to 100% width, causes layout issues */
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1040; /* Below sidebar (1050) but above everything else */
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.sidebar-overlay.show {
+    display: block;
+    opacity: 1;
 }
 
 /* 8. Notification Alignment Fixes */

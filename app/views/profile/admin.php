@@ -5,27 +5,32 @@
         <div class="row g-4">
             <!-- Profile Overview Card -->
             <div class="col-xl-4 col-lg-5">
-                <div class="glass-card text-center p-5 sticky-top" style="top: 100px;">
-                    <div class="position-relative d-inline-block mb-4">
-                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($user['full_name']) ?>&background=8b5cf6&color=fff&size=128" 
-                             class="rounded-circle border border-4 border-white shadow-xl" width="120">
-                        <span class="position-absolute bottom-0 end-0 bg-success border border-4 border-white rounded-circle p-2 shadow-sm"></span>
+                <div class="glass-card text-center p-0  overflow-hidden" style="top: 100px;">
+                    <div class="bg-primary-50 py-5 position-relative">
+                        <!-- Abstract shape background -->
+                        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" style="background: radial-gradient(circle at top right, var(--bs-primary), transparent 50%);"></div>
+                        <div class="position-relative d-inline-block">
+                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($user['full_name']) ?>&background=8b5cf6&color=fff&size=128" 
+                                 class="rounded-circle border border-4 border-white shadow-sm position-relative z-1" width="120">
+                            <span class="position-absolute bottom-0 end-0 bg-success border border-3 border-white rounded-circle shadow-sm z-2" style="width: 20px; height: 20px; transform: translate(-10px, -10px);"></span>
+                        </div>
                     </div>
-                    <h3 class="fw-bold text-neutral-900 mb-1"><?= $user['full_name'] ?></h3>
-                    <p class="text-primary fw-semibold text-sm mb-4">@<?= $user['username'] ?></p>
-                    
-                    <div class="d-flex justify-content-center gap-2 mb-4">
-                        <span class="badge badge-soft-primary px-3 py-2 rounded-pill">
-                            <i class="fas fa-shield-alt me-2"></i>System Administrator
-                        </span>
-                    </div>
+                    <div class="p-4 pt-4 mt-n3">
+                        <h4 class="fw-bold text-neutral-900 mb-1"><?= $user['full_name'] ?></h4>
+                        <p class="text-primary fw-bold text-sm mb-3">@<?= $user['username'] ?></p>
+                        
+                        <div class="d-flex justify-content-center mb-4">
+                            <span class="badge bg-primary-50 text-primary px-3 py-2 rounded-pill fw-semibold">
+                                <i class="fas fa-shield-alt me-2"></i>System Administrator
+                            </span>
+                        </div>
 
-                    <hr class="opacity-10 my-4">
-
-                    <div class="row text-start g-4">
-                        <div class="col-12">
-                            <label class="text-xs text-neutral-400 text-uppercase fw-bold mb-1 d-block">Email Address</label>
-                            <p class="text-neutral-700 text-sm mb-0"><?= $user['email'] ?></p>
+                        <div class="text-start bg-neutral-50 rounded-4 p-3 border border-neutral-100">
+                            <label class="text-xs text-neutral-400 text-uppercase fw-bold d-block mb-1">Email Address</label>
+                            <div class="d-flex align-items-center text-neutral-800 fw-medium">
+                                <i class="fas fa-envelope text-neutral-400 me-2"></i>
+                                <?= $user['email'] ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -36,65 +41,104 @@
                 <!-- Analytics Section -->
                 <div class="row g-4 mb-4">
                     <div class="col-md-4">
-                        <div class="glass-card p-4 text-center border-bottom border-primary border-4">
-                            <div class="p-3 rounded-4 bg-primary-50 d-inline-block mb-3">
-                                <i class="fas fa-layer-group text-primary fs-4"></i>
+                        <div class="glass-card p-4 hover-translate-y h-100 position-relative overflow-hidden">
+                           
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bg-primary-50 rounded-3 p-2 text-primary">
+                                    <i class="fas fa-layer-group fs-5"></i>
+                                </div>
+                                <h6 class="mb-0 text-xs fw-bold text-neutral-500 text-uppercase">Total Projects</h6>
                             </div>
-                            <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['total_projects'] ?></h2>
-                            <p class="text-neutral-400 text-xs fw-bold text-uppercase mb-0">Total Projects</p>
+                            <h2 class="mb-0 fw-bold text-neutral-900" style="font-size: 2.5rem;"><?= $stats['total_projects'] ?></h2>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="glass-card p-4 text-center border-bottom border-success border-4">
-                            <div class="p-3 rounded-4 bg-success-soft d-inline-block mb-3">
-                                <i class="fas fa-tasks text-success fs-4"></i>
+                        <div class="glass-card p-4 hover-translate-y h-100 position-relative overflow-hidden">
+                            
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bg-success-soft rounded-3 p-2 text-success">
+                                    <i class="fas fa-tasks fs-5"></i>
+                                </div>
+                                <h6 class="mb-0 text-xs fw-bold text-neutral-500 text-uppercase">Active Tasks</h6>
                             </div>
-                            <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['total_tasks'] ?></h2>
-                            <p class="text-neutral-400 text-xs fw-bold text-uppercase mb-0">Active Tasks</p>
+                            <h2 class="mb-0 fw-bold text-neutral-900" style="font-size: 2.5rem;"><?= $stats['total_tasks'] ?></h2>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="glass-card p-4 text-center border-bottom border-info border-4">
-                            <div class="p-3 rounded-4 bg-info-soft d-inline-block mb-3">
-                                <i class="fas fa-users text-info fs-4"></i>
+                        <div class="glass-card p-4 hover-translate-y h-100 position-relative overflow-hidden">
+                            
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bg-info-soft rounded-3 p-2 text-info">
+                                    <i class="fas fa-users fs-5"></i>
+                                </div>
+                                <h6 class="mb-0 text-xs fw-bold text-neutral-500 text-uppercase">Team Members</h6>
                             </div>
-                            <h2 class="fw-bold text-neutral-900 mb-1"><?= $stats['total_staff'] ?></h2>
-                            <p class="text-neutral-400 text-xs fw-bold text-uppercase mb-0">Team Members</p>
+                            <h2 class="mb-0 fw-bold text-neutral-900" style="font-size: 2.5rem;"><?= $stats['total_staff'] ?></h2>
                         </div>
                     </div>
                 </div>
 
                 <!-- Security Settings -->
-                <div class="glass-card overflow-hidden p-0">
-                    <div class="p-4 border-bottom border-light">
-                        <h5 class="fw-bold text-neutral-900 mb-0">Security & Settings</h5>
-                    </div>
-                    <div class="p-4">
+                <div class="glass-card border-0">
+                    <div class="p-4 p-md-5">
+                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-neutral-100">
+                            <div class="bg-primary-50 p-2 rounded-3 me-3 text-primary">
+                                <i class="fas fa-user-shield fs-5"></i>
+                            </div>
+                            <h5 class="fw-bold text-neutral-900 mb-0">Security & Settings</h5>
+                        </div>
+                        
                         <form id="securityForm">
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Username</label>
-                                    <input type="text" class="form-control py-2" name="username" value="<?= $user['username'] ?>">
+                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase mb-2">Username</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-neutral-200 text-neutral-400 border-end-0 pe-0">
+                                            <i class="fas fa-at"></i>
+                                        </span>
+                                        <input type="text" class="form-control bg-white border-neutral-200 border-start-0 py-2 ps-2" name="username" value="<?= $user['username'] ?>">
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Role Access</label>
-                                    <input type="text" class="form-control bg-neutral-50 border-0 py-2" value="Administrator" readonly>
+                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase mb-2">Role Access</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-neutral-50 border-neutral-200 text-neutral-400 border-end-0 pe-0">
+                                            <i class="fas fa-id-badge"></i>
+                                        </span>
+                                        <input type="text" class="form-control bg-neutral-50 border-neutral-200 border-start-0 py-2 ps-2 text-neutral-600 fw-bold" value="Administrator" readonly disabled>
+                                    </div>
                                 </div>
-                                <div class="col-12">
-                                    <hr class="opacity-10">
-                                    <h6 class="fw-bold text-neutral-900 mb-3">Change Password</h6>
+                                
+                                <div class="col-12 mt-5">
+                                    <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-neutral-100">
+                                        <div class="bg-danger-soft p-2 rounded-3 me-3 text-danger">
+                                            <i class="fas fa-lock fs-5"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-neutral-900 mb-0">Change Password</h5>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase mb-2">New Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-neutral-200 text-neutral-400">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                        <input type="password" class="form-control border-neutral-200 py-2" name="new_password" placeholder="Min. 8 characters">
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">New Password</label>
-                                    <input type="password" class="form-control py-2" name="new_password" placeholder="Min. 8 characters">
+                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase mb-2">Confirm Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-neutral-200 text-neutral-400">
+                                            <i class="fas fa-check-double"></i>
+                                        </span>
+                                        <input type="password" class="form-control border-neutral-200 py-2" name="confirm_password" placeholder="Confirm new password">
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-xs fw-bold text-neutral-400 text-uppercase">Confirm Password</label>
-                                    <input type="password" class="form-control py-2" name="confirm_password" placeholder="Confirm new password">
-                                </div>
-                                <div class="col-12 text-end pt-3">
-                                    <button type="submit" class="btn btn-primary px-4 py-2 text-xs shadow-primary">
-                                        <i class="fas fa-save me-2"></i>Update Profile
+                                <div class="col-12 text-end pt-4 mt-4 border-top border-neutral-100">
+                                    <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-primary rounded-pill">
+                                        <i class="fas fa-save me-2"></i>Save Changes
                                     </button>
                                 </div>
                             </div>

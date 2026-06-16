@@ -49,6 +49,10 @@ class ProjectController
                 'status' => $_GET['status'] ?? null
             ];
             
+            if ($_SESSION['user_role'] !== 'admin') {
+                $filters['assigned_user_id'] = $_SESSION['user_id'];
+            }
+            
             $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
             $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
             $search = $_GET['search']['value'] ?? '';
@@ -65,7 +69,7 @@ class ProjectController
                 'data' => $projects
             ]);
         } catch (\Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()]);
+            echo json_encode(['error' => 'Database Error: ' . $e->getMessage()]);
         }
     }
 

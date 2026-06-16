@@ -65,8 +65,10 @@ $(document).ready(function() {
                 sidebar.toggleClass('active');
                 if (sidebar.hasClass('active')) {
                     body.css('overflow', 'hidden');
+                    $('#sidebar-overlay').addClass('show');
                 } else {
                     body.css('overflow', '');
+                    $('#sidebar-overlay').removeClass('show');
                 }
             }
         });
@@ -76,6 +78,7 @@ $(document).ready(function() {
         closeBtn.on('click', function() {
             sidebar.removeClass('active');
             body.css('overflow', '');
+            $('#sidebar-overlay').removeClass('show');
         });
     }
 
@@ -85,8 +88,16 @@ $(document).ready(function() {
             if (!sidebar.is(e.target) && sidebar.has(e.target).length === 0 && !toggler.is(e.target) && toggler.has(e.target).length === 0) {
                 sidebar.removeClass('active');
                 body.css('overflow', '');
+                $('#sidebar-overlay').removeClass('show');
             }
         }
+    });
+
+    // Close on overlay click
+    $(document).on('click', '#sidebar-overlay', function() {
+        sidebar.removeClass('active');
+        body.css('overflow', '');
+        $(this).removeClass('show');
     });
 
     // Initial tooltip setup
@@ -145,8 +156,21 @@ $(document).ready(function() {
 
         const $form = $(this).find('form');
         if ($form.length && !$form.hasClass('no-reset')) {
+            // 1. Native form reset
             $form[0].reset();
-            // Also reset hidden progress inputs if any
+            
+            // 2. Clear validation error markers
+            $form.find('.is-invalid').removeClass('is-invalid');
+            
+            // 3. Sync Select2 components with the reset form state
+            if (typeof $.fn.select2 === 'function') {
+                $form.find('select').each(function() {
+                    // Triggering change allows Select2 to read the natively reset DOM state
+                    $(this).trigger('change.select2');
+                });
+            }
+
+            // 4. Also reset hidden inputs (like edit IDs) if any
             $form.find('input[type="hidden"]').val(function(i, val) {
                 return $(this).hasClass('keep-val') ? val : '';
             });

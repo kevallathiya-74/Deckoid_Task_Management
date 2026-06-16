@@ -34,6 +34,11 @@ class Project
             $params['role_id'] = $filters['role_id'];
         }
 
+        if (!empty($filters['assigned_user_id'])) {
+            $sql .= " AND EXISTS (SELECT 1 FROM project_assignments pa WHERE pa.project_id = p.id AND pa.user_id = :assigned_user_id)";
+            $params['assigned_user_id'] = $filters['assigned_user_id'];
+        }
+
         if (!empty($search)) {
             $sql .= " AND (p.project_name LIKE :search OR p.client_name LIKE :search)";
             $params['search'] = "%$search%";
@@ -61,6 +66,11 @@ class Project
         if (!empty($filters['role_id'])) {
             $sql .= " AND p.role_id = :role_id";
             $params['role_id'] = $filters['role_id'];
+        }
+
+        if (!empty($filters['assigned_user_id'])) {
+            $sql .= " AND EXISTS (SELECT 1 FROM project_assignments pa WHERE pa.project_id = p.id AND pa.user_id = :assigned_user_id)";
+            $params['assigned_user_id'] = $filters['assigned_user_id'];
         }
 
         if (!empty($search)) {
