@@ -42,5 +42,8 @@ $router->get('/admin/kpi/staff-report', 'KPIController@staffReport');
 $router->get('/admin/leaves', 'LeaveController@adminIndex');
 $router->get('/staff/leaves', 'LeaveController@staffIndex');
 
+$router->get('/admin/sop', 'SopController@adminIndex');
+$router->get('/staff/sop', 'SopController@staffIndex');
+
 $router->get('/admin/profile', 'ProfileController@index');
 $router->get('/staff/profile', 'ProfileController@index');

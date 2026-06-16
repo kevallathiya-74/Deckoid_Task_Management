@@ -97,6 +97,14 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="<?= url('/admin/sop') ?>" class="nav-link <?= $active_page == 'sop' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="SOP">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-file-text"></i>
+                    </div>
+                    <span>SOP</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="<?= url('/admin/kpi') ?>" class="nav-link <?= $active_page == 'kpi' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="KPI Management">
                     <div class="nav-icon-container">
                         <i class="fas fa-chart-line"></i>
@@ -140,6 +148,14 @@
                         <i class="fas fa-calendar-day"></i>
                     </div>
                     <span>My Leaves</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="<?= url("/$prefix/sop") ?>" class="nav-link <?= $active_page == 'sop' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="My SOPs">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-file-text"></i>
+                    </div>
+                    <span>My SOPs</span>
                 </a>
             </li>
             <?php endif; ?>

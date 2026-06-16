@@ -269,6 +269,23 @@ class DashboardController
                 ];
             }
 
+            if ($userId) {
+                $notifModel = new \App\Models\NotificationModel();
+                $dbNotifs = $notifModel->getUnreadByUser($userId);
+                foreach ($dbNotifs as $n) {
+                    $items[] = [
+                        'type' => 'info',
+                        'icon' => 'fa-info-circle',
+                        'title' => $n['title'],
+                        'message' => $n['message'],
+                        'time' => date('h:i A', strtotime($n['created_at'])),
+                        'link' => $n['link'] ?? '#'
+                    ];
+                }
+            }
+
+            // Sort items by time descending (this is optional but good, let's just leave the order as is or similar)
+
             echo json_encode([
                 'status' => 'success',
                 'data' => [

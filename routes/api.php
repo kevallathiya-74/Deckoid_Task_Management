@@ -83,3 +83,8 @@ $router->get('/admin/api/daily-report/user/{id}', 'DailyReportController@fetchRe
 $router->get('/admin/api/daily-report/user/{id}/{date}', 'DailyReportController@fetchReportByUserDate');
 $router->post('/admin/api/daily-report/save', 'DailyReportController@saveReport');
 $router->post('/staff/api/daily-report/save', 'DailyReportController@saveReport');
+
+// SOP Management
+$router->get('/api/sops', 'SopController@list');
+$router->post('/api/sops/save', 'SopController@save');
+$router->post('/api/sops/delete', 'SopController@delete');
