@@ -35,9 +35,14 @@ $router->post('/api/tasks/recurring/process', 'TaskController@processRecurring')
 
 // Todo Module
 $router->get('/api/todos', 'TodoController@list');
+$router->get('/admin/todos', 'TodoController@listAdmin');
+$router->get('/staff/todos', 'TodoController@listStaff');
 $router->post('/api/todos/create', 'TodoController@create');
+$router->post('/staff/todos/create', 'TodoController@createStaff');
 $router->post('/api/todos/update', 'TodoController@update');
+$router->put('/todos/update', 'TodoController@update');
 $router->post('/api/todos/delete', 'TodoController@delete');
+$router->delete('/todos/delete', 'TodoController@delete');
 $router->post('/api/todos/reset_pinned', 'TodoController@resetPinned');
 
 // Dashboard & Analytics

@@ -29,6 +29,16 @@ class Router
         $this->add('POST', $uri, $action);
     }
 
+    public function put($uri, $action)
+    {
+        $this->add('PUT', $uri, $action);
+    }
+
+    public function delete($uri, $action)
+    {
+        $this->add('DELETE', $uri, $action);
+    }
+
     public function dispatch($uri, $method)
     {
         // Remove query string

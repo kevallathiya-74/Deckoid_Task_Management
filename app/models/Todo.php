@@ -19,8 +19,8 @@ class Todo
         $sql = "
             SELECT t.*, u.full_name as assigned_to_name, b.full_name as assigned_by_name
             FROM todo_lists t
-            JOIN users u ON t.assigned_to = u.id
-            JOIN users b ON t.assigned_by = b.id
+            LEFT JOIN users u ON t.assigned_to = u.id
+            LEFT JOIN users b ON t.assigned_by = b.id
             WHERE 1=1
         ";
         
@@ -29,6 +29,10 @@ class Todo
         if (!empty($filters['assigned_to'])) {
             $sql .= " AND t.assigned_to = :assigned_to";
             $params['assigned_to'] = $filters['assigned_to'];
+        }
+        if (!empty($filters['created_by'])) {
+            $sql .= " AND t.created_by = :created_by";
+            $params['created_by'] = $filters['created_by'];
         }
         if (!empty($filters['status'])) {
             $sql .= " AND t.status = :status";
@@ -52,8 +56,8 @@ class Todo
     {
         $id = $this->generateUuid();
         $stmt = $this->db->prepare("
-            INSERT INTO todo_lists (id, title, assigned_to, assigned_by, status, priority, notes, is_pinned) 
-            VALUES (:id, :title, :assigned_to, :assigned_by, :status, :priority, :notes, :is_pinned)
+            INSERT INTO todo_lists (id, title, assigned_to, assigned_by, status, priority, notes, is_pinned, todo_type, created_by) 
+            VALUES (:id, :title, :assigned_to, :assigned_by, :status, :priority, :notes, :is_pinned, :todo_type, :created_by)
         ");
         
         $success = $stmt->execute([
@@ -64,7 +68,9 @@ class Todo
             'status' => $data['status'] ?? 'pending',
             'priority' => $data['priority'] ?? 'medium',
             'notes' => $data['notes'] ?? null,
-            'is_pinned' => $data['is_pinned'] ?? false
+            'is_pinned' => $data['is_pinned'] ?? false,
+            'todo_type' => $data['todo_type'] ?? 'Normal Task',
+            'created_by' => $data['created_by'] ?? $_SESSION['user_id']
         ]);
 
         return $success ? $id : false;
@@ -79,7 +85,8 @@ class Todo
                 status = :status, 
                 priority = :priority, 
                 notes = :notes,
-                is_pinned = :is_pinned
+                is_pinned = :is_pinned,
+                todo_type = :todo_type
             WHERE id = :id
         ");
         
@@ -90,7 +97,8 @@ class Todo
             'status' => $data['status'],
             'priority' => $data['priority'],
             'notes' => $data['notes'] ?? null,
-            'is_pinned' => $data['is_pinned'] ?? false
+            'is_pinned' => $data['is_pinned'] ?? false,
+            'todo_type' => $data['todo_type'] ?? 'Normal Task'
         ]);
     }
 

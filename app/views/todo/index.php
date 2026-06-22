@@ -1,16 +1,9 @@
 <?php require_once ROOT_PATH . '/app/views/layouts/topbar.php'; ?>
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
-        <!-- Page Header -->
-        <!-- <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h1 class="h3 mb-1 text-neutral-800">Todo List</h1>
-                <p class="text-neutral-500 text-sm mb-0">Manage lightweight daily assignments</p>
-            </div>
-        </div> -->
 
-        <!-- Quick Create Row (Admin Only) -->
         <?php if ($_SESSION['user_role'] === 'admin'): ?>
+        <!-- Quick Create Row (Admin Only) -->
         <div class="card glass-card mb-3 border-0">
             <div class="card-body p-2">
                 <form id="createTodoForm" class="row g-2 align-items-center">
@@ -41,14 +34,36 @@
         </div>
 
         <!-- Filter Row -->
-        <div class="mb-3 d-flex align-items-center gap-2">
-            <label class="text-xs fw-bold text-neutral-500 text-uppercase mb-0">Filter by Staff:</label>
+        <div class="mb-3 d-flex align-items-center gap-2 justify-content-end">
+            <label class="text-xs fw-bold text-neutral-500 text-uppercase mb-0">Select Staff:</label>
             <select id="staffFilter" class="form-select form-select-sm glass-input" style="width: 200px;">
-                <option value="">All Staff</option>
+                <option value="">All Staff Members</option>
                 <?php foreach ($staff as $s): ?>
                     <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
                 <?php endforeach; ?>
             </select>
+        </div>
+        <?php else: ?>
+        <!-- Quick Create Row (Staff Only) -->
+        <div class="card glass-card mb-3 border-0">
+            <div class="card-body p-2">
+                <form id="createStaffTodoForm" class="row g-2 align-items-center">
+                    <div class="col-md-7">
+                        <input type="text" class="form-control glass-input" name="title" placeholder="Task" required maxlength="255">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select glass-input" name="todo_type" required>
+                            <option value="Normal Task" selected>Normal Task</option>
+                            <option value="Pinned Task">Pinned Task</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 btn-glow">
+                            <i class="fas fa-plus me-1"></i>Add Todo
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
         <?php endif; ?>
 
@@ -83,7 +98,9 @@
                         <thead class="table-light text-xs text-uppercase text-neutral-500">
                             <tr>
                                 <th class="px-4 py-3">Task</th>
+                                <th class="py-3">Todo Type</th>
                                 <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                                    <th class="py-3">Created By</th>
                                     <th class="py-3">Assigned To</th>
                                 <?php endif; ?>
                                 <th class="py-3 text-start" style="width: 220px; min-width:180px;">Remark</th>
@@ -108,8 +125,7 @@
     </div>
 </main>
 
-<!-- Edit Todo Modal (Admin Only) -->
-<?php if ($_SESSION['user_role'] === 'admin'): ?>
+<!-- Edit Todo Modal -->
 <div class="modal fade" id="editTodoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass-modal border-0">
@@ -124,6 +140,7 @@
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Task</label>
                         <input type="text" class="form-control glass-input text-sm" name="title" id="edit_todo_title" required>
                     </div>
+                    <?php if ($_SESSION['user_role'] === 'admin'): ?>
                     <div class="mb-3">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Assign Staff</label>
                         <select class="form-select glass-input text-sm" name="assigned_to" id="edit_todo_assigned_to" required>
@@ -132,7 +149,6 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Task Type</label>
                         <select class="form-select glass-input text-sm" name="is_pinned" id="edit_todo_is_pinned">
@@ -140,6 +156,15 @@
                             <option value="1">Pin Task</option>
                         </select>
                     </div>
+                    <?php else: ?>
+                    <div class="mb-3">
+                        <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Todo Type</label>
+                        <select class="form-select glass-input text-sm" name="todo_type" id="edit_todo_type" required>
+                            <option value="Normal Task">Normal Task</option>
+                            <option value="Pinned Task">Pinned Task</option>
+                        </select>
+                    </div>
+                    <?php endif; ?>
 
                     <div class="mb-3">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Status</label>
@@ -157,7 +182,6 @@
         </div>
     </div>
 </div>
-<?php endif; ?>
 
 <!-- JS -->
 
@@ -166,7 +190,13 @@ $(document).ready(function() {
     loadTodos();
 
     function loadTodos(staffId = '') {
-        const fetchUrl = staffId ? '<?= url('/api/todos') ?>?assigned_to=' + staffId : '<?= url('/api/todos') ?>';
+        let fetchUrl = '';
+        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+            fetchUrl = staffId ? '<?= url('/admin/todos') ?>?staff_id=' + staffId : '<?= url('/admin/todos') ?>';
+        <?php else: ?>
+            fetchUrl = '<?= url('/staff/todos') ?>';
+        <?php endif; ?>
+
         $.ajax({
             url: fetchUrl,
             type: 'GET',
@@ -179,8 +209,8 @@ $(document).ready(function() {
                     tbody.empty();
                     pinnedContainer.empty();
 
-                    const pinnedTodos = todos.filter(t => t.is_pinned == 1);
-                    const normalTodos = todos.filter(t => t.is_pinned != 1);
+                    const pinnedTodos = todos.filter(t => t.todo_type === 'Pinned Task' || t.is_pinned == 1);
+                    const normalTodos = todos.filter(t => t.todo_type !== 'Pinned Task' && t.is_pinned != 1);
 
                     // Handle Pinned Tasks
                     if (pinnedTodos.length > 0) {
@@ -193,10 +223,18 @@ $(document).ready(function() {
 
                             let assignedToHtml = '';
                             <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                                assignedToHtml = `
-                                    <div class="text-xs text-neutral-500 mt-1">Assigned: ${todo.assigned_to_name}</div>
-                                    ${todo.notes ? `<div class="text-xs text-neutral-600 mt-1 bg-neutral-50 p-1 px-2 rounded d-inline-block"><i class="fas fa-comment-dots me-1 text-primary"></i>${todo.notes}</div>` : ''}
-                                `;
+                                if (todo.assigned_to_name === todo.assigned_by_name) {
+                                    assignedToHtml = `
+                                        <div class="text-xs text-neutral-500 mt-1">Created By: ${todo.assigned_by_name} (Personal Task)</div>
+                                        ${todo.notes ? `<div class="text-xs text-neutral-600 mt-1 bg-neutral-50 p-1 px-2 rounded d-inline-block"><i class="fas fa-comment-dots me-1 text-primary"></i>${todo.notes}</div>` : ''}
+                                    `;
+                                } else {
+                                    assignedToHtml = `
+                                        <div class="text-xs text-neutral-500 mt-1">Assigned: ${todo.assigned_to_name}</div>
+                                        <div class="text-xs text-neutral-500 mt-1">Created By: ${todo.assigned_by_name}</div>
+                                        ${todo.notes ? `<div class="text-xs text-neutral-600 mt-1 bg-neutral-50 p-1 px-2 rounded d-inline-block"><i class="fas fa-comment-dots me-1 text-primary"></i>${todo.notes}</div>` : ''}
+                                    `;
+                                }
                             <?php endif; ?>
 
                             let checkboxHtml = '';
@@ -220,9 +258,16 @@ $(document).ready(function() {
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         ${checkboxHtml}
-                                        <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                                            <button class="btn btn-sm btn-icon btn-danger-subtle delete-todo m-0" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
-                                        <?php endif; ?>
+                                        <button class="btn btn-sm btn-icon btn-light-subtle edit-todo" 
+                                            data-id="${todo.id}" 
+                                            data-title="${todo.title}" 
+                                            data-assigned_to="${todo.assigned_to}" 
+                                            data-status="${todo.status}"
+                                            data-todo_type="${todo.todo_type}"
+                                            data-is_pinned="${todo.is_pinned}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-icon btn-danger-subtle delete-todo m-0" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </li>
                             `;
@@ -258,27 +303,46 @@ $(document).ready(function() {
                                 : '<span class="badge bg-warning-subtle text-warning">Pending</span>';
                             
                             let actions = '';
-                            <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                                actions = `
-                                    <div class="d-flex justify-content-end align-items-center gap-2">
-                                        <button class="btn btn-sm btn-icon btn-light-subtle edit-todo" 
-                                            data-id="${todo.id}" 
-                                            data-title="${todo.title}" 
-                                            data-assigned_to="${todo.assigned_to}" 
-                                            data-status="${todo.status}"
-                                            data-is_pinned="0">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-icon btn-danger-subtle delete-todo" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
+                            actions = `
+                                <div class="d-flex justify-content-end align-items-center gap-2">
+                                    <?php if ($_SESSION['user_role'] !== 'admin'): ?>
+                                    <div class="form-check m-0 me-2">
+                                        <input class="form-check-input toggle-status m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer; border: 2px solid #000 !important;" data-id="${todo.id}" ${todo.status === 'completed' ? 'checked' : ''}>
                                     </div>
+                                    <?php endif; ?>
+                                    <button class="btn btn-sm btn-icon btn-light-subtle edit-todo" 
+                                        data-id="${todo.id}" 
+                                        data-title="${todo.title}" 
+                                        data-assigned_to="${todo.assigned_to}" 
+                                        data-status="${todo.status}"
+                                        data-todo_type="${todo.todo_type}"
+                                        data-is_pinned="${todo.is_pinned}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-icon btn-danger-subtle delete-todo" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            `;
+
+                            let adminCols = '';
+                            <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                                adminCols = `
+                                    <td>${todo.assigned_by_name}</td>
+                                    <td>${todo.assigned_to_name}</td>
+                                `;
+                            <?php endif; ?>
+
+                            let remarkCol = '';
+                            <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                                remarkCol = `
+                                    <td class="text-start text-xs text-neutral-600 align-middle">
+                                        ${todo.notes ? `<div class="bg-neutral-50 p-2 rounded text-start" style="max-width: 260px; word-break: break-word;">${todo.notes}</div>` : '<span class="text-neutral-300 fst-italic">No remark</span>'}
+                                    </td>
                                 `;
                             <?php else: ?>
-                                actions = `
-                                    <div class="d-flex justify-content-end align-items-center">
-                                        <div class="form-check">
-                                            <input class="form-check-input toggle-status" type="checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer; border: 2px solid #000 !important;" data-id="${todo.id}" ${todo.status === 'completed' ? 'checked' : ''}>
-                                        </div>
-                                    </div>
+                                remarkCol = `
+                                    <td class="text-start align-middle">
+                                        <input type="text" class="form-control form-control-sm text-xs todo-remark" data-id="${todo.id}" placeholder="Enter remark..." value="${todo.notes || ''}" style="width: 220px; max-width:100%;">
+                                    </td>
                                 `;
                             <?php endif; ?>
 
@@ -287,16 +351,11 @@ $(document).ready(function() {
                                     <td class="px-4 py-3">
                                         <div class="fw-bold text-neutral-800">${todo.title}</div>
                                     </td>
-                                    <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                                        <td>${todo.assigned_to_name}</td>
-                                        <td class="text-start text-xs text-neutral-600 align-middle">
-                                            ${todo.notes ? `<div class="bg-neutral-50 p-2 rounded text-start" style="max-width: 260px; word-break: break-word;">${todo.notes}</div>` : '<span class="text-neutral-300 fst-italic">No remark</span>'}
-                                        </td>
-                                    <?php else: ?>
-                                        <td class="text-start align-middle">
-                                            <input type="text" class="form-control form-control-sm text-xs todo-remark" data-id="${todo.id}" placeholder="Enter remark..." value="${todo.notes || ''}" style="width: 220px; max-width:100%;">
-                                        </td>
-                                    <?php endif; ?>
+                                    <td>
+                                        <div class="badge bg-light text-dark border">${todo.todo_type}</div>
+                                    </td>
+                                    ${adminCols}
+                                    ${remarkCol}
                                     <td>${statusBadge}</td>
                                     <td>${new Date(todo.created_at).toLocaleDateString('en-GB')} ${new Date(todo.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
                                     <td class="px-4 text-end">${actions}</td>
@@ -319,7 +378,7 @@ $(document).ready(function() {
         loadTodos($('#staffFilter').length ? $('#staffFilter').val() : '');
     }
 
-    // Create Todo
+    // Create Admin Todo
     $('#createTodoForm').on('submit', function(e) {
         e.preventDefault();
         $.ajax({
@@ -330,6 +389,25 @@ $(document).ready(function() {
                 if (response.status === 'success') {
                     toastr.success(response.message);
                     $('#createTodoForm')[0].reset();
+                    reloadCurrentTasks();
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        });
+    });
+
+    // Create Staff Todo
+    $('#createStaffTodoForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '<?= url('/staff/todos/create') ?>',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.status === 'success') {
+                    toastr.success(response.message);
+                    $('#createStaffTodoForm')[0].reset();
                     reloadCurrentTasks();
                 } else {
                     toastr.error(response.message);
@@ -435,20 +513,24 @@ $(document).ready(function() {
         }
     });
 
-    // Edit Todo (Admin Only)
-    <?php if ($_SESSION['user_role'] === 'admin'): ?>
+    // Edit Todo
     $(document).on('click', '.edit-todo', function() {
         const id = $(this).data('id');
         const title = $(this).data('title');
         const assigned_to = $(this).data('assigned_to');
         const status = $(this).data('status');
         const is_pinned = $(this).data('is_pinned');
+        const todo_type = $(this).data('todo_type');
 
         $('#edit_todo_id').val(id);
         $('#edit_todo_title').val(title);
+        <?php if ($_SESSION['user_role'] === 'admin'): ?>
         $('#edit_todo_assigned_to').val(assigned_to);
-        $('#edit_todo_status').val(status);
         $('#edit_todo_is_pinned').val(is_pinned);
+        <?php else: ?>
+        $('#edit_todo_type').val(todo_type || 'Normal Task');
+        <?php endif; ?>
+        $('#edit_todo_status').val(status);
 
         $('#editTodoModal').modal('show');
     });
@@ -470,6 +552,5 @@ $(document).ready(function() {
             }
         });
     });
-    <?php endif; ?>
 });
 </script>
