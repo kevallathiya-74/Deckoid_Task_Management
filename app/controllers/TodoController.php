@@ -62,13 +62,14 @@ class TodoController
         header('Content-Type: application/json');
         try {
             $filters = [];
-            if (!empty($_GET['staff_id'])) {
-                // Show ONLY selected staff member's todos
-                $filters['created_by'] = $_GET['staff_id'];
-            } else {
-                // Show ONLY Admin's own todos
-                $filters['created_by'] = $_SESSION['user_id'];
+            if (empty($_GET['staff_id'])) {
+                // Return empty if no staff selected
+                echo json_encode(['status' => 'success', 'data' => []]);
+                return;
             }
+            
+            // Show ONLY selected staff member's todos (assigned to them or personal)
+            $filters['assigned_to'] = $_GET['staff_id'];
             $todos = $this->todoModel->listAll($filters);
             echo json_encode(['status' => 'success', 'data' => $todos]);
         } catch (\Exception $e) {
@@ -80,7 +81,7 @@ class TodoController
     {
         header('Content-Type: application/json');
         try {
-            $filters = ['created_by' => $_SESSION['user_id']];
+            $filters = ['assigned_to' => $_SESSION['user_id']];
             $todos = $this->todoModel->listAll($filters);
             echo json_encode(['status' => 'success', 'data' => $todos]);
         } catch (\Exception $e) {

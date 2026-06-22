@@ -37,7 +37,7 @@
         <div class="mb-3 d-flex align-items-center gap-2 justify-content-end">
             <label class="text-xs fw-bold text-neutral-500 text-uppercase mb-0">Select Staff:</label>
             <select id="staffFilter" class="form-select form-select-sm glass-input" style="width: 200px;">
-                <option value="">All Staff Members</option>
+                <option value="" selected>Select Staff Member</option>
                 <?php foreach ($staff as $s): ?>
                     <option value="<?= $s['id'] ?>"><?= $s['full_name'] ?></option>
                 <?php endforeach; ?>
@@ -292,6 +292,15 @@ $(document).ready(function() {
                     // Handle Normal Tasks
                     if (normalTodos.length === 0) {
                         $('#todoTable').addClass('d-none');
+                        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                        if (staffId === '') {
+                            $('#noTodosMessage').html('<div class="text-neutral-400 mb-2"><i class="fas fa-hand-pointer fa-3x"></i></div><p class="text-neutral-500 mb-0">Select a staff member to view todos.</p>');
+                        } else {
+                            $('#noTodosMessage').html('<div class="text-neutral-400 mb-2"><i class="fas fa-clipboard-list fa-3x"></i></div><p class="text-neutral-500 mb-0">No todos assigned yet</p>');
+                        }
+                        <?php else: ?>
+                        $('#noTodosMessage').html('<div class="text-neutral-400 mb-2"><i class="fas fa-clipboard-list fa-3x"></i></div><p class="text-neutral-500 mb-0">No todos assigned yet</p>');
+                        <?php endif; ?>
                         $('#noTodosMessage').removeClass('d-none');
                     } else {
                         $('#todoTable').removeClass('d-none');

@@ -1,484 +1,319 @@
-# AGENT AGENCY MASTER PROMPT
+# PRODUCTION TODO FILTER FIX – MASTER PROMPT
 
-# TODO LIST SYSTEM ENHANCEMENT (ADMIN + STAFF)
+## ISSUE
 
-## IMPORTANT RULES
+The Todo List is working correctly on Localhost.
 
-DO NOT change existing Todo List functionality.
+Current Local Behavior:
 
-DO NOT remove any existing features.
+* Admin opens Todo page.
+* No staff tasks are displayed initially.
+* Tasks appear only after selecting a staff member from the Staff Filter.
 
-DO NOT redesign UI.
-
-DO NOT modify current styling, colors, layout, or UX flow.
-
-Only extend the existing Todo system with the requirements below.
-
-If database changes are required:
-
-Create a NEW SQL file only.
-
-Do NOT modify existing tables directly.
-
-Provide a separate SQL migration file that can be imported into the existing database.
+This is the correct behavior.
 
 ---
 
-# OBJECTIVE
+## PRODUCTION ISSUE
 
-Implement a Staff Personal Todo System while maintaining full Admin visibility and control.
-
----
-
-# STAFF SIDE CHANGES
-
-Route:
-
-/staff/todo
-
-## ADD TODO FORM
-
-Allow staff users to create their own todos.
-
-Form Fields:
-
-### Task Field
-
-Label:
-
-Task
-
-Type:
-
-Text Input
-
-Required:
-
-Yes
-
-Validation:
-
-Cannot be empty
-
-Maximum Length:
-
-255 characters
-
----
-
-### Todo Type
-
-Label:
-
-Todo Type
-
-Dropdown Options:
-
-Normal Task
-
-Pinned Task
-
-Default:
-
-Normal Task
-
-Required:
-
-Yes
-
----
-
-### Add Button
-
-Label:
-
-Add Todo
-
-On Click:
-
-Validate form
-
-Save todo
-
-Refresh todo list
-
-Show success message
-
----
-
-# SAVE FUNCTIONALITY
-
-When Staff clicks Add Todo:
-
-Create new todo record.
-
-Save:
-
-todo_text
-
-todo_type
-
-created_by
-
-created_at
-
-updated_at
-
-status
-
-Default Status:
-
-Active
-
----
-
-# STAFF TODO DISPLAY
-
-Show only:
-
-Todos created by logged-in staff user.
-
-Do NOT show todos from other staff members.
-
-Pinned Tasks:
-
-Display at top.
-
-Normal Tasks:
-
-Display below pinned tasks.
-
-Keep all existing todo actions working.
-
----
-
-# ADMIN SIDE CHANGES
-
-Route:
+Production URL:
 
 /admin/todo
 
----
+Currently:
 
-# CURRENT ISSUE
+* All staff todos are automatically displayed when Admin opens the page.
+* Admin can immediately see every staff member's tasks.
 
-Currently Admin sees todos from all staff by default.
+This behavior is incorrect.
 
-This behavior must be removed.
-
----
-
-# NEW BEHAVIOR
-
-When Admin opens Todo List:
-
-Show ONLY Admin's own todos.
-
-Do NOT automatically display staff todos.
+I want Production to behave exactly like Localhost.
 
 ---
 
-# STAFF FILTER
+# REQUIRED BEHAVIOR
 
-Add Staff Filter Dropdown.
+## DEFAULT PAGE LOAD
 
-Position:
+When Admin opens:
 
-Top Right
+/admin/todo
 
-Beside existing filters.
+The system must NOT load staff todos.
+
+Show:
+
+Admin's own todos only
+
+OR
+
+Show empty state
+
+Example:
+
+"No staff selected"
+
+No staff tasks should be visible.
 
 ---
 
-Dropdown Label:
+# STAFF FILTER LOGIC
+
+Dropdown:
 
 Select Staff
 
-Options:
+Default Option:
+
+Select Staff Member
+
+Value:
+
+NULL
+
+NOT:
 
 All Staff Members
 
+---
+
+## WHEN PAGE LOADS
+
+Selected Staff:
+
+NULL
+
+Result:
+
+No staff tasks loaded.
+
+Do NOT execute:
+
+SELECT * FROM todos
+
+Do NOT execute:
+
+loadAllStaffTodos()
+
+Do NOT auto-fetch staff records.
+
+---
+
+# ONLY LOAD TASKS WHEN STAFF IS SELECTED
+
 Example:
+
+Admin selects:
 
 Darsh
 
-Keval
+Then load:
 
-Devansh
-
-etc.
-
----
-
-# FILTER FUNCTIONALITY
-
-If No Staff Selected:
-
-Show Admin's own todos only.
-
-If Staff Selected:
-
-Show only selected staff member's todos.
-
-Do NOT mix records.
-
----
-
-# TODO DISPLAY
-
-Display:
-
-Task
-
-Todo Type
-
-Created Date
-
-Status
-
-Created By
-
-Actions
-
----
-
-# PINNED TASK SUPPORT
-
-Pinned Tasks must remain at top.
-
-Sorting Order:
-
-Pinned Tasks First
-
-Normal Tasks Second
-
-Latest First
-
----
-
-# DATABASE REQUIREMENTS
-
-IF EXISTING TODO TABLE CANNOT SUPPORT THIS FEATURE
-
-Create separate SQL file:
-
-todo_staff_upgrade.sql
-
-Only add missing columns.
+Darsh todos only
 
 Example:
 
-created_by
+Admin selects:
 
-todo_type
+Keval
 
-updated_at
+Then load:
 
-Do NOT remove existing columns.
+Keval todos only
 
-Do NOT modify existing data.
+Example:
 
-Do NOT drop tables.
+Admin selects:
 
-Existing todos must remain intact.
+Administrator
+
+Then load:
+
+Administrator todos only
 
 ---
 
-# BACKEND CHANGES
+# REMOVE AUTO LOAD
 
-Update:
+Audit:
 
 Todo Controller
 
-Todo Model
+Todo API
+
+Todo AJAX
 
 Todo Service
 
 Todo Repository
 
-Todo API
+Todo Query
+
+Todo Page Initialization
+
+Remove any code similar to:
+
+loadAllTodos()
+
+getAllTodos()
+
+fetchAllTodos()
+
+SELECT * FROM todos
+
+showAllStaffTasks()
+
+automatic filter population
 
 ---
 
-# API REQUIREMENTS
+# PAGE INITIALIZATION
 
-Create / Update APIs
+Current Production Flow:
 
-GET
+Page Load
+→ Load All Todos
 
-/admin/todos
+This is wrong.
 
-Default:
+Replace with:
 
-Admin todos only
-
-Filter:
-
-staff_id
-
----
-
-GET
-
-/staff/todos
-
-Return:
-
-Logged-in staff todos only
+Page Load
+→ Load Nothing
+→ Wait For Staff Selection
+→ Load Selected Staff Todos
 
 ---
 
-POST
+# FILTER REQUIREMENTS
 
-/staff/todos/create
+Dropdown Placeholder:
 
-Create new todo
+Select Staff Member
 
----
+NOT:
 
-PUT
+All Staff Members
 
-/todos/update
+Default Value:
 
-Keep existing functionality
+Empty
 
----
+NULL
 
-DELETE
-
-/todos/delete
-
-Keep existing functionality
+No selection
 
 ---
 
-# SECURITY RULES
+# EMPTY STATE
 
-Staff User:
+When no staff selected:
 
-Can create own todos
+Show:
 
-Can view own todos
+Select a staff member to view todos.
 
-Can edit own todos
+Do not show:
 
-Can delete own todos
+All tasks
 
-Cannot access other staff todos
+All staff records
 
----
-
-Admin:
-
-Can view own todos
-
-Can filter by staff
-
-Can view staff todos
-
-Can manage staff todos
+Any user records
 
 ---
 
-# UI REQUIREMENTS
+# ADMIN OWN TASKS
 
-Use existing design system.
+If admin creates personal todos:
 
-Do NOT redesign.
+Show Admin Todos only.
 
-Use current:
+Do not mix:
 
-Cards
+Admin Todos
 
-Buttons
-
-Dropdowns
-
-Typography
-
-Spacing
-
-Theme
+Staff Todos
 
 ---
 
-# RESPONSIVE REQUIREMENTS
+# DATABASE
+
+Do NOT modify database.
+
+Do NOT create new tables.
+
+Do NOT alter schema.
+
+This is a frontend + backend filtering issue only.
+
+---
+
+# BACKEND VALIDATION
 
 Verify:
 
-1920px
+Admin Todo Controller
 
-1600px
+Admin Todo API
 
-1440px
+Admin Todo AJAX Requests
 
-1366px
+Admin Todo Queries
 
-1280px
+Admin Todo Filters
 
-1024px
+Production Environment Variables
 
-768px
+Production Cache
 
-480px
+Production Session Handling
 
-375px
-
-320px
-
-Requirements:
-
-No overflow
-
-No horizontal scroll
-
-No layout break
-
-No hidden controls
-
-No sidebar overlap
+Production Query Conditions
 
 ---
 
-# TEST CASES
+# POSSIBLE ROOT CAUSE
+
+Check if production contains:
+
+if(empty($staffId))
+{
+loadAllTodos();
+}
+
+This must be removed.
+
+Replace with:
+
+if(empty($staffId))
+{
+return [];
+}
+
+or
+
+showEmptyState();
+
+---
+
+# QA TESTING
 
 TEST 1
 
-Staff creates Normal Task.
+Open:
+
+/admin/todo
 
 Expected:
 
-Saved successfully.
-
-Visible in own list.
+No staff todos visible.
 
 ---
 
 TEST 2
 
-Staff creates Pinned Task.
-
-Expected:
-
-Saved successfully.
-
-Visible at top.
-
----
-
-TEST 3
-
-Admin opens Todo page.
-
-Expected:
-
-Only Admin todos visible.
-
----
-
-TEST 4
-
-Admin selects Darsh.
+Select Darsh.
 
 Expected:
 
@@ -486,9 +321,9 @@ Only Darsh todos visible.
 
 ---
 
-TEST 5
+TEST 3
 
-Admin switches to Keval.
+Select Keval.
 
 Expected:
 
@@ -496,41 +331,39 @@ Only Keval todos visible.
 
 ---
 
-TEST 6
+TEST 4
 
-Staff A cannot see Staff B todos.
-
-Expected:
-
-Access denied.
-
----
-
-TEST 7
-
-Existing todo functionality.
+Refresh page.
 
 Expected:
 
-No regression.
-
-Everything continues working.
+No staff todos visible again.
 
 ---
 
-# FINAL DELIVERY
+TEST 5
 
-Provide:
+Production and Local behavior match exactly.
 
-1. Database SQL file (separate migration)
-2. Controller updates
-3. Model updates
-4. API updates
-5. Admin UI updates
-6. Staff UI updates
-7. Security validation
-8. Responsive validation
-9. QA report
-10. Regression test report
+---
 
-Mark task complete only after all existing todo functionality remains unchanged and all new requirements are fully tested.
+# IMPORTANT
+
+DO NOT CHANGE:
+
+* Todo Design
+* Todo UI
+* Todo Layout
+* Todo Cards
+* Todo CRUD
+* Todo Status
+* Todo Pinning
+* Todo Assignment
+
+Only fix:
+
+Production filtering logic.
+
+The final result must behave exactly like Localhost:
+
+No staff tasks visible until a staff member is explicitly selected from the dropdown.
