@@ -462,91 +462,176 @@ class Task
         return $stmt->fetchAll();
     }
 
-    public function getOverdueTasks($userId = null, $search = '', $limit = null, $offset = null)
+    public function getOverdueTasks($userId = null, $search = '', $limit = null, $offset = null, $taskType = 'All')
     {
-        $sql = "
-            SELECT t.*, p.project_name, u.full_name as assigned_to_name,
-                   DATEDIFF(CURRENT_DATE(), t.due_date) as days_overdue
-            FROM tasks t
-            LEFT JOIN projects p ON t.project_id = p.id
-            LEFT JOIN users u ON t.assigned_to = u.id
-            WHERE t.due_date < CURRENT_DATE()
-              AND t.status != 'completed'
-              AND t.deleted_at IS NULL
-        ";
         $params = [];
+        $queries = [];
 
-        if ($userId) {
-            $sql .= " AND (t.assigned_to = :user_id OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :user_id2))";
-            $params['user_id']  = $userId;
-            $params['user_id2'] = $userId;
-        }
-        if (!empty($search)) {
-            $sql .= " AND (t.title LIKE :search OR p.project_name LIKE :search OR u.full_name LIKE :search)";
-            $params['search'] = "%$search%";
+        // 1. Project Tasks Query
+        if ($taskType === 'All' || $taskType === 'Tasks') {
+            $sql1 = "
+                SELECT t.id, t.title, p.project_name, u.full_name as assigned_to_name,
+                       t.due_date, DATEDIFF(CURRENT_DATE(), t.due_date) as days_overdue,
+                       'Task' as task_type, t.status
+                FROM tasks t
+                LEFT JOIN projects p ON t.project_id = p.id
+                LEFT JOIN users u ON t.assigned_to = u.id
+                WHERE t.due_date < CURRENT_DATE()
+                  AND t.status != 'completed'
+                  AND t.deleted_at IS NULL
+            ";
+            if ($userId) {
+                $sql1 .= " AND (t.assigned_to = :p_user_id OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :p_user_id2))";
+                $params['p_user_id'] = $userId;
+                $params['p_user_id2'] = $userId;
+            }
+            if (!empty($search)) {
+                $sql1 .= " AND (t.title LIKE :p_search OR p.project_name LIKE :p_search2 OR u.full_name LIKE :p_search3)";
+                $params['p_search'] = "%$search%";
+                $params['p_search2'] = "%$search%";
+                $params['p_search3'] = "%$search%";
+            }
+            $queries[] = $sql1;
         }
 
-        $sql .= " ORDER BY days_overdue DESC";
+        // 2. Todo Tasks Query
+        if ($taskType === 'All' || $taskType === 'Todo Tasks') {
+            $sql2 = "
+                SELECT td.id, td.title, NULL as project_name, 
+                       CASE 
+                           WHEN td.assigned_to = td.created_by OR td.assigned_to = td.assigned_by THEN CONCAT('Created By: ', u2.full_name, ' (Personal Task)')
+                           ELSE u2.full_name 
+                       END as assigned_to_name,
+                       td.deadline_date as due_date, DATEDIFF(CURRENT_DATE(), td.deadline_date) as days_overdue,
+                       'Todo Task' as task_type, td.status
+                FROM todo_lists td
+                LEFT JOIN users u2 ON td.assigned_to = u2.id
+                WHERE td.deadline_date IS NOT NULL 
+                  AND td.status != 'completed'
+                  AND (td.deadline_date < CURRENT_DATE() OR (td.deadline_date = CURRENT_DATE() AND td.deadline_time IS NOT NULL AND td.deadline_time <= CURRENT_TIME()))
+            ";
+            if ($userId) {
+                $sql2 .= " AND td.assigned_to = :t_user_id";
+                $params['t_user_id'] = $userId;
+            }
+            if (!empty($search)) {
+                $sql2 .= " AND (td.title LIKE :t_search OR u2.full_name LIKE :t_search2)";
+                $params['t_search'] = "%$search%";
+                $params['t_search2'] = "%$search%";
+            }
+            $queries[] = $sql2;
+        }
+
+        $finalSql = implode(" UNION ALL ", $queries);
+        $finalSql .= " ORDER BY days_overdue DESC";
 
         if ($limit !== null && $limit > 0) {
-            $sql .= " LIMIT " . (int)$limit;
+            $finalSql .= " LIMIT " . (int)$limit;
             if ($offset !== null && $offset >= 0) {
-                $sql .= " OFFSET " . (int)$offset;
+                $finalSql .= " OFFSET " . (int)$offset;
             }
         }
 
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->db->prepare($finalSql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function countOverdueTasks($userId = null, $search = '')
+    public function countOverdueTasks($userId = null, $search = '', $taskType = 'All')
     {
-        $sql = "
-            SELECT COUNT(*)
-            FROM tasks t
-            LEFT JOIN projects p ON t.project_id = p.id
-            LEFT JOIN users u ON t.assigned_to = u.id
-            WHERE t.due_date < CURRENT_DATE()
-              AND t.status != 'completed'
-              AND t.deleted_at IS NULL
-        ";
         $params = [];
+        $queries = [];
 
-        if ($userId) {
-            $sql .= " AND (t.assigned_to = :user_id OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :user_id2))";
-            $params['user_id']  = $userId;
-            $params['user_id2'] = $userId;
-        }
-        if (!empty($search)) {
-            $sql .= " AND (t.title LIKE :search OR p.project_name LIKE :search OR u.full_name LIKE :search)";
-            $params['search'] = "%$search%";
+        if ($taskType === 'All' || $taskType === 'Tasks') {
+            $sql1 = "
+                SELECT t.id
+                FROM tasks t
+                LEFT JOIN projects p ON t.project_id = p.id
+                LEFT JOIN users u ON t.assigned_to = u.id
+                WHERE t.due_date < CURRENT_DATE()
+                  AND t.status != 'completed'
+                  AND t.deleted_at IS NULL
+            ";
+            if ($userId) {
+                $sql1 .= " AND (t.assigned_to = :p_user_id OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :p_user_id2))";
+                $params['p_user_id'] = $userId;
+                $params['p_user_id2'] = $userId;
+            }
+            if (!empty($search)) {
+                $sql1 .= " AND (t.title LIKE :p_search OR p.project_name LIKE :p_search2 OR u.full_name LIKE :p_search3)";
+                $params['p_search'] = "%$search%";
+                $params['p_search2'] = "%$search%";
+                $params['p_search3'] = "%$search%";
+            }
+            $queries[] = $sql1;
         }
 
-        $stmt = $this->db->prepare($sql);
+        if ($taskType === 'All' || $taskType === 'Todo Tasks') {
+            $sql2 = "
+                SELECT td.id
+                FROM todo_lists td
+                LEFT JOIN users u2 ON td.assigned_to = u2.id
+                WHERE td.deadline_date IS NOT NULL 
+                  AND td.status != 'completed'
+                  AND (td.deadline_date < CURRENT_DATE() OR (td.deadline_date = CURRENT_DATE() AND td.deadline_time IS NOT NULL AND td.deadline_time <= CURRENT_TIME()))
+            ";
+            if ($userId) {
+                $sql2 .= " AND td.assigned_to = :t_user_id";
+                $params['t_user_id'] = $userId;
+            }
+            if (!empty($search)) {
+                $sql2 .= " AND (td.title LIKE :t_search OR u2.full_name LIKE :t_search2)";
+                $params['t_search'] = "%$search%";
+                $params['t_search2'] = "%$search%";
+            }
+            $queries[] = $sql2;
+        }
+
+        $finalSql = "SELECT COUNT(*) FROM (" . implode(" UNION ALL ", $queries) . ") as combined";
+
+        $stmt = $this->db->prepare($finalSql);
         $stmt->execute($params);
         return $stmt->fetchColumn();
     }
 
     public function getOverdueSummary($userId = null)
     {
-        $sql = "
-            SELECT
-                COUNT(*) as total_overdue,
-                COUNT(DISTINCT t.assigned_to) as staff_with_overdue,
-                COALESCE(MAX(DATEDIFF(CURRENT_DATE(), t.due_date)), 0) as max_overdue_days
+        $params = [];
+        
+        $sql1 = "
+            SELECT t.assigned_to, DATEDIFF(CURRENT_DATE(), t.due_date) as days_overdue
             FROM tasks t
             WHERE t.due_date < CURRENT_DATE()
               AND t.status != 'completed'
               AND t.deleted_at IS NULL
         ";
-        $params = [];
         if ($userId) {
-            $sql .= " AND (t.assigned_to = :user_id OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :user_id2))";
-            $params['user_id'] = $userId;
-            $params['user_id2'] = $userId;
+            $sql1 .= " AND (t.assigned_to = :p_uid OR t.id IN (SELECT task_id FROM task_assignments WHERE user_id = :p_uid2))";
+            $params['p_uid'] = $userId;
+            $params['p_uid2'] = $userId;
         }
-        $stmt = $this->db->prepare($sql);
+
+        $sql2 = "
+            SELECT td.assigned_to, DATEDIFF(CURRENT_DATE(), td.deadline_date) as days_overdue
+            FROM todo_lists td
+            WHERE td.deadline_date IS NOT NULL 
+              AND td.status != 'completed'
+              AND (td.deadline_date < CURRENT_DATE() OR (td.deadline_date = CURRENT_DATE() AND td.deadline_time IS NOT NULL AND td.deadline_time <= CURRENT_TIME()))
+        ";
+        if ($userId) {
+            $sql2 .= " AND td.assigned_to = :t_uid";
+            $params['t_uid'] = $userId;
+        }
+
+        $finalSql = "
+            SELECT 
+                COUNT(*) as total_overdue,
+                COUNT(DISTINCT combined.assigned_to) as staff_with_overdue,
+                COALESCE(MAX(combined.days_overdue), 0) as max_overdue_days
+            FROM (" . $sql1 . " UNION ALL " . $sql2 . ") as combined
+        ";
+
+        $stmt = $this->db->prepare($finalSql);
         $stmt->execute($params);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }

@@ -35,6 +35,7 @@ $router->post('/api/tasks/recurring/process', 'TaskController@processRecurring')
 
 // Todo Module
 $router->get('/api/todos', 'TodoController@list');
+$router->get('/api/todos/overdue', 'TodoController@getOverdue');
 $router->get('/admin/todos', 'TodoController@listAdmin');
 $router->get('/staff/todos', 'TodoController@listStaff');
 $router->post('/api/todos/create', 'TodoController@create');

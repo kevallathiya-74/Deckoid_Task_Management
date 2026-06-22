@@ -248,6 +248,39 @@ class DashboardController
                 ];
             }
 
+            // --- BEGIN TODOS INTEGRATION ---
+            // Process persistent reminders for Todos before pulling them
+            $this->processTodoReminders($userId, $isAdminOrManager);
+
+            // Fetch overdue Todos
+            $todoSql = "
+                SELECT t.id, t.title, t.deadline_date, t.deadline_time, DATEDIFF(CURRENT_DATE(), t.deadline_date) as days_overdue
+                FROM todo_lists t
+                WHERE t.deadline_date IS NOT NULL 
+                AND t.status != 'completed' 
+                AND (t.deadline_date < CURRENT_DATE() OR (t.deadline_date = CURRENT_DATE() AND t.deadline_time IS NOT NULL AND t.deadline_time <= CURRENT_TIME()))
+            ";
+            $todoParams = [];
+            if ($userId) {
+                $todoSql .= " AND t.assigned_to = :uid";
+                $todoParams = ['uid' => $userId];
+            }
+            $stmtTodo = $this->db->prepare($todoSql);
+            $stmtTodo->execute($todoParams);
+            $overdueTodos = $stmtTodo->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($overdueTodos as $todo) {
+                $items[] = [
+                    'type' => 'danger',
+                    'icon' => 'fa-exclamation-triangle',
+                    'title' => 'Overdue Todo',
+                    'message' => $todo['title'] . ($todo['days_overdue'] > 0 ? ' (' . $todo['days_overdue'] . ' days overdue)' : ' (Overdue today)'),
+                    'time' => date('M d', strtotime($todo['deadline_date'])),
+                    'link' => url('/' . ($isAdminOrManager ? 'admin' : 'staff') . '/todo')
+                ];
+            }
+            // --- END TODOS INTEGRATION ---
+
             $todaySql = "SELECT title, due_time FROM tasks WHERE due_date = CURRENT_DATE() AND status != 'completed' AND deleted_at IS NULL";
             $params = [];
             if ($userId) {
@@ -266,6 +299,32 @@ class DashboardController
                     'message' => $task['title'],
                     'time' => $task['due_time'] ? date('h:i A', strtotime($task['due_time'])) : 'Today',
                     'link' => url('/' . ($isAdminOrManager ? 'admin' : 'staff') . '/tasks')
+                ];
+            }
+
+            // Fetch Due Today Todos
+            $todayTodoSql = "
+                SELECT title, deadline_time 
+                FROM todo_lists 
+                WHERE deadline_date = CURRENT_DATE() 
+                AND status != 'completed'
+                AND (deadline_time IS NULL OR deadline_time > CURRENT_TIME())
+            ";
+            if ($userId) {
+                $todayTodoSql .= " AND assigned_to = :uid";
+            }
+            $stmtTodayTodo = $this->db->prepare($todayTodoSql);
+            $stmtTodayTodo->execute($todoParams);
+            $todayTodos = $stmtTodayTodo->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($todayTodos as $todo) {
+                $items[] = [
+                    'type' => 'warning',
+                    'icon' => 'fa-clock',
+                    'title' => 'Todo Due Today',
+                    'message' => $todo['title'],
+                    'time' => $todo['deadline_time'] ? date('h:i A', strtotime($todo['deadline_time'])) : 'Today',
+                    'link' => url('/' . ($isAdminOrManager ? 'admin' : 'staff') . '/todo')
                 ];
             }
 
@@ -298,6 +357,82 @@ class DashboardController
         }
     }
 
+    private function processTodoReminders($userId, $isAdminOrManager)
+    {
+        $notifModel = new \App\Models\NotificationModel();
+        
+        $sql = "
+            SELECT id, title, assigned_to, deadline_date, deadline_time, reminder_sent
+            FROM todo_lists
+            WHERE deadline_date IS NOT NULL
+            AND status != 'completed'
+            AND reminder_sent < 3
+        ";
+        
+        // We evaluate reminders globally, so we don't necessarily filter by user here 
+        // to ensure notifications are generated in the DB. Or we can just filter by user.
+        if ($userId) {
+            $sql .= " AND assigned_to = " . $this->db->quote($userId);
+        }
+        
+        $stmt = $this->db->query($sql);
+        $todos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        $now = new \DateTime();
+        
+        foreach ($todos as $todo) {
+            $deadline = new \DateTime($todo['deadline_date'] . ' ' . ($todo['deadline_time'] ?? '23:59:59'));
+            $diffSeconds = $deadline->getTimestamp() - $now->getTimestamp();
+            $state = (int)$todo['reminder_sent'];
+            
+            $newState = $state;
+            $shouldNotify = false;
+            $msg = '';
+            
+            // At exact deadline (or passed it but not yet sent)
+            if ($diffSeconds <= 0 && $state < 3) {
+                $newState = 3;
+                $shouldNotify = true;
+                $msg = "Your todo deadline has been reached: " . $todo['title'];
+            } 
+            // 1 Hour Before
+            elseif ($diffSeconds > 0 && $diffSeconds <= 3600 && $state < 2 && !empty($todo['deadline_time'])) {
+                $newState = 2;
+                $shouldNotify = true;
+                $msg = "Your todo is due in 1 hour: " . $todo['title'];
+            }
+            // 1 Day Before or 9 AM on day
+            elseif ($diffSeconds > 3600 && $diffSeconds <= 86400 && $state < 1) {
+                if (empty($todo['deadline_time'])) {
+                    // Date only: 9 AM on deadline day
+                    $nineAm = new \DateTime($todo['deadline_date'] . ' 09:00:00');
+                    if ($now >= $nineAm) {
+                        $newState = 1;
+                        $shouldNotify = true;
+                        $msg = "Your todo deadline is approaching today: " . $todo['title'];
+                    }
+                } else {
+                    // Date + Time: 1 Day Before
+                    $newState = 1;
+                    $shouldNotify = true;
+                    $msg = "Your todo is due tomorrow: " . $todo['title'];
+                }
+            }
+            
+            if ($shouldNotify) {
+                $notifModel->create([
+                    'user_id' => $todo['assigned_to'],
+                    'title' => 'Todo Reminder',
+                    'message' => $msg,
+                    'type' => 'warning',
+                    'link' => url('/staff/todo')
+                ]);
+                $upd = $this->db->prepare("UPDATE todo_lists SET reminder_sent = :rs WHERE id = :id");
+                $upd->execute(['rs' => $newState, 'id' => $todo['id']]);
+            }
+        }
+    }
+
     private function getStats()
     {
         $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
@@ -326,6 +461,21 @@ class DashboardController
             ");
             $stmt->execute(['uid' => $userId, 'uid2' => $userId]);
             $taskStats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Fetch Todo counts
+            $stmtTodo = $this->db->prepare("
+                SELECT 
+                    SUM(CASE WHEN deadline_date = CURDATE() THEN 1 ELSE 0 END) as due_today,
+                    SUM(CASE WHEN deadline_date < CURDATE() OR (deadline_date = CURDATE() AND deadline_time < CURRENT_TIME()) THEN 1 ELSE 0 END) as overdue_tasks
+                FROM todo_lists 
+                WHERE status != 'completed'
+                AND assigned_to = :uid
+            ");
+            $stmtTodo->execute(['uid' => $userId]);
+            $todoStats = $stmtTodo->fetch(PDO::FETCH_ASSOC);
+
+            $taskStats['due_today'] += (int)$todoStats['due_today'];
+            $taskStats['overdue_tasks'] += (int)$todoStats['overdue_tasks'];
         } else {
             // Combine projects counts
             $projectStats = $this->db->query("
@@ -342,6 +492,17 @@ class DashboardController
                 FROM tasks 
                 WHERE deleted_at IS NULL AND status != 'completed'
             ")->fetch(PDO::FETCH_ASSOC);
+
+            $todoStats = $this->db->query("
+                SELECT 
+                    SUM(CASE WHEN deadline_date = CURDATE() THEN 1 ELSE 0 END) as due_today,
+                    SUM(CASE WHEN deadline_date < CURDATE() OR (deadline_date = CURDATE() AND deadline_time < CURRENT_TIME()) THEN 1 ELSE 0 END) as overdue_tasks
+                FROM todo_lists 
+                WHERE status != 'completed'
+            ")->fetch(PDO::FETCH_ASSOC);
+
+            $taskStats['due_today'] += (int)$todoStats['due_today'];
+            $taskStats['overdue_tasks'] += (int)$todoStats['overdue_tasks'];
         }
 
         return [

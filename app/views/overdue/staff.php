@@ -47,6 +47,13 @@ require_once __DIR__ . '/../layouts/sidebar.php';
         <div class="glass-card p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="fw-bold text-neutral-900 mb-0 font-outfit">My Overdue Tasks</h5>
+                <div class="d-flex gap-3">
+                    <select class="form-select glass-input fw-bold border-0 bg-neutral-50 rounded-pill px-4" id="taskTypeFilter" style="width: 200px;">
+                        <option value="All">All</option>
+                        <option value="Tasks">Tasks</option>
+                        <option value="Todo Tasks">Todo Tasks</option>
+                    </select>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -54,6 +61,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     <thead>
                         <tr>
                             <th class="ps-4 text-xs fw-bold text-uppercase text-neutral-400">Task Title</th>
+                            <th class="text-xs fw-bold text-uppercase text-neutral-400">Task Type</th>
                             <th class="text-xs fw-bold text-uppercase text-neutral-400">Assigned To</th>
                             <th class="text-xs fw-bold text-uppercase text-neutral-400">Due Date</th>
                             <th class="text-xs fw-bold text-uppercase text-neutral-400">Status</th>
@@ -74,13 +82,23 @@ $(document).ready(function() {
         serverSide: true,
         ajax: {
             url: '<?= url('/api/tasks/overdue') ?>',
-            dataSrc: 'data'
+            dataSrc: 'data',
+            data: function(d) {
+                d.task_type = $('#taskTypeFilter').val();
+            }
         },
         columns: [
             { 
                 data: 'title',
                 render: function(data) {
                     return `<div class="fw-bold text-neutral-900 font-outfit px-3 py-2">${data}</div>`;
+                }
+            },
+            {
+                data: 'task_type',
+                render: function(data) {
+                    const badgeClass = data === 'Task' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info';
+                    return `<span class="badge ${badgeClass} px-3 py-2 rounded-pill fw-bold text-uppercase" style="font-size: 0.75rem;">${data}</span>`;
                 }
             },
             {
@@ -98,6 +116,7 @@ $(document).ready(function() {
             {
                 data: 'status',
                 render: function(data) {
+                    if (!data) data = 'pending';
                     let cls = 'bg-primary-soft text-primary';
                     if (data === 'in_progress') cls = 'bg-warning-soft text-warning';
                     if (data === 'review') cls = 'bg-info-soft text-info';
@@ -129,6 +148,10 @@ $(document).ready(function() {
     });
 
     $('.dataTables_filter input').addClass('form-control border-0 bg-neutral-50 rounded-pill px-4').attr('placeholder', 'Search tasks...').css({'height': '45px'});
+
+    $('#taskTypeFilter').on('change', function() {
+        table.ajax.reload();
+    });
 });
 </script>
 

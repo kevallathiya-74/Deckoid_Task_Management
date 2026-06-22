@@ -122,8 +122,15 @@ $(document).ready(function() {
     setInterval(fetchNotifications, 30000);
 
     function checkOverdueStatus() {
-        $.get('<?= url('/api/tasks/overdue') ?>', function(res) {
-            if (res.status === 'success' && res.data && res.data.length > 0) {
+        $.when(
+            $.get('<?= url('/api/tasks/overdue') ?>'),
+            $.get('<?= url('/api/todos/overdue') ?>')
+        ).done(function(tasksRes, todosRes) {
+            let hasOverdue = false;
+            if (tasksRes[0] && tasksRes[0].status === 'success' && tasksRes[0].data && tasksRes[0].data.length > 0) hasOverdue = true;
+            if (todosRes[0] && todosRes[0].status === 'success' && todosRes[0].data && todosRes[0].data.length > 0) hasOverdue = true;
+
+            if (hasOverdue) {
                 $('.overdue-sidebar-icon').addClass('text-danger');
                 $('.overdue-sidebar-text').addClass('text-danger fw-bold');
                 

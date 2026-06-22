@@ -50,7 +50,7 @@ class TodoController
             }
 
             $todos = $this->todoModel->listAll($filters);
-            echo json_encode(['status' => 'success', 'data' => $todos]);
+            echo json_encode(['status' => 'success', 'data' => $todos], JSON_INVALID_UTF8_SUBSTITUTE);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -71,7 +71,7 @@ class TodoController
             // Show ONLY selected staff member's todos (assigned to them or personal)
             $filters['assigned_to'] = $_GET['staff_id'];
             $todos = $this->todoModel->listAll($filters);
-            echo json_encode(['status' => 'success', 'data' => $todos]);
+            echo json_encode(['status' => 'success', 'data' => $todos], JSON_INVALID_UTF8_SUBSTITUTE);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -83,7 +83,7 @@ class TodoController
         try {
             $filters = ['assigned_to' => $_SESSION['user_id']];
             $todos = $this->todoModel->listAll($filters);
-            echo json_encode(['status' => 'success', 'data' => $todos]);
+            echo json_encode(['status' => 'success', 'data' => $todos], JSON_INVALID_UTF8_SUBSTITUTE);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -103,11 +103,18 @@ class TodoController
                 'notes' => trim($_POST['notes'] ?? ''),
                 'is_pinned' => isset($_POST['is_pinned']) ? (bool)$_POST['is_pinned'] : false,
                 'todo_type' => isset($_POST['is_pinned']) && $_POST['is_pinned'] ? 'Pinned Task' : 'Normal Task',
+                'deadline_date' => !empty($_POST['deadline_date']) ? $_POST['deadline_date'] : null,
+                'deadline_time' => !empty($_POST['deadline_time']) ? $_POST['deadline_time'] : null,
                 'created_by' => $_SESSION['user_id']
             ];
 
             if (empty($data['title']) || empty($data['assigned_to'])) {
                 echo json_encode(['status' => 'validation_error', 'message' => 'Title and Assignee are required']);
+                return;
+            }
+
+            if (!empty($data['deadline_time']) && empty($data['deadline_date'])) {
+                echo json_encode(['status' => 'validation_error', 'message' => 'Please select a deadline date first.']);
                 return;
             }
 
@@ -134,11 +141,18 @@ class TodoController
                 'notes' => '',
                 'todo_type' => $_POST['todo_type'] ?? 'Normal Task',
                 'is_pinned' => (isset($_POST['todo_type']) && $_POST['todo_type'] === 'Pinned Task') ? true : false,
+                'deadline_date' => !empty($_POST['deadline_date']) ? $_POST['deadline_date'] : null,
+                'deadline_time' => !empty($_POST['deadline_time']) ? $_POST['deadline_time'] : null,
                 'created_by' => $_SESSION['user_id']
             ];
 
             if (empty($data['title'])) {
                 echo json_encode(['status' => 'validation_error', 'message' => 'Title is required']);
+                return;
+            }
+
+            if (!empty($data['deadline_time']) && empty($data['deadline_date'])) {
+                echo json_encode(['status' => 'validation_error', 'message' => 'Please select a deadline date first.']);
                 return;
             }
 
@@ -190,8 +204,15 @@ class TodoController
                 'priority' => $input['priority'] ?? $todo['priority'],
                 'notes' => $input['notes'] ?? $todo['notes'],
                 'is_pinned' => isset($input['is_pinned']) ? (bool)$input['is_pinned'] : (bool)$todo['is_pinned'],
-                'todo_type' => $input['todo_type'] ?? $todo['todo_type']
+                'todo_type' => $input['todo_type'] ?? $todo['todo_type'],
+                'deadline_date' => isset($input['deadline_date']) ? (!empty($input['deadline_date']) ? $input['deadline_date'] : null) : $todo['deadline_date'],
+                'deadline_time' => isset($input['deadline_time']) ? (!empty($input['deadline_time']) ? $input['deadline_time'] : null) : $todo['deadline_time']
             ];
+
+            if (!empty($data['deadline_time']) && empty($data['deadline_date'])) {
+                echo json_encode(['status' => 'validation_error', 'message' => 'Please select a deadline date first.']);
+                return;
+            }
 
             // Staff can only fully update if they created it. 
             // If they are just assigned, they can only update status. 
@@ -205,7 +226,9 @@ class TodoController
                         'priority' => $todo['priority'],
                         'notes' => $input['notes'] ?? $todo['notes'],
                         'is_pinned' => $todo['is_pinned'],
-                        'todo_type' => $todo['todo_type']
+                        'todo_type' => $todo['todo_type'],
+                        'deadline_date' => $todo['deadline_date'],
+                        'deadline_time' => $todo['deadline_time']
                     ];
                 } else {
                     // Ensure assigned_to remains self if created by self
@@ -279,6 +302,41 @@ class TodoController
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Failed to reset pinned tasks']);
             }
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getOverdue()
+    {
+        header('Content-Type: application/json');
+        try {
+            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+            $userId = $isAdminOrManager ? null : $_SESSION['user_id'];
+            
+            $db = \App\Core\Database::getInstance()->getConnection();
+            $sql = "
+                SELECT t.id, t.title, t.deadline_date, t.deadline_time, DATEDIFF(CURRENT_DATE(), t.deadline_date) as days_overdue
+                FROM todo_lists t
+                WHERE t.deadline_date IS NOT NULL 
+                AND t.status != 'completed' 
+                AND (t.deadline_date < CURRENT_DATE() OR (t.deadline_date = CURRENT_DATE() AND t.deadline_time IS NOT NULL AND t.deadline_time <= CURRENT_TIME()))
+            ";
+            
+            $params = [];
+            if ($userId) {
+                $sql .= " AND t.assigned_to = :uid";
+                $params['uid'] = $userId;
+            }
+            
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            $todos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => $todos
+            ]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }

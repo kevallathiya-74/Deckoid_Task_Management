@@ -308,10 +308,11 @@ class TaskController
             $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
             $length = isset($_GET['length']) ? (int)$_GET['length'] : null;
             $search = $_GET['search']['value'] ?? '';
+            $taskType = $_GET['task_type'] ?? 'All';
 
-            $tasks = $this->taskModel->getOverdueTasks($userId, $search, $length, $start);
-            $recordsFiltered = $this->taskModel->countOverdueTasks($userId, $search);
-            $recordsTotal = $this->taskModel->countOverdueTasks($userId, '');
+            $tasks = $this->taskModel->getOverdueTasks($userId, $search, $length, $start, $taskType);
+            $recordsFiltered = $this->taskModel->countOverdueTasks($userId, $search, $taskType);
+            $recordsTotal = $this->taskModel->countOverdueTasks($userId, '', $taskType);
 
             echo json_encode([
                 'status' => 'success',
@@ -319,7 +320,7 @@ class TaskController
                 'recordsTotal' => $recordsTotal,
                 'recordsFiltered' => $recordsFiltered,
                 'data' => $tasks
-            ]);
+            ], JSON_INVALID_UTF8_SUBSTITUTE);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }

@@ -1,299 +1,405 @@
-# PRODUCTION TODO FILTER FIX – MASTER PROMPT
+# AGENT AGENCY MASTER PROMPT
 
-## ISSUE
+# OVERDUE TASKS + OVERDUE TODO TASKS FILTER ENHANCEMENT
 
-The Todo List is working correctly on Localhost.
+## OBJECTIVE
 
-Current Local Behavior:
+Enhance the existing Overdue Tasks Management module to support both:
 
-* Admin opens Todo page.
-* No staff tasks are displayed initially.
-* Tasks appear only after selecting a staff member from the Staff Filter.
+1. Overdue Project Tasks
+2. Overdue Todo Tasks
 
-This is the correct behavior.
+without changing any existing functionality.
+
+The current overdue page only displays overdue project tasks.
+
+I want overdue todo items to be included as well and provide filtering between both task types.
 
 ---
 
-## PRODUCTION ISSUE
+# AFFECTED PAGES
 
-Production URL:
+Admin:
 
-/admin/todo
+/admin/overdue
 
-Currently:
+Staff:
 
-* All staff todos are automatically displayed when Admin opens the page.
-* Admin can immediately see every staff member's tasks.
+/staff/overdue
 
-This behavior is incorrect.
+Apply the same logic on both sides.
 
-I want Production to behave exactly like Localhost.
+---
+
+# CURRENT BEHAVIOR
+
+Current page displays:
+
+* Task Title
+* Assignee
+* Due Date
+* Days Overdue
+* Project
+
+Only project tasks appear.
 
 ---
 
 # REQUIRED BEHAVIOR
 
-## DEFAULT PAGE LOAD
+The Overdue Page must support:
 
-When Admin opens:
+## Overdue Project Tasks
 
-/admin/todo
+Existing functionality.
 
-The system must NOT load staff todos.
+Keep exactly as it is.
+
+---
+
+## Overdue Todo Tasks
+
+If:
+
+Todo Deadline < Current DateTime
+
+AND
+
+Todo Status != Completed
+
+Then:
+
+Automatically move into Overdue System.
+
+Display on Overdue page.
+
+---
+
+# NEW FILTER SECTION
+
+Current Filter:
+
+All Staff Members
+
+Keep existing filter.
+
+---
+
+# ADD NEW FILTER
+
+Position:
+
+Beside
+
+All Staff Members
+
+Top Right
+
+Same Row
+
+Same UI Style
+
+Same Height
+
+Same Width Pattern
+
+---
+
+# TASK TYPE FILTER
+
+Label:
+
+Task Type
+
+Options:
+
+All
+
+Project Tasks
+
+Todo Tasks
+
+Default:
+
+All
+
+---
+
+# FILTER BEHAVIOR
+
+## ALL
 
 Show:
 
-Admin's own todos only
+Project Tasks
+
+*
+
+Todo Tasks
+
+---
+
+## PROJECT TASKS
+
+Show:
+
+Only project tasks
+
+Hide todo tasks
+
+---
+
+## TODO TASKS
+
+Show:
+
+Only overdue todo items
+
+Hide project tasks
+
+---
+
+# TABLE CHANGES
+
+Add new column:
+
+Task Type
+
+Position:
+
+After Task Title
+
+---
+
+# VALUES
+
+For project task:
+
+Project Task
+
+Badge Color:
+
+Blue
+
+---
+
+For todo task:
+
+Todo Task
+
+Badge Color:
+
+Purple
+
+---
+
+# OVERDUE TODO DISPLAY
+
+For overdue todo tasks show:
+
+Task Title
+
+Task Type
+
+Assigned User
+
+Due Date
+
+Days Overdue
+
+Created By
+
+Status
+
+---
+
+# OVERDUE CALCULATION
+
+Formula:
+
+Current DateTime - Due DateTime
+
+Example:
+
+Deadline:
+
+16 Jun 2026
+
+Current:
+
+22 Jun 2026
+
+Display:
+
+6 Days
+
+---
+
+# ADMIN SIDE
+
+Admin should be able to:
+
+View all overdue project tasks
+
+View all overdue todo tasks
+
+Filter by:
+
+Staff
+
+Task Type
+
+---
+
+# STAFF SIDE
+
+Staff should only see:
+
+Their own overdue project tasks
+
+Their own overdue todo tasks
+
+---
+
+# DASHBOARD COUNTS
+
+Update existing overdue statistics.
+
+Current:
+
+Total Overdue Tasks
+
+Affected Staff
+
+---
+
+# TOTAL OVERDUE TASKS
+
+Must include:
+
+Overdue Project Tasks
+
+*
+
+Overdue Todo Tasks
+
+---
+
+# AFFECTED STAFF
+
+Count users having:
+
+At least one overdue project task
 
 OR
 
-Show empty state
-
-Example:
-
-"No staff selected"
-
-No staff tasks should be visible.
-
----
-
-# STAFF FILTER LOGIC
-
-Dropdown:
-
-Select Staff
-
-Default Option:
-
-Select Staff Member
-
-Value:
-
-NULL
-
-NOT:
-
-All Staff Members
-
----
-
-## WHEN PAGE LOADS
-
-Selected Staff:
-
-NULL
-
-Result:
-
-No staff tasks loaded.
-
-Do NOT execute:
-
-SELECT * FROM todos
-
-Do NOT execute:
-
-loadAllStaffTodos()
-
-Do NOT auto-fetch staff records.
-
----
-
-# ONLY LOAD TASKS WHEN STAFF IS SELECTED
-
-Example:
-
-Admin selects:
-
-Darsh
-
-Then load:
-
-Darsh todos only
-
-Example:
-
-Admin selects:
-
-Keval
-
-Then load:
-
-Keval todos only
-
-Example:
-
-Admin selects:
-
-Administrator
-
-Then load:
-
-Administrator todos only
-
----
-
-# REMOVE AUTO LOAD
-
-Audit:
-
-Todo Controller
-
-Todo API
-
-Todo AJAX
-
-Todo Service
-
-Todo Repository
-
-Todo Query
-
-Todo Page Initialization
-
-Remove any code similar to:
-
-loadAllTodos()
-
-getAllTodos()
-
-fetchAllTodos()
-
-SELECT * FROM todos
-
-showAllStaffTasks()
-
-automatic filter population
-
----
-
-# PAGE INITIALIZATION
-
-Current Production Flow:
-
-Page Load
-→ Load All Todos
-
-This is wrong.
-
-Replace with:
-
-Page Load
-→ Load Nothing
-→ Wait For Staff Selection
-→ Load Selected Staff Todos
-
----
-
-# FILTER REQUIREMENTS
-
-Dropdown Placeholder:
-
-Select Staff Member
-
-NOT:
-
-All Staff Members
-
-Default Value:
-
-Empty
-
-NULL
-
-No selection
-
----
-
-# EMPTY STATE
-
-When no staff selected:
-
-Show:
-
-Select a staff member to view todos.
-
-Do not show:
-
-All tasks
-
-All staff records
-
-Any user records
-
----
-
-# ADMIN OWN TASKS
-
-If admin creates personal todos:
-
-Show Admin Todos only.
-
-Do not mix:
-
-Admin Todos
-
-Staff Todos
+At least one overdue todo task
 
 ---
 
 # DATABASE
 
-Do NOT modify database.
+Do NOT modify existing overdue tables.
 
-Do NOT create new tables.
+Use existing:
 
-Do NOT alter schema.
+tasks table
 
-This is a frontend + backend filtering issue only.
+todos table
+
+deadline fields
+
+status fields
 
 ---
 
-# BACKEND VALIDATION
+If additional optimization is needed:
+
+Create separate migration file only.
+
+Do not modify existing schema directly.
+
+---
+
+# NOTIFICATIONS
+
+Use existing reminder system.
+
+When Todo becomes overdue:
+
+Create overdue notification.
+
+Show in:
+
+Notification Bell
+
+Dashboard Notifications
+
+Overdue Page
+
+---
+
+# RESPONSIVE REQUIREMENTS
 
 Verify:
 
-Admin Todo Controller
+1920px
 
-Admin Todo API
+1600px
 
-Admin Todo AJAX Requests
+1440px
 
-Admin Todo Queries
+1366px
 
-Admin Todo Filters
+1280px
 
-Production Environment Variables
+1024px
 
-Production Cache
+768px
 
-Production Session Handling
+480px
 
-Production Query Conditions
+375px
+
+320px
+
+Requirements:
+
+No overflow
+
+No horizontal scrolling
+
+No broken table
+
+No sidebar overlap
+
+No hidden filters
+
+No pagination issues
 
 ---
 
-# POSSIBLE ROOT CAUSE
+# UI REQUIREMENTS
 
-Check if production contains:
+Maintain current design.
 
-if(empty($staffId))
-{
-loadAllTodos();
-}
+Do NOT redesign.
 
-This must be removed.
+Match existing:
 
-Replace with:
+Cards
 
-if(empty($staffId))
-{
-return [];
-}
+Filters
 
-or
+Table
 
-showEmptyState();
+Badges
+
+Typography
+
+Colors
+
+Spacing
 
 ---
 
@@ -301,69 +407,97 @@ showEmptyState();
 
 TEST 1
 
-Open:
-
-/admin/todo
+Overdue Project Task.
 
 Expected:
 
-No staff todos visible.
+Visible.
 
 ---
 
 TEST 2
 
-Select Darsh.
+Overdue Todo Task.
 
 Expected:
 
-Only Darsh todos visible.
+Visible.
 
 ---
 
 TEST 3
 
-Select Keval.
+Filter:
+
+Project Tasks.
 
 Expected:
 
-Only Keval todos visible.
+Only project tasks shown.
 
 ---
 
 TEST 4
 
-Refresh page.
+Filter:
+
+Todo Tasks.
 
 Expected:
 
-No staff todos visible again.
+Only overdue todos shown.
 
 ---
 
 TEST 5
 
-Production and Local behavior match exactly.
+Filter:
+
+All.
+
+Expected:
+
+Both shown.
 
 ---
 
-# IMPORTANT
+TEST 6
 
-DO NOT CHANGE:
+Staff View.
 
-* Todo Design
-* Todo UI
-* Todo Layout
-* Todo Cards
-* Todo CRUD
-* Todo Status
-* Todo Pinning
-* Todo Assignment
+Expected:
 
-Only fix:
+Only own overdue items.
 
-Production filtering logic.
+---
 
-The final result must behave exactly like Localhost:
+TEST 7
 
-No staff tasks visible until a staff member is explicitly selected from the dropdown.
+Admin View.
+
+Expected:
+
+All overdue items.
+
+---
+
+# FINAL DELIVERY
+
+Provide:
+
+1. Controller Changes
+2. Model Changes
+3. Query Changes
+4. Filter Implementation
+5. Notification Integration
+6. Responsive Verification
+7. QA Testing Report
+8. Regression Testing Report
+
+IMPORTANT:
+
+Do NOT remove existing overdue task functionality.
+
+Do NOT change existing UI.
+
+Only extend the module so overdue Todo Tasks and Project Tasks can be filtered separately using a new Task Type filter beside the existing Staff Filter.

@@ -56,8 +56,8 @@ class Todo
     {
         $id = $this->generateUuid();
         $stmt = $this->db->prepare("
-            INSERT INTO todo_lists (id, title, assigned_to, assigned_by, status, priority, notes, is_pinned, todo_type, created_by) 
-            VALUES (:id, :title, :assigned_to, :assigned_by, :status, :priority, :notes, :is_pinned, :todo_type, :created_by)
+            INSERT INTO todo_lists (id, title, assigned_to, assigned_by, status, priority, notes, is_pinned, todo_type, deadline_date, deadline_time, reminder_sent, created_by) 
+            VALUES (:id, :title, :assigned_to, :assigned_by, :status, :priority, :notes, :is_pinned, :todo_type, :deadline_date, :deadline_time, 0, :created_by)
         ");
         
         $success = $stmt->execute([
@@ -70,6 +70,8 @@ class Todo
             'notes' => $data['notes'] ?? null,
             'is_pinned' => $data['is_pinned'] ?? false,
             'todo_type' => $data['todo_type'] ?? 'Normal Task',
+            'deadline_date' => $data['deadline_date'] ?? null,
+            'deadline_time' => $data['deadline_time'] ?? null,
             'created_by' => $data['created_by'] ?? $_SESSION['user_id']
         ]);
 
@@ -86,7 +88,9 @@ class Todo
                 priority = :priority, 
                 notes = :notes,
                 is_pinned = :is_pinned,
-                todo_type = :todo_type
+                todo_type = :todo_type,
+                deadline_date = :deadline_date,
+                deadline_time = :deadline_time
             WHERE id = :id
         ");
         
@@ -98,7 +102,9 @@ class Todo
             'priority' => $data['priority'],
             'notes' => $data['notes'] ?? null,
             'is_pinned' => $data['is_pinned'] ?? false,
-            'todo_type' => $data['todo_type'] ?? 'Normal Task'
+            'todo_type' => $data['todo_type'] ?? 'Normal Task',
+            'deadline_date' => $data['deadline_date'] ?? null,
+            'deadline_time' => $data['deadline_time'] ?? null
         ]);
     }
 

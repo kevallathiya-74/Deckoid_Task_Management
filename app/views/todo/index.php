@@ -7,10 +7,10 @@
         <div class="card glass-card mb-3 border-0">
             <div class="card-body p-2">
                 <form id="createTodoForm" class="row g-2 align-items-center">
-                    <div class="col-md-4">
+                    <div class="col-md-3 col-12">
                         <input type="text" class="form-control glass-input" name="title" placeholder="Enter todo task..." required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2 col-sm-6 col-12">
                         <select class="form-select glass-input" name="assigned_to" required>
                             <option value="" selected disabled>Assign Staff...</option>
                             <?php foreach ($staff as $s): ?>
@@ -18,15 +18,21 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2 col-sm-6 col-12">
                         <select class="form-select glass-input" name="is_pinned">
                             <option value="0" selected>Normal Task</option>
                             <option value="1">Pin Task</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100 btn-glow">
-                            <i class="fas fa-plus me-1"></i>Add
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <input type="date" class="form-control glass-input" name="deadline_date" placeholder="Select Date">
+                    </div>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <input type="time" class="form-control glass-input" name="deadline_time" placeholder="Select Time">
+                    </div>
+                    <div class="col-md-1 col-12">
+                        <button type="submit" class="btn btn-primary w-100 btn-glow px-0 text-center">
+                            <i class="fas fa-plus"></i><span class="d-md-none ms-1">Add</span>
                         </button>
                     </div>
                 </form>
@@ -48,16 +54,22 @@
         <div class="card glass-card mb-3 border-0">
             <div class="card-body p-2">
                 <form id="createStaffTodoForm" class="row g-2 align-items-center">
-                    <div class="col-md-7">
+                    <div class="col-md-4 col-12">
                         <input type="text" class="form-control glass-input" name="title" placeholder="Task" required maxlength="255">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2 col-sm-6 col-12">
                         <select class="form-select glass-input" name="todo_type" required>
                             <option value="Normal Task" selected>Normal Task</option>
                             <option value="Pinned Task">Pinned Task</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <input type="date" class="form-control glass-input" name="deadline_date" placeholder="Select Date">
+                    </div>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <input type="time" class="form-control glass-input" name="deadline_time" placeholder="Select Time">
+                    </div>
+                    <div class="col-md-2 col-12">
                         <button type="submit" class="btn btn-primary w-100 btn-glow">
                             <i class="fas fa-plus me-1"></i>Add Todo
                         </button>
@@ -166,6 +178,17 @@
                     </div>
                     <?php endif; ?>
 
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Deadline Date</label>
+                            <input type="date" class="form-control glass-input text-sm" name="deadline_date" id="edit_todo_deadline_date">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Deadline Time</label>
+                            <input type="time" class="form-control glass-input text-sm" name="deadline_time" id="edit_todo_deadline_time">
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Status</label>
                         <select class="form-select glass-input text-sm" name="status" id="edit_todo_status">
@@ -247,13 +270,55 @@ $(document).ready(function() {
                                 `;
                             <?php endif; ?>
 
+                            let deadlineHtml = '';
+                            let titleClass = todo.status === 'completed' ? 'text-decoration-line-through text-neutral-400' : 'text-neutral-800';
+                            
+                            if (todo.deadline_date) {
+                                let deadlineDate = new Date(todo.deadline_date + (todo.deadline_time ? 'T' + todo.deadline_time : 'T23:59:59'));
+                                let formattedDeadlineDate = new Date(todo.deadline_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                                let formattedDeadlineTime = todo.deadline_time ? new Date('1970-01-01T' + todo.deadline_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+                                
+                                let now = new Date();
+                                let isOverdue = now > deadlineDate && todo.status !== 'completed';
+                                let isDueToday = now.toDateString() === deadlineDate.toDateString() && todo.status !== 'completed';
+                                let isUpcoming = !isOverdue && !isDueToday && (deadlineDate - now) <= 86400000 && todo.status !== 'completed';
+                                
+                                let badgeHtml = '';
+                                let textClass = 'text-neutral-500';
+                                
+                                if (todo.status === 'completed') {
+                                    badgeHtml = '<span class="badge bg-success-subtle text-success">COMPLETED</span>';
+                                } else if (isOverdue) {
+                                    badgeHtml = '<span class="badge bg-danger-subtle text-danger">OVERDUE</span>';
+                                    textClass = 'text-danger fw-bold';
+                                } else if (isDueToday) {
+                                    badgeHtml = '<span class="badge bg-warning-subtle text-warning">DUE TODAY</span>';
+                                } else if (isUpcoming) {
+                                    badgeHtml = '<span class="badge bg-info-subtle text-info">UPCOMING</span>';
+                                }
+                                
+                                deadlineHtml = `
+                                    <div class="text-xs ${textClass} mt-2 d-flex flex-wrap align-items-center" style="gap: 8px;">
+                                        <span class="d-inline-flex align-items-center text-nowrap">
+                                            <i class="far fa-calendar-alt me-1"></i> ${formattedDeadlineDate}
+                                        </span>
+                                        ${formattedDeadlineTime ? `
+                                        <span class="d-inline-flex align-items-center text-nowrap border-start ps-2 border-secondary-subtle">
+                                            <i class="far fa-clock me-1"></i> ${formattedDeadlineTime}
+                                        </span>` : ''}
+                                        ${badgeHtml ? `<span class="d-inline-flex align-items-center">${badgeHtml}</span>` : ''}
+                                    </div>
+                                `;
+                            }
+
                             itemsHtml += `
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-2" style="background: transparent; border-color: rgba(0,0,0,0.05);">
                                     <div class="d-flex flex-column">
                                         <div class="d-flex align-items-center gap-3">
-                                            <span class="fw-bold text-neutral-800 ${todo.status === 'completed' ? 'text-decoration-line-through text-neutral-400' : ''}" style="font-size: 0.9rem;">${todo.title}</span>
-                                            <span class="text-xs text-neutral-500"><i class="far fa-clock me-1"></i>${formattedDate}</span>
+                                            <span class="fw-bold ${titleClass}" style="font-size: 0.9rem;">${todo.title}</span>
+                                            <span class="text-xs text-neutral-500 d-none d-md-inline"><i class="far fa-clock me-1"></i>${formattedDate}</span>
                                         </div>
+                                        ${deadlineHtml}
                                         ${assignedToHtml}
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
@@ -334,10 +399,17 @@ $(document).ready(function() {
 
                             let adminCols = '';
                             <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                                adminCols = `
-                                    <td>${todo.assigned_by_name}</td>
-                                    <td>${todo.assigned_to_name}</td>
-                                `;
+                                if (todo.assigned_to_name === todo.assigned_by_name) {
+                                    adminCols = `
+                                        <td>${todo.assigned_by_name} <span class="text-neutral-500">(Personal Task)</span></td>
+                                        <td><span class="text-neutral-400">-</span></td>
+                                    `;
+                                } else {
+                                    adminCols = `
+                                        <td>${todo.assigned_by_name}</td>
+                                        <td>${todo.assigned_to_name}</td>
+                                    `;
+                                }
                             <?php endif; ?>
 
                             let remarkCol = '';
@@ -355,10 +427,52 @@ $(document).ready(function() {
                                 `;
                             <?php endif; ?>
 
+                            let deadlineHtml = '';
+                            let titleClass = todo.status === 'completed' ? 'text-decoration-line-through text-neutral-400' : 'text-neutral-800';
+                            
+                            if (todo.deadline_date) {
+                                let deadlineDate = new Date(todo.deadline_date + (todo.deadline_time ? 'T' + todo.deadline_time : 'T23:59:59'));
+                                let formattedDeadlineDate = new Date(todo.deadline_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                                let formattedDeadlineTime = todo.deadline_time ? new Date('1970-01-01T' + todo.deadline_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+                                
+                                let now = new Date();
+                                let isOverdue = now > deadlineDate && todo.status !== 'completed';
+                                let isDueToday = now.toDateString() === deadlineDate.toDateString() && todo.status !== 'completed';
+                                let isUpcoming = !isOverdue && !isDueToday && (deadlineDate - now) <= 86400000 && todo.status !== 'completed';
+                                
+                                let badgeHtml = '';
+                                let textClass = 'text-neutral-500';
+                                
+                                if (todo.status === 'completed') {
+                                    badgeHtml = '<span class="badge bg-success-subtle text-success">COMPLETED</span>';
+                                } else if (isOverdue) {
+                                    badgeHtml = '<span class="badge bg-danger-subtle text-danger">OVERDUE</span>';
+                                    textClass = 'text-danger fw-bold';
+                                } else if (isDueToday) {
+                                    badgeHtml = '<span class="badge bg-warning-subtle text-warning">DUE TODAY</span>';
+                                } else if (isUpcoming) {
+                                    badgeHtml = '<span class="badge bg-info-subtle text-info">UPCOMING</span>';
+                                }
+                                
+                                deadlineHtml = `
+                                    <div class="text-xs ${textClass} mt-2 d-flex flex-wrap align-items-center" style="gap: 8px;">
+                                        <span class="d-inline-flex align-items-center text-nowrap">
+                                            <i class="far fa-calendar-alt me-1"></i> ${formattedDeadlineDate}
+                                        </span>
+                                        ${formattedDeadlineTime ? `
+                                        <span class="d-inline-flex align-items-center text-nowrap border-start ps-2 border-secondary-subtle">
+                                            <i class="far fa-clock me-1"></i> ${formattedDeadlineTime}
+                                        </span>` : ''}
+                                        ${badgeHtml ? `<span class="d-inline-flex align-items-center">${badgeHtml}</span>` : ''}
+                                    </div>
+                                `;
+                            }
+
                             const row = `
                                 <tr>
-                                    <td class="px-4 py-3">
-                                        <div class="fw-bold text-neutral-800">${todo.title}</div>
+                                    <td class="px-4 py-3" style="min-width: 250px;">
+                                        <div class="fw-bold ${titleClass} mb-1" style="word-break: break-word; white-space: normal;">${todo.title}</div>
+                                        ${deadlineHtml}
                                     </td>
                                     <td>
                                         <div class="badge bg-light text-dark border">${todo.todo_type}</div>
@@ -366,7 +480,7 @@ $(document).ready(function() {
                                     ${adminCols}
                                     ${remarkCol}
                                     <td>${statusBadge}</td>
-                                    <td>${new Date(todo.created_at).toLocaleDateString('en-GB')} ${new Date(todo.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
+                                    <td>${new Date(todo.created_at).toLocaleDateString('en-GB')}</td>
                                     <td class="px-4 text-end">${actions}</td>
                                 </tr>
                             `;
