@@ -13,7 +13,7 @@
     </div>
     
     <div class="sidebar-content flex-grow-1">
-        <?php $prefix = (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') ? 'admin' : 'staff'; ?>
+        <?php $prefix = isAdminOrSubAdmin() ? 'admin' : 'staff'; ?>
         
         <div class="sidebar-label">Workspace</div>
         <ul class="nav flex-column mb-3">
@@ -88,6 +88,7 @@
                     <span class="overdue-sidebar-text">Overdue Tasks</span>
                 </a>
             </li>
+            <?php if (isAdmin()): ?>
             <li class="nav-item">
                 <a href="<?= url('/admin/staff') ?>" class="nav-link <?= $active_page == 'staff' ? 'active' : '' ?>" data-bs-toggle="tooltip" data-bs-placement="right" title="Team Members">
                     <div class="nav-icon-container">
@@ -128,6 +129,7 @@
                     <span>Daily Report Summary</span>
                 </a>
             </li>
+            <?php endif; ?>
         </ul>
         <?php endif; ?>
 

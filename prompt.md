@@ -1,503 +1,945 @@
-# AGENT AGENCY MASTER PROMPT
+# MASTER PROMPT — ADD "SUB ADMIN" ROLE (PRODUCTION READY)
 
-# OVERDUE TASKS + OVERDUE TODO TASKS FILTER ENHANCEMENT
+## ROLE
 
-## OBJECTIVE
+You are a Senior Software Architect, Senior Full Stack Engineer, Database Architect, Security Engineer, QA Engineer, UI/UX Engineer, and Production Deployment Engineer.
 
-Enhance the existing Overdue Tasks Management module to support both:
+Work like an experienced development agency.
 
-1. Overdue Project Tasks
-2. Overdue Todo Tasks
+Do not partially implement anything.
 
-without changing any existing functionality.
+Analyze the entire project before making changes.
 
-The current overdue page only displays overdue project tasks.
+Do not break any existing functionality.
 
-I want overdue todo items to be included as well and provide filtering between both task types.
-
----
-
-# AFFECTED PAGES
-
-Admin:
-
-/admin/overdue
-
-Staff:
-
-/staff/overdue
-
-Apply the same logic on both sides.
+Implement production-ready code only.
 
 ---
 
-# CURRENT BEHAVIOR
+# PROJECT
 
-Current page displays:
+Deckoid Task Management System
 
-* Task Title
-* Assignee
-* Due Date
-* Days Overdue
-* Project
+Current Roles
 
-Only project tasks appear.
+* Admin
+* Staff
 
----
+New Role
 
-# REQUIRED BEHAVIOR
+* Admin
+* Sub Admin
+* Staff
 
-The Overdue Page must support:
+This is a full-stack implementation.
 
-## Overdue Project Tasks
+It includes:
 
-Existing functionality.
-
-Keep exactly as it is.
-
----
-
-## Overdue Todo Tasks
-
-If:
-
-Todo Deadline < Current DateTime
-
-AND
-
-Todo Status != Completed
-
-Then:
-
-Automatically move into Overdue System.
-
-Display on Overdue page.
+* Database
+* Backend
+* Frontend
+* Authentication
+* Authorization
+* RBAC
+* APIs
+* Middleware
+* Controllers
+* Models
+* Validation
+* Navigation
+* Dashboard
+* Notifications
+* Testing
+* Security
+* Migration
 
 ---
 
-# NEW FILTER SECTION
+# IMPORTANT REQUIREMENTS
 
-Current Filter:
+Never duplicate Admin logic.
 
-All Staff Members
+Sub Admin must inherit Admin permissions.
 
-Keep existing filter.
+Implement Role Based Access Control (RBAC).
 
----
-
-# ADD NEW FILTER
-
-Position:
-
-Beside
-
-All Staff Members
-
-Top Right
-
-Same Row
-
-Same UI Style
-
-Same Height
-
-Same Width Pattern
-
----
-
-# TASK TYPE FILTER
-
-Label:
-
-Task Type
-
-Options:
-
-All
-
-Project Tasks
-
-Todo Tasks
-
-Default:
-
-All
-
----
-
-# FILTER BEHAVIOR
-
-## ALL
-
-Show:
-
-Project Tasks
-
-*
-
-Todo Tasks
-
----
-
-## PROJECT TASKS
-
-Show:
-
-Only project tasks
-
-Hide todo tasks
-
----
-
-## TODO TASKS
-
-Show:
-
-Only overdue todo items
-
-Hide project tasks
-
----
-
-# TABLE CHANGES
-
-Add new column:
-
-Task Type
-
-Position:
-
-After Task Title
-
----
-
-# VALUES
-
-For project task:
-
-Project Task
-
-Badge Color:
-
-Blue
-
----
-
-For todo task:
-
-Todo Task
-
-Badge Color:
-
-Purple
-
----
-
-# OVERDUE TODO DISPLAY
-
-For overdue todo tasks show:
-
-Task Title
-
-Task Type
-
-Assigned User
-
-Due Date
-
-Days Overdue
-
-Created By
-
-Status
-
----
-
-# OVERDUE CALCULATION
-
-Formula:
-
-Current DateTime - Due DateTime
+Replace hardcoded role checks with centralized permission helpers.
 
 Example:
 
-Deadline:
+Current
 
-16 Jun 2026
+```
+if ($user->role == 'admin')
+```
 
-Current:
+Replace with
 
-22 Jun 2026
+```
+$user->isAdmin()
+```
 
-Display:
+or
 
-6 Days
+```
+$user->hasRole(['admin','sub_admin'])
+```
+
+Never scatter role logic throughout the project.
 
 ---
 
-# ADMIN SIDE
+# DATABASE AUDIT
 
-Admin should be able to:
+Audit the complete database.
 
-View all overdue project tasks
+Detect how roles are stored.
 
-View all overdue todo tasks
+Possible cases
 
-Filter by:
+### CASE 1
+
+Role Table exists.
+
+Insert
+
+```
+Sub Admin
+```
+
+using Seeder or Migration.
+
+---
+
+### CASE 2
+
+users.role is ENUM
+
+Create NEW migration
+
+Example
+
+```
+add_sub_admin_to_user_role_enum
+```
+
+Do NOT edit existing migration.
+
+---
+
+### CASE 3
+
+users.role is VARCHAR
+
+Update validation only.
+
+---
+
+Never modify existing records.
+
+Never remove old roles.
+
+Migration must be backward compatible.
+
+---
+
+# NEW ROLE
+
+Create
+
+```
+sub_admin
+```
+
+Do NOT use
+
+```
+SubAdmin
+
+subadmin
+
+sub-admin
+```
+
+Use exactly
+
+```
+sub_admin
+```
+
+---
+
+# USER CREATION
+
+Only
+
+Admin
+
+and
+
+Sub Admin
+
+can create users.
+
+User creation page must support
 
 Staff
 
-Task Type
+Sub Admin
+
+If system already supports Admin creation,
+
+keep it.
+
+Otherwise show
+
+Sub Admin
+
+Staff
+
+only.
 
 ---
 
-# STAFF SIDE
+# USER MANAGEMENT
 
-Staff should only see:
+Sub Admin can
 
-Their own overdue project tasks
+Create Staff
 
-Their own overdue todo tasks
+Create Sub Admin
+
+Edit Staff
+
+Edit Sub Admin
+
+Delete Staff
+
+Delete Sub Admin
+
+Reset Password
+
+Activate
+
+Deactivate
+
+Assign Project
+
+Assign Task
+
+View Users
+
+Search
+
+Filters
+
+Pagination
+
+Export
+
+Everything.
 
 ---
 
-# DASHBOARD COUNTS
+# SECURITY
 
-Update existing overdue statistics.
+Sub Admin CANNOT
 
-Current:
+Delete Admin
 
-Total Overdue Tasks
+Deactivate Admin
 
-Affected Staff
+Reset Admin password
 
----
+Edit Admin
 
-# TOTAL OVERDUE TASKS
+Change Admin role
 
-Must include:
+Modify protected Admin account
 
-Overdue Project Tasks
+Return proper HTTP status.
 
-*
-
-Overdue Todo Tasks
+403 Forbidden
 
 ---
 
-# AFFECTED STAFF
+# AUTHENTICATION
 
-Count users having:
+Login
 
-At least one overdue project task
+Logout
+
+Forgot Password
+
+Remember Me
+
+Session
+
+Token
+
+Everything must support
+
+Sub Admin.
+
+---
+
+# AUTHORIZATION
+
+Audit every
+
+Controller
+
+Middleware
+
+Policy
+
+Helper
+
+Gate
+
+Permission
+
+Route
+
+Validation
+
+API
+
+Replace
+
+```
+admin
+```
+
+checks with
+
+```
+admin
 
 OR
 
-At least one overdue todo task
+sub_admin
+```
+
+using centralized RBAC helper.
+
+Never duplicate code.
 
 ---
 
-# DATABASE
+# SIDEBAR
 
-Do NOT modify existing overdue tables.
+Sub Admin sidebar must match Admin exactly.
 
-Use existing:
+Workspace
 
-tasks table
+Dashboard
 
-todos table
+Projects
 
-deadline fields
+Tasks
 
-status fields
+Publishing Report
+
+Todo List
+
+Overdue Tasks
+
+Notifications
+
+Everything.
+
+Same order.
+
+Same icons.
+
+Same routes.
+
+No hidden menus.
+
+No disabled menus.
 
 ---
 
-If additional optimization is needed:
+# DASHBOARD
 
-Create separate migration file only.
+Sub Admin dashboard must be identical to Admin.
 
-Do not modify existing schema directly.
+Cards
+
+Statistics
+
+Charts
+
+Graphs
+
+Recent Tasks
+
+Projects
+
+Todo
+
+Publishing
+
+Notifications
+
+Overdue
+
+Widgets
+
+Counts
+
+Same UI.
+
+Same APIs.
+
+---
+
+# PROJECT MODULE
+
+Full CRUD
+
+Create
+
+Edit
+
+Delete
+
+Archive
+
+Restore
+
+Assign Members
+
+Timeline
+
+Status
+
+Priority
+
+Reports
+
+Everything.
+
+---
+
+# TASK MODULE
+
+Full CRUD
+
+Create
+
+Edit
+
+Delete
+
+Assign
+
+Deadline
+
+Priority
+
+Comments
+
+Attachments
+
+Activity
+
+History
+
+Filters
+
+Reports
+
+Everything.
+
+---
+
+# TODO MODULE
+
+Full CRUD.
+
+Create Todo
+
+Assign Todo
+
+Pinned
+
+Deadline
+
+Reminder
+
+Complete
+
+Delete
+
+Edit
+
+Remarks
+
+Everything.
+
+---
+
+# PUBLISHING REPORT
+
+Full CRUD
+
+Week
+
+Month
+
+Year
+
+Posts
+
+Reels
+
+Ads
+
+Approvals
+
+Assignments
+
+Everything.
+
+---
+
+# OVERDUE TASKS
+
+Full CRUD.
+
+Project Tasks
+
+Todo Tasks
+
+Filters
+
+Staff Filter
+
+Task Type Filter
+
+Reports
+
+Everything.
 
 ---
 
 # NOTIFICATIONS
 
-Use existing reminder system.
+Sub Admin receives
 
-When Todo becomes overdue:
+Task
 
-Create overdue notification.
+Todo
 
-Show in:
+Publishing
 
-Notification Bell
+Deadline
 
-Dashboard Notifications
+Reminder
 
-Overdue Page
+Overdue
 
----
+Project
 
-# RESPONSIVE REQUIREMENTS
+Leave
 
-Verify:
+System
 
-1920px
+Notifications.
 
-1600px
-
-1440px
-
-1366px
-
-1280px
-
-1024px
-
-768px
-
-480px
-
-375px
-
-320px
-
-Requirements:
-
-No overflow
-
-No horizontal scrolling
-
-No broken table
-
-No sidebar overlap
-
-No hidden filters
-
-No pagination issues
+Same as Admin.
 
 ---
 
-# UI REQUIREMENTS
+# APIs
 
-Maintain current design.
+Audit every API.
 
-Do NOT redesign.
+Where Admin access exists,
 
-Match existing:
+Sub Admin must also work.
 
-Cards
+Update
+
+Routes
+
+Controllers
+
+Validation
+
+Authorization
+
+Middleware
+
+Responses
+
+Swagger (if available)
+
+Postman Collection (if available)
+
+Everything.
+
+---
+
+# ROUTES
+
+Audit every route.
+
+Admin routes
+
+Sub Admin routes
+
+Shared routes
+
+Protected routes
+
+Permission middleware
+
+404 handling
+
+Unauthorized handling
+
+Everything.
+
+---
+
+# FRONTEND
+
+Update
+
+Sidebar
+
+Role Dropdown
+
+Profile Badge
 
 Filters
 
-Table
+Tables
+
+Forms
+
+Cards
 
 Badges
 
-Typography
+Search
 
-Colors
+Pagination
 
-Spacing
+Modals
 
----
+Everything.
 
-# QA TESTING
+Display role badge
 
-TEST 1
+Admin
 
-Overdue Project Task.
+Sub Admin
 
-Expected:
+Staff
 
-Visible.
-
----
-
-TEST 2
-
-Overdue Todo Task.
-
-Expected:
-
-Visible.
+correctly.
 
 ---
 
-TEST 3
+# SEARCH
 
-Filter:
+All search must support
 
-Project Tasks.
-
-Expected:
-
-Only project tasks shown.
+Sub Admin.
 
 ---
 
-TEST 4
+# FILTERS
 
-Filter:
+All filters must include
 
-Todo Tasks.
-
-Expected:
-
-Only overdue todos shown.
+Sub Admin.
 
 ---
 
-TEST 5
+# EXPORT
 
-Filter:
+CSV
 
-All.
+Excel
 
-Expected:
+PDF
 
-Both shown.
+must include
 
----
-
-TEST 6
-
-Staff View.
-
-Expected:
-
-Only own overdue items.
+Sub Admin.
 
 ---
 
-TEST 7
+# LOGGING
 
-Admin View.
+Audit logs must store
 
-Expected:
+Created By
 
-All overdue items.
+Updated By
+
+Deleted By
+
+Role
+
+Admin
+
+Sub Admin
+
+Staff
+
+properly.
 
 ---
 
-# FINAL DELIVERY
+# AUDIT LOG
 
-Provide:
+Track
 
-1. Controller Changes
-2. Model Changes
-3. Query Changes
-4. Filter Implementation
-5. Notification Integration
-6. Responsive Verification
-7. QA Testing Report
-8. Regression Testing Report
+Create
 
-IMPORTANT:
+Edit
 
-Do NOT remove existing overdue task functionality.
+Delete
 
-Do NOT change existing UI.
+Reset Password
 
-Only extend the module so overdue Todo Tasks and Project Tasks can be filtered separately using a new Task Type filter beside the existing Staff Filter.
+Login
+
+Logout
+
+Role Changes
+
+Assignments
+
+Everything.
+
+---
+
+# VALIDATION
+
+Prevent
+
+Sub Admin deleting Admin
+
+Sub Admin editing Admin
+
+Sub Admin changing Admin role
+
+Sub Admin resetting Admin password
+
+Sub Admin deactivating Admin
+
+Return proper validation errors.
+
+---
+
+# DATABASE
+
+Never modify existing schema directly.
+
+If schema changes required
+
+Create NEW migration.
+
+Example
+
+```
+2026_xx_xx_add_sub_admin_role.php
+```
+
+or
+
+```
+insert_sub_admin_role.php
+```
+
+Do not edit old migrations.
+
+---
+
+# SEEDERS
+
+Create Seeder if needed.
+
+Insert
+
+Sub Admin
+
+without affecting existing data.
+
+---
+
+# SECURITY REVIEW
+
+Review
+
+SQL Injection
+
+XSS
+
+CSRF
+
+Session
+
+Role Escalation
+
+Privilege Escalation
+
+Mass Assignment
+
+Hidden APIs
+
+Broken Access Control
+
+Everything.
+
+---
+
+# PERFORMANCE
+
+No duplicate queries.
+
+No duplicate role lookups.
+
+Cache permissions where appropriate.
+
+Avoid N+1 queries.
+
+Optimize middleware.
+
+---
+
+# CODE QUALITY
+
+Remove duplicated Admin permission code.
+
+Create reusable helpers.
+
+Reusable middleware.
+
+Reusable policy.
+
+Reusable service.
+
+Follow SOLID principles.
+
+---
+
+# TESTING
+
+Verify
+
+✓ Admin Login
+
+✓ Sub Admin Login
+
+✓ Staff Login
+
+✓ Admin creates Sub Admin
+
+✓ Sub Admin creates Staff
+
+✓ Sub Admin creates Sub Admin
+
+✓ Admin edits Sub Admin
+
+✓ Sub Admin edits Staff
+
+✓ Sub Admin cannot edit Admin
+
+✓ Sub Admin cannot delete Admin
+
+✓ Admin dashboard works
+
+✓ Sub Admin dashboard works
+
+✓ Staff dashboard unchanged
+
+✓ Sidebar identical
+
+✓ Notifications work
+
+✓ Projects work
+
+✓ Tasks work
+
+✓ Todo works
+
+✓ Publishing works
+
+✓ Overdue works
+
+✓ APIs work
+
+✓ Authentication works
+
+✓ Authorization works
+
+✓ Migration works
+
+✓ Existing data preserved
+
+✓ Zero regression
+
+---
+
+# FINAL DELIVERABLES
+
+Generate complete production-ready implementation including:
+
+1. Database Migration
+2. Seeder
+3. Model Updates
+4. Permission Helper
+5. Middleware Updates
+6. Controller Updates
+7. Policy Updates
+8. Route Updates
+9. API Updates
+10. Validation Updates
+11. Authentication Updates
+12. Authorization Updates
+13. Sidebar Updates
+14. User Management Updates
+15. Dashboard Updates
+16. Project Module Updates
+17. Task Module Updates
+18. Todo Module Updates
+19. Publishing Module Updates
+22. Notification Updates
+23. Security Updates
+24. RBAC Refactoring
+25. UI Updates
+26. Testing Report
+27. Migration Instructions
+28. Deployment Checklist
+29. Regression Test Report
+30. Production Verification Report
+
+---
+
+# SUCCESS CRITERIA
+
+The implementation is complete only when:
+
+* Admin functionality remains unchanged.
+* Staff functionality remains unchanged.
+* Sub Admin has the same operational capabilities as Admin except for protected Admin account management.
+* No duplicate permission logic exists.
+* All modules support Sub Admin.
+* Database migrations are backward compatible.
+* Existing data remains intact.
+* No UI regressions occur.
+* No API regressions occur.
+* No authorization bypasses exist.
+* The project passes full production testing with zero critical issues.
+
+
+
+note : if database change then u create separate sql file 

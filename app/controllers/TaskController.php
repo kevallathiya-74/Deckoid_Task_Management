@@ -50,7 +50,7 @@ class TaskController
         header('Content-Type: application/json');
         
         try {
-            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+            $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
             $filters = [
                 'project_id' => $_GET['project_id'] ?? null,
                 'assigned_to' => $isAdminOrManager ? ($_GET['assigned_to'] ?? null) : $_SESSION['user_id'],
@@ -182,7 +182,7 @@ class TaskController
                 $isAssigned = true;
             }
 
-            if ($_SESSION['user_role'] !== 'admin' && !$isAssigned) {
+            if (!isAdminOrSubAdmin() && !$isAssigned) {
                 echo json_encode(['status' => 'error', 'message' => 'You are not authorized to update this task']);
                 return;
             }
@@ -214,7 +214,7 @@ class TaskController
             ];
 
             // If not admin, restrict certain fields
-            if ($_SESSION['user_role'] !== 'admin') {
+            if (!isAdminOrSubAdmin()) {
                 $data['project_id'] = $task['project_id'];
                 $data['assigned_to'] = $task['assigned_to'];
                 $data['title'] = $task['title'];
@@ -272,7 +272,7 @@ class TaskController
                 $isAssigned = true;
             }
 
-            if ($_SESSION['user_role'] !== 'admin' && !$isAssigned) {
+            if (!isAdminOrSubAdmin() && !$isAssigned) {
                 echo json_encode(['status' => 'error', 'message' => 'You are not authorized to update this task']);
                 return;
             }
@@ -298,7 +298,7 @@ class TaskController
     {
         header('Content-Type: application/json');
         try {
-            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+            $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
             $userId = $isAdminOrManager ? null : $_SESSION['user_id'];
             
             if ($isAdminOrManager && !empty($_GET['user_id'])) {
@@ -351,7 +351,7 @@ class TaskController
                 $isAssigned = true;
             }
 
-            if ($_SESSION['user_role'] !== 'admin' && !$isAssigned) {
+            if (!isAdminOrSubAdmin() && !$isAssigned) {
                 echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
                 return;
             }

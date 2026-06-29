@@ -37,7 +37,7 @@ class PublishingController
         header('Content-Type: application/json');
         try {
             $userId = $_SESSION['user_id'];
-            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             
             $month = !empty($_GET['month']) ? (int)$_GET['month'] : (int)date('n');
             $year = !empty($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
@@ -58,7 +58,7 @@ class PublishingController
     {
         header('Content-Type: application/json');
         try {
-            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             if (!$isAdmin) {
                 echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Only Admin can create tables.']);
                 return;
@@ -92,7 +92,7 @@ class PublishingController
         header('Content-Type: application/json');
         try {
             $userId = $_SESSION['user_id'];
-            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             
             $input = json_decode(file_get_contents('php://input'), true);
             
@@ -117,7 +117,7 @@ class PublishingController
     {
         header('Content-Type: application/json');
         try {
-            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             if (!$isAdmin) {
                 echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Only Admin can delete tables.']);
                 return;
@@ -150,7 +150,7 @@ class PublishingController
         header('Content-Type: application/json');
         try {
             $userId = $_SESSION['user_id'];
-            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             
             $input = json_decode(file_get_contents('php://input'), true);
             
@@ -212,7 +212,7 @@ class PublishingController
     {
         header('Content-Type: application/json');
         try {
-            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             
             if (!$isAdmin) {
                 echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Only Admin can update assignments.']);
@@ -255,7 +255,7 @@ class PublishingController
         header('Content-Type: application/json');
         try {
             $userId = $_SESSION['user_id'];
-            $isAdmin = (strtolower($_SESSION['user_role']) === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             
             $lastSync = $_GET['last_sync'] ?? null;
             $tableId = $_GET['table_id'] ?? null;

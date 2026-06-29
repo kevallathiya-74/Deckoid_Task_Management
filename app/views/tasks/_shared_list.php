@@ -66,7 +66,7 @@
             <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center w-100 flex-wrap gap-3">
                 <h5 class="fw-bold text-neutral-900 m-0 font-outfit" style="font-size: 24px;">ALL TASKS</h5>
                 <form id="filterForm" class="m-0 d-flex gap-2">
-                    <?php if ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager'): ?>
+                    <?php if (isAdminOrSubAdmin() || $_SESSION['user_role'] === 'manager'): ?>
                     <select class="form-select text-sm fw-bold border-0 bg-light rounded-pill px-3" style="height: 36px; min-width: 150px; font-size: 0.82rem;" name="assigned_to" id="filter_assignee">
                         <option value="">All Staff</option>
                         <?php foreach ($staff as $s): ?>
@@ -86,7 +86,7 @@
             <?php else: ?>
             <div class="p-3 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <form id="filterForm" class="m-0 d-flex gap-2">
-                    <?php if ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager'): ?>
+                    <?php if (isAdminOrSubAdmin() || $_SESSION['user_role'] === 'manager'): ?>
                     <select class="form-select text-sm fw-bold border-0 bg-light rounded-pill px-3" style="height: 36px; min-width: 150px; font-size: 0.82rem;" name="assigned_to" id="filter_assignee">
                         <option value="">All Staff</option>
                         <?php foreach ($staff as $s): ?>
@@ -103,7 +103,7 @@
                     </select>
                 </form>
                 <div class="d-flex gap-2 align-items-center">
-                    <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                    <?php if (isAdminOrSubAdmin()): ?>
                     <button type="button" class="btn btn-primary-grad rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal" style="height: 36px; padding-top: 0; padding-bottom: 0;">
                         <div class="d-flex align-items-center h-100">
                             <i class="fas fa-plus me-2 text-white" style="font-size: 0.8rem;"></i>
@@ -122,7 +122,7 @@
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Status</th>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Deadline</th>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Priority</th>
-                        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                        <?php if (isAdminOrSubAdmin()): ?>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Assignee To</th>
                         <?php endif; ?>
                         <th class="text-xs fw-bold text-uppercase text-neutral-400">Project</th>
@@ -491,8 +491,7 @@ $(document).ready(function() {
                     
                     if (!target.isValid()) return '<span class="text-neutral-400">Invalid Date</span>';
                     
-                    const today = moment().startOf('day');
-                    const targetDate = moment(datePart).startOf('day');
+                    const now = moment();
                     const isCompleted = row.status === 'completed';
                     
                     let dotHtml = '';
@@ -501,12 +500,12 @@ $(document).ready(function() {
                     
                     if (isCompleted) {
                         dotHtml = '';
-                    } else if (targetDate.isSame(today)) {
-                        dotHtml = '<span class="blinking-dot me-2"></span>';
-                    } else if (targetDate.isBefore(today)) {
+                    } else if (target.isBefore(now)) {
                         dotHtml = '<span class="timeline-dot bg-danger me-2"></span>';
                         textClass = 'text-danger';
                         timeClass = 'text-danger opacity-75';
+                    } else if (target.isSame(now, 'day')) {
+                        dotHtml = '<span class="blinking-dot me-2"></span>';
                     } else {
                         dotHtml = '<span class="timeline-dot bg-primary me-2"></span>';
                     }
@@ -534,7 +533,7 @@ $(document).ready(function() {
                     return `<span class="badge ${cls} rounded-pill px-3 py-2 font-outfit fw-bold border-0 shadow-sm" style="font-size: 0.7rem; min-width: 90px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas ${icon} me-2" style="font-size: 0.8rem;"></i>${data}</span>`;
                 }
             },
-            <?php if ($_SESSION['user_role'] === 'admin'): ?>
+            <?php if (isAdminOrSubAdmin()): ?>
             { 
                 data: 'assigned_to_names',
                 render: function(data, type, row) {
@@ -587,7 +586,7 @@ $(document).ready(function() {
                 className: 'text-end pe-4',
                 orderable: false,
                 render: function(data, type, row) {
-                    const isAdmin = '<?= $_SESSION['user_role'] ?>' === 'admin';
+                    const isAdmin = <?= isAdminOrSubAdmin() ? 'true' : 'false' ?>;
                     let recurringActions = '';
                     
                     if (isAdmin) {

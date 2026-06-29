@@ -86,7 +86,7 @@ $(document).ready(function() {
 });
 
 function pollAlerts() {
-    <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+    <?php if (isAdminOrSubAdmin()): ?>
     $.get('<?= url('/api/dashboard/alerts') ?>', function(res) {
         if ((res.status === 'success' || res.success) && res.data && res.data.length > 0) {
             res.data.forEach(alert => {

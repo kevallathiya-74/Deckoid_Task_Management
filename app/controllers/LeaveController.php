@@ -33,7 +33,7 @@ class LeaveController
 
     public function adminIndex()
     {
-        AuthMiddleware::adminOnly();
+        AuthMiddleware::strictAdminOnly();
         $title = 'Leave Administration';
         $active_page = 'leaves_admin';
         $stats = $this->leaveModel->getStats();
@@ -89,7 +89,7 @@ class LeaveController
 
     public function updateStatus()
     {
-        AuthMiddleware::adminOnly();
+        AuthMiddleware::strictAdminOnly();
         header('Content-Type: application/json');
 
         $id = $_POST['id'] ?? '';
@@ -125,9 +125,9 @@ class LeaveController
         }
     }
 
-    public function getList()
+    public function listAll()
     {
-        AuthMiddleware::adminOnly();
+        AuthMiddleware::strictAdminOnly();
         header('Content-Type: application/json');
         $filters = [
             'status' => $_GET['status'] ?? '',

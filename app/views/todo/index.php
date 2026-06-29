@@ -2,7 +2,7 @@
 <main class="main-content">
     <div class="container-fluid animate-fade-up">
 
-        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+        <?php if (isAdminOrSubAdmin()): ?>
         <!-- Quick Create Row (Admin Only) -->
         <div class="card glass-card mb-3 border-0">
             <div class="card-body p-2">
@@ -86,7 +86,7 @@
                     <i class="fas fa-thumbtack text-primary me-2"></i>
                     <h6 class="text-xs fw-bold text-neutral-500 text-uppercase mb-0">Pinned Tasks</h6>
                 </div>
-                <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                <?php if (isAdminOrSubAdmin()): ?>
                     <button id="resetPinnedTasks" class="btn btn-xs btn-light-subtle btn-glow">
                         <i class="fas fa-sync-alt me-1"></i>Reset
                     </button>
@@ -111,7 +111,7 @@
                             <tr>
                                 <th class="px-4 py-3">Task</th>
                                 <th class="py-3">Todo Type</th>
-                                <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                                <?php if (isAdminOrSubAdmin()): ?>
                                     <th class="py-3">Created By</th>
                                     <th class="py-3">Assigned To</th>
                                 <?php endif; ?>
@@ -152,7 +152,7 @@
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Task</label>
                         <input type="text" class="form-control glass-input text-sm" name="title" id="edit_todo_title" required>
                     </div>
-                    <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                    <?php if (isAdminOrSubAdmin()): ?>
                     <div class="mb-3">
                         <label class="form-label text-xs fw-bold text-neutral-500 text-uppercase mb-2">Assign Staff</label>
                         <select class="form-select glass-input text-sm" name="assigned_to" id="edit_todo_assigned_to" required>
@@ -214,7 +214,7 @@ $(document).ready(function() {
 
     function loadTodos(staffId = '') {
         let fetchUrl = '';
-        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+        <?php if (isAdminOrSubAdmin()): ?>
             fetchUrl = staffId ? '<?= url('/admin/todos') ?>?staff_id=' + staffId : '<?= url('/admin/todos') ?>';
         <?php else: ?>
             fetchUrl = '<?= url('/staff/todos') ?>';
@@ -245,7 +245,7 @@ $(document).ready(function() {
                             const formattedDate = date.toLocaleDateString('en-GB') + ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
                             let assignedToHtml = '';
-                            <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                            <?php if (isAdminOrSubAdmin()): ?>
                                 if (todo.assigned_to_name === todo.assigned_by_name) {
                                     assignedToHtml = `
                                         <div class="text-xs text-neutral-500 mt-1">Created By: ${todo.assigned_by_name} (Personal Task)</div>
@@ -261,7 +261,7 @@ $(document).ready(function() {
                             <?php endif; ?>
 
                             let checkboxHtml = '';
-                            <?php if ($_SESSION['user_role'] !== 'admin'): ?>
+                            <?php if (!isAdminOrSubAdmin()): ?>
                                 checkboxHtml = `
                                     <input type="text" class="form-control form-control-sm text-xs todo-remark me-3" data-id="${todo.id}" placeholder="Add remark..." value="${todo.notes || ''}" style="width: 180px; background: rgba(255,255,255,0.7);">
                                     <div class="form-check m-0 d-flex align-items-center">
@@ -357,7 +357,7 @@ $(document).ready(function() {
                     // Handle Normal Tasks
                     if (normalTodos.length === 0) {
                         $('#todoTable').addClass('d-none');
-                        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                        <?php if (isAdminOrSubAdmin()): ?>
                         if (staffId === '') {
                             $('#noTodosMessage').html('<div class="text-neutral-400 mb-2"><i class="fas fa-hand-pointer fa-3x"></i></div><p class="text-neutral-500 mb-0">Select a staff member to view todos.</p>');
                         } else {
@@ -379,7 +379,7 @@ $(document).ready(function() {
                             let actions = '';
                             actions = `
                                 <div class="d-flex justify-content-end align-items-center gap-2">
-                                    <?php if ($_SESSION['user_role'] !== 'admin'): ?>
+                                    <?php if (!isAdminOrSubAdmin()): ?>
                                     <div class="form-check m-0 me-2">
                                         <input class="form-check-input toggle-status m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer; border: 2px solid #000 !important;" data-id="${todo.id}" ${todo.status === 'completed' ? 'checked' : ''}>
                                     </div>
@@ -398,7 +398,7 @@ $(document).ready(function() {
                             `;
 
                             let adminCols = '';
-                            <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                            <?php if (isAdminOrSubAdmin()): ?>
                                 if (todo.assigned_to_name === todo.assigned_by_name) {
                                     adminCols = `
                                         <td>${todo.assigned_by_name} <span class="text-neutral-500">(Personal Task)</span></td>
@@ -413,7 +413,7 @@ $(document).ready(function() {
                             <?php endif; ?>
 
                             let remarkCol = '';
-                            <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                            <?php if (isAdminOrSubAdmin()): ?>
                                 remarkCol = `
                                     <td class="text-start text-xs text-neutral-600 align-middle">
                                         ${todo.notes ? `<div class="bg-neutral-50 p-2 rounded text-start" style="max-width: 260px; word-break: break-word;">${todo.notes}</div>` : '<span class="text-neutral-300 fst-italic">No remark</span>'}
@@ -647,7 +647,7 @@ $(document).ready(function() {
 
         $('#edit_todo_id').val(id);
         $('#edit_todo_title').val(title);
-        <?php if ($_SESSION['user_role'] === 'admin'): ?>
+        <?php if (isAdminOrSubAdmin()): ?>
         $('#edit_todo_assigned_to').val(assigned_to);
         $('#edit_todo_is_pinned').val(is_pinned);
         <?php else: ?>

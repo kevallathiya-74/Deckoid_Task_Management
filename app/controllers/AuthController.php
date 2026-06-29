@@ -10,7 +10,7 @@ class AuthController
     public function showLogin()
     {
         if (isset($_SESSION['user_id'])) {
-            $prefix = ($_SESSION['user_role'] === 'admin') ? 'admin' : 'staff';
+            $prefix = isAdminOrSubAdmin() ? 'admin' : 'staff';
             header('Location: ' . url("/$prefix/dashboard"));
             exit;
         }
@@ -61,7 +61,7 @@ class AuthController
 
             $userModel->updateLastLogin($user['id']);
 
-            $prefix = ($user['role_slug'] === 'admin') ? 'admin' : 'staff';
+            $prefix = in_array($user['role_slug'], ['admin', 'sub_admin']) ? 'admin' : 'staff';
             echo json_encode([
                 'status' => 'success', 
                 'message' => 'Login successful! Redirecting...',

@@ -21,8 +21,7 @@ class DashboardController
 
     public function index()
     {
-        $role = $_SESSION['user_role'] ?? 'staff';
-        $prefix = ($role === 'admin') ? 'admin' : 'staff';
+        $prefix = isAdminOrSubAdmin() ? 'admin' : 'staff';
         $currentUri = $_SERVER['REQUEST_URI'];
 
         // If accessing root or generic dashboard, redirect to role-prefixed dashboard
@@ -58,7 +57,7 @@ class DashboardController
         // Project status distribution (removed since status was dropped)
         $projects = [];
 
-        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
         $userId = $_SESSION['user_id'];
 
         if (!$isAdminOrManager) {
@@ -138,7 +137,7 @@ class DashboardController
             return;
         }
 
-        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
         $userId = $_SESSION['user_id'];
 
         if (!$isAdminOrManager) {
@@ -178,7 +177,7 @@ class DashboardController
     public function getAlerts()
     {
         header('Content-Type: application/json');
-        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
         $userId = $_SESSION['user_id'];
 
         if (!$isAdminOrManager) {
@@ -230,7 +229,7 @@ class DashboardController
     {
         header('Content-Type: application/json');
         try {
-            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+            $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
             $userId = $isAdminOrManager ? null : $_SESSION['user_id'];
             
             $taskModel = new \App\Models\Task();
@@ -435,7 +434,7 @@ class DashboardController
 
     private function getStats()
     {
-        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
         $userId = $_SESSION['user_id'];
 
         if (!$isAdminOrManager) {
@@ -514,7 +513,7 @@ class DashboardController
 
     private function getRecentTasks()
     {
-        $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+        $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
         $userId = $_SESSION['user_id'];
 
         if (!$isAdminOrManager) {

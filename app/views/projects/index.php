@@ -61,7 +61,7 @@
         </div> -->
 
         <div class="glass-card overflow-hidden p-0 mt-4">
-            <?php if ($_SESSION['user_role'] == 'admin'): ?>
+            <?php if (isAdminOrSubAdmin()): ?>
             <div class="p-3 d-flex justify-content-end border-bottom border-light">
                 <button type="button" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                     <i class="fas fa-plus me-2"></i> New Project
@@ -287,9 +287,9 @@ $(document).ready(function() {
                 data: null,
                 className: 'text-end pe-4',
                 orderable: false,
-                visible: '<?= $_SESSION['user_role'] ?>' === 'admin',
+                visible: <?= isAdminOrSubAdmin() ? 'true' : 'false' ?>,
                 render: function(data) {
-                    const isAdmin = '<?= $_SESSION['user_role'] ?>' === 'admin';
+                    const isAdmin = <?= isAdminOrSubAdmin() ? 'true' : 'false' ?>;
                     if (!isAdmin) return '';
                     
                     return `

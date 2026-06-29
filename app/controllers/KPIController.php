@@ -14,9 +14,9 @@ class KPIController
     public function __construct()
     {
         AuthMiddleware::handle();
-        AuthMiddleware::adminOnly();
-        $this->kpiModel = new KPI();
+        AuthMiddleware::strictAdminOnly();
         $this->userModel = new User();
+        $this->kpiModel = new KPI();
     }
 
     public function index()

@@ -906,7 +906,7 @@
 
 <script>
 $(document).ready(function() {
-    const isAdmin = '<?= strtolower($_SESSION['user_role']) ?>' === 'admin';
+    const isAdmin = <?= isAdminOrSubAdmin() ? 'true' : 'false' ?>;
     const userId = '<?= $_SESSION['user_id'] ?>';
     
     let reportState = {

@@ -23,7 +23,7 @@ class SopController
 
     public function adminIndex()
     {
-        AuthMiddleware::adminOnly();
+        AuthMiddleware::strictAdminOnly();
         
         try {
             $title = 'SOP Management';
@@ -62,7 +62,7 @@ class SopController
         header('Content-Type: application/json');
         
         try {
-            $isAdmin = ($_SESSION['user_role'] === 'admin');
+            $isAdmin = isAdminOrSubAdmin();
             $filters = [
                 'staff_id' => $isAdmin ? ($_GET['staff_id'] ?? null) : $_SESSION['user_id'],
                 'status' => $_GET['status'] ?? null
@@ -88,9 +88,9 @@ class SopController
         }
     }
 
-    public function save()
+    public function store()
     {
-        AuthMiddleware::adminOnly();
+        AuthMiddleware::strictAdminOnly();
         header('Content-Type: application/json');
 
         try {
@@ -159,7 +159,7 @@ class SopController
 
     public function delete()
     {
-        AuthMiddleware::adminOnly();
+        AuthMiddleware::strictAdminOnly();
         header('Content-Type: application/json');
 
         $id = $_POST['id'] ?? '';

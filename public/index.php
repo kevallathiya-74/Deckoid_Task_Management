@@ -16,6 +16,7 @@ require_once ROOT_PATH . '/app/core/Config.php';
 require_once ROOT_PATH . '/app/helpers/env_helper.php';
 require_once ROOT_PATH . '/app/helpers/config_helper.php';
 require_once ROOT_PATH . '/app/helpers/url_helper.php';
+require_once ROOT_PATH . '/app/helpers/auth_helper.php';
 
 // Load environment variables
 loadEnv(ROOT_PATH . '/.env');

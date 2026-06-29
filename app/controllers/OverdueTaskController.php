@@ -25,7 +25,7 @@ class OverdueTaskController
 
         $title = 'Overdue Tasks Management';
         $active_page = 'overdue';
-        $prefix = $_SESSION['user_role'] ?? 'admin';
+        $prefix = isAdminOrSubAdmin() ? 'admin' : 'staff';
 
         require_once ROOT_PATH . '/app/views/overdue/admin.php';
     }

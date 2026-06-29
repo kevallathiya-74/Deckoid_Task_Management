@@ -49,7 +49,7 @@ class ProjectController
                 'status' => $_GET['status'] ?? null
             ];
             
-            if ($_SESSION['user_role'] !== 'admin') {
+            if (!isAdminOrSubAdmin()) {
                 $filters['assigned_user_id'] = $_SESSION['user_id'];
             }
             

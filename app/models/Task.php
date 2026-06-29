@@ -476,7 +476,7 @@ class Task
                 FROM tasks t
                 LEFT JOIN projects p ON t.project_id = p.id
                 LEFT JOIN users u ON t.assigned_to = u.id
-                WHERE t.due_date < CURRENT_DATE()
+                WHERE (DATE(t.due_date) < CURRENT_DATE() OR (DATE(t.due_date) = CURRENT_DATE() AND t.due_time IS NOT NULL AND t.due_time <= CURRENT_TIME()))
                   AND t.status != 'completed'
                   AND t.deleted_at IS NULL
             ";
@@ -548,7 +548,7 @@ class Task
                 FROM tasks t
                 LEFT JOIN projects p ON t.project_id = p.id
                 LEFT JOIN users u ON t.assigned_to = u.id
-                WHERE t.due_date < CURRENT_DATE()
+                WHERE (DATE(t.due_date) < CURRENT_DATE() OR (DATE(t.due_date) = CURRENT_DATE() AND t.due_time IS NOT NULL AND t.due_time <= CURRENT_TIME()))
                   AND t.status != 'completed'
                   AND t.deleted_at IS NULL
             ";
@@ -601,7 +601,7 @@ class Task
         $sql1 = "
             SELECT t.assigned_to, DATEDIFF(CURRENT_DATE(), t.due_date) as days_overdue
             FROM tasks t
-            WHERE t.due_date < CURRENT_DATE()
+            WHERE (DATE(t.due_date) < CURRENT_DATE() OR (DATE(t.due_date) = CURRENT_DATE() AND t.due_time IS NOT NULL AND t.due_time <= CURRENT_TIME()))
               AND t.status != 'completed'
               AND t.deleted_at IS NULL
         ";

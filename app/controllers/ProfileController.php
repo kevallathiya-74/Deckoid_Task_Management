@@ -32,7 +32,7 @@ class ProfileController
         require_once ROOT_PATH . '/app/views/layouts/header.php';
         require_once ROOT_PATH . '/app/views/layouts/sidebar.php';
 
-        if ($user['role_slug'] === 'admin') {
+        if (in_array($user['role_slug'], ['admin', 'sub_admin'])) {
             // Admin Analytics
             $stats = [
                 'total_projects' => $this->projectModel->countAll(),

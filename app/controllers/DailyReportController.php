@@ -18,7 +18,7 @@ class DailyReportController
 
     protected function isAdmin()
     {
-        return strtolower($_SESSION['user_role'] ?? '') === 'admin';
+        return isAdmin();
     }
 
     protected function jsonResponse($status, $payload = [])

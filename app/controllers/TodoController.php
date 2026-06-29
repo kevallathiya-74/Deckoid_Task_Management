@@ -37,7 +37,7 @@ class TodoController
         
         try {
             $filters = [];
-            if ($_SESSION['user_role'] !== 'admin') {
+            if (!isAdminOrSubAdmin()) {
                 $filters['assigned_to'] = $_SESSION['user_id'];
             } else {
                 if (!empty($_GET['assigned_to'])) {
@@ -192,7 +192,7 @@ class TodoController
             }
 
             // Authorization
-            if ($_SESSION['user_role'] !== 'admin' && $todo['assigned_to'] !== $_SESSION['user_id'] && $todo['created_by'] !== $_SESSION['user_id']) {
+            if (!isAdminOrSubAdmin() && $todo['assigned_to'] !== $_SESSION['user_id'] && $todo['created_by'] !== $_SESSION['user_id']) {
                 echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
                 return;
             }
@@ -216,7 +216,7 @@ class TodoController
 
             // Staff can only fully update if they created it. 
             // If they are just assigned, they can only update status. 
-            if ($_SESSION['user_role'] !== 'admin') {
+            if (!isAdminOrSubAdmin()) {
                 if ($todo['created_by'] !== $_SESSION['user_id']) {
                     // Just assigned, update status only
                     $data = [
@@ -273,7 +273,7 @@ class TodoController
             }
 
             // Authorization: Admin or creator
-            if ($_SESSION['user_role'] !== 'admin' && $todo['created_by'] !== $_SESSION['user_id']) {
+            if (!isAdminOrSubAdmin() && $todo['created_by'] !== $_SESSION['user_id']) {
                 echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
                 return;
             }
@@ -311,7 +311,7 @@ class TodoController
     {
         header('Content-Type: application/json');
         try {
-            $isAdminOrManager = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager');
+            $isAdminOrManager = (isAdminOrSubAdmin() || hasRole(['manager']));
             $userId = $isAdminOrManager ? null : $_SESSION['user_id'];
             
             $db = \App\Core\Database::getInstance()->getConnection();

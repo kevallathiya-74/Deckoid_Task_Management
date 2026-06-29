@@ -32,7 +32,7 @@
                         <div class="text-center py-4 text-neutral-400 text-xs fw-medium">Loading notifications...</div>
                     </div>
                     <div class="p-2 border-top border-light text-center bg-neutral-50 rounded-bottom-4">
-                        <a href="<?= url('/' . (($_SESSION['user_role'] ?? '') === 'admin' ? 'admin' : 'staff') . '/tasks') ?>" class="text-xs fw-bold text-primary text-decoration-none">View All Tasks</a>
+                        <a href="<?= url('/' . (isAdminOrSubAdmin() ? 'admin' : 'staff') . '/tasks') ?>" class="text-xs fw-bold text-primary text-decoration-none">View All Tasks</a>
                     </div>
                 </div>
             </div>
@@ -45,7 +45,7 @@
                     <i class="fas fa-chevron-down text-xs text-neutral-400"></i>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2">
-                    <li><a class="dropdown-item py-2 px-3 d-flex align-items-center gap-3" href="<?= url('/' . (($_SESSION['user_role'] ?? '') === 'admin' ? 'admin' : 'staff') . '/profile') ?>"><i class="fas fa-user-circle text-primary"></i>My Profile</a></li>
+                    <li><a class="dropdown-item py-2 px-3 d-flex align-items-center gap-3" href="<?= url('/' . (isAdminOrSubAdmin() ? 'admin' : 'staff') . '/profile') ?>"><i class="fas fa-user-circle text-primary"></i>My Profile</a></li>
                     <li><hr class="dropdown-divider opacity-50"></li>
                     <li><a class="dropdown-item py-2 px-3 d-flex align-items-center gap-3 text-danger" href="<?= url('/logout') ?>"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
                 </ul>

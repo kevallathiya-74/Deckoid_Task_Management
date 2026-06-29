@@ -13,7 +13,7 @@ class StaffController
 
     public function __construct()
     {
-        AuthMiddleware::adminOnly();
+        AuthMiddleware::strictAdminOnly();
         $this->userModel = new User();
         $this->roleModel = new Role();
     }
@@ -96,9 +96,15 @@ class StaffController
 
         $role = $this->roleModel->findById($data['role_id']);
         if (!$role) {
-            echo json_encode(['status' => 'validation_error', 'message' => 'Invalid department selected']);
+            echo json_encode(['status' => 'validation_error', 'message' => 'Invalid role selected']);
             return;
         }
+
+        if (!canManageUser($role['slug'])) {
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission to create a user with this role.']);
+            return;
+        }
+
         $data['role'] = $role['name'];
 
         // Check if username or email exists
@@ -130,6 +136,17 @@ class StaffController
             return;
         }
 
+        $targetUser = $this->userModel->findById($id);
+        if (!$targetUser) {
+            echo json_encode(['status' => 'error', 'message' => 'User not found']);
+            return;
+        }
+
+        if (!canManageUser($targetUser['role_slug'])) {
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission to manage this user.']);
+            return;
+        }
+
         $data = [
             'full_name' => trim($_POST['full_name'] ?? ''),
             'username' => trim($_POST['username'] ?? ''),
@@ -151,9 +168,15 @@ class StaffController
 
         $role = $this->roleModel->findById($data['role_id']);
         if (!$role) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid department selected']);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid role selected']);
             return;
         }
+
+        if (!canManageUser($role['slug'])) {
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission to assign this role.']);
+            return;
+        }
+
         $data['role'] = $role['name'];
 
         if ($this->userModel->update($id, $data)) {
@@ -170,6 +193,17 @@ class StaffController
         $id = $_POST['id'] ?? '';
         if (empty($id)) {
             echo json_encode(['status' => 'error', 'message' => 'Staff ID is missing']);
+            return;
+        }
+
+        $targetUser = $this->userModel->findById($id);
+        if (!$targetUser) {
+            echo json_encode(['status' => 'error', 'message' => 'User not found']);
+            return;
+        }
+
+        if (!canManageUser($targetUser['role_slug'])) {
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission to delete this user.']);
             return;
         }
 

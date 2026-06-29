@@ -43,11 +43,30 @@ class AuthMiddleware
     {
         self::handle();
         
-        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+        if (!isAdminOrSubAdmin()) {
             if (self::isApiRequest()) {
                 header('Content-Type: application/json');
                 http_response_code(403);
                 echo json_encode(['success' => false, 'error' => 'Forbidden: Admin access only']);
+                exit;
+            }
+            header('Location: ' . url('/dashboard?error=forbidden'));
+            exit;
+        }
+    }
+
+    /**
+     * Check if user is strictly an Admin (excludes Sub Admins)
+     */
+    public static function strictAdminOnly()
+    {
+        self::handle();
+        
+        if (!isAdmin()) {
+            if (self::isApiRequest()) {
+                header('Content-Type: application/json');
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Forbidden: Strict Admin access only']);
                 exit;
             }
             header('Location: ' . url('/dashboard?error=forbidden'));
