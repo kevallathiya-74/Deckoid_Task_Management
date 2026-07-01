@@ -187,9 +187,10 @@
             
             <div class="mb-2">
                 <span class="input-label">Password</span>
-                <div class="custom-input-group">
+                <div class="custom-input-group position-relative">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required style="padding-right: 40px;">
+                    <i class="far fa-eye toggle-password" style="position: absolute; right: 15px; cursor: pointer; color: #94a3b8;"></i>
                 </div>
             </div>
             
@@ -215,6 +216,17 @@
                 setTimeout(function() {
                     window.location.href = response.redirect;
                 }, 1000);
+            }
+        });
+
+        // Toggle Password Visibility
+        $('.toggle-password').click(function() {
+            $(this).toggleClass('fa-eye fa-eye-slash');
+            var input = $('#password');
+            if (input.attr('type') == 'password') {
+                input.attr('type', 'text');
+            } else {
+                input.attr('type', 'password');
             }
         });
     });

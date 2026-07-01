@@ -92,5 +92,5 @@ $router->post('/staff/api/daily-report/save', 'DailyReportController@saveReport'
 
 // SOP Management
 $router->get('/api/sops', 'SopController@list');
-$router->post('/api/sops/save', 'SopController@save');
+$router->post('/api/sops/save', 'SopController@store');
 $router->post('/api/sops/delete', 'SopController@delete');
